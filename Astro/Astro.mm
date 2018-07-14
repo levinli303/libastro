@@ -94,6 +94,24 @@ void eci2aer(double x, double y, double z, double t, double lat, double lon, dou
     ecef2aer(X, Y, Z, lat, lon, h, A, E, R);
 }
 
+@interface SatelliteTLE ()
+@property (nonatomic, copy) NSString *line0;
+@property (nonatomic, copy) NSString *line1;
+@property (nonatomic, copy) NSString *line2;
+@end
+
+@implementation SatelliteTLE : NSObject
+- (instancetype)initWithLine0: (NSString *)line0 line1: (NSString *)line1 Line2: (NSString *)line2 {
+    self = [super init];
+    if (self) {
+        self.line0 = [line0 copy];
+        self.line1 = [line1 copy];
+        self.line2 = [line2 copy];
+    }
+    return self;
+}
+@end
+
 @implementation SatellitePosition
 - (instancetype)initWithTime: (const NSDate *)time azimuth: (double)azimuth elevation: (double)elevation range: (double)range {
     self = [super init];
@@ -450,15 +468,12 @@ const NSString *nameFromPlanet(int planet)
     return cJulian((int)[compo year], (int)[compo month], (int)[compo day], (int)[compo hour], (int)[compo minute], (int)[compo second]);
 }
 
-+ (SatelliteRiseSet *)getRiseSetForSatelliteWithTLE:(NSArray *)tle longitude: (double)longitude latitude: (double) latitude forTime: (NSDate *) time {
-    if ([tle count] < 3) {
-        return nil;
-    }
++ (SatelliteRiseSet *)getRiseSetForSatelliteWithTLE:(SatelliteTLE *)tle longitude: (double)longitude latitude: (double) latitude forTime: (NSDate *) time {
     using namespace std;
     /* Construct the TLE */
-    string line0 = [tle[0] UTF8String];
-    string line1 = [tle[1] UTF8String];
-    string line2 = [tle[2] UTF8String];
+    string line0 = [tle.line0 UTF8String];
+    string line1 = [tle.line1 UTF8String];
+    string line2 = [tle.line2 UTF8String];
     cTle ctle(line0, line1, line2);
     /* Construct the Satellite */
     cSatellite sat(ctle);
@@ -492,6 +507,6 @@ const NSString *nameFromPlanet(int planet)
         }
         E1 = E;
     }
-    return [[SatelliteRiseSet alloc] initWithName:tle[0] current:current rise:rise peak:peak set:set];
+    return [[SatelliteRiseSet alloc] initWithName:tle.line0 current:current rise:rise peak:peak set:set];
 }
 @end

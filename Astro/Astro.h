@@ -27,6 +27,10 @@ typedef NS_ENUM(NSUInteger, AstroPlanet) {
 @property (nonatomic, copy) NSString * _Nonnull name;
 @end
 
+@interface SatelliteTLE : NSObject
+- (instancetype _Nonnull)initWithLine0: (NSString *_Nonnull)line0 line1: (NSString *_Nonnull)line1 Line2: (NSString *_Nonnull)line2;
+@end
+
 @interface SatellitePosition : NSObject
 @property (nonatomic, copy) NSDate * _Nonnull time;
 @property (nonatomic) double azimuth;
@@ -46,6 +50,6 @@ typedef NS_ENUM(NSUInteger, AstroPlanet) {
 
 + (void)getMoonRiseSetWithLongitude: (double) longitude latitude: (double) latitude forTime: (NSDate *_Nonnull) time completion:(nullable void (^)(NSDate *_Nullable, NSDate *_Nullable, NSDate *_Nullable, NSDate *_Nullable))handler;
 + (NSArray<AstroRiseSet *>*_Nonnull)getRiseSetForAllSolarSystemObjectsInLongitude:(double) longitude latitude: (double) latitude forTime: (NSDate *_Nonnull) time;
-+ (SatelliteRiseSet *_Nullable)getRiseSetForSatelliteWithTLE:(NSArray<NSString *>*_Nonnull)tle longitude: (double)longitude latitude: (double) latitude forTime: (NSDate *_Nonnull) time;
++ (SatelliteRiseSet *_Nonnull)getRiseSetForSatelliteWithTLE:(SatelliteTLE *_Nonnull)tle longitude: (double)longitude latitude: (double) latitude forTime: (NSDate *_Nonnull) time;
 
 @end
