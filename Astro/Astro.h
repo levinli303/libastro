@@ -39,10 +39,10 @@ typedef NS_ENUM(NSUInteger, AstroPlanet) {
 @end
 
 @interface SatelliteRiseSet : NSObject
-@property (nonatomic, copy) SatellitePosition * _Nullable rise;
-@property (nonatomic, copy) SatellitePosition * _Nullable set;
-@property (nonatomic, copy) SatellitePosition * _Nullable peak;
-@property (nonatomic, copy) SatellitePosition * _Nonnull current;
+@property (nonatomic) SatellitePosition * _Nullable rise;
+@property (nonatomic) SatellitePosition * _Nullable set;
+@property (nonatomic) SatellitePosition * _Nullable peak;
+@property (nonatomic) SatellitePosition * _Nonnull current;
 @property (nonatomic, copy) NSString * _Nonnull name;
 @end
 
