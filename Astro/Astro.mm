@@ -488,6 +488,8 @@ const NSString *nameFromPlanet(int planet)
     SatellitePosition *set = nil;
     SatellitePosition *peak = nil;
     double E1 = E0;
+    double A1 = A0;
+    double R1 = R0;
     for (int i = 1; i < MAX_FORECAST_DAY * 24 * 60; i++) {
         /* +1 Min */
         julian.AddMin(1);
@@ -501,11 +503,20 @@ const NSString *nameFromPlanet(int planet)
         } else if (rise != nil && E > E1) {
             peak = [[SatellitePosition alloc] initWithTime:[time dateByAddingTimeInterval:60 * i] azimuth:A elevation:E range:R];
             set = [[SatellitePosition alloc] initWithTime:[time dateByAddingTimeInterval:60 * i] azimuth:A elevation:E range:R];
-        } else if (rise != nil && E <= 0 && E1 > 0) {
-            set = [[SatellitePosition alloc] initWithTime:[time dateByAddingTimeInterval:60 * i] azimuth:A elevation:E range:R];
-            break;
+        } else if (rise != nil && E < 0 && E1 >= 0) {
+            set = [[SatellitePosition alloc] initWithTime:[time dateByAddingTimeInterval:60 * (i - 1)] azimuth:A1 elevation:E1 range:R1];
+            if (peak.elevation < MIN_VISIBLE_ELEVATION_RADIAN) {
+                /* too small retry */
+                rise = nil;
+                set = nil;
+                peak = nil;
+            } else {
+                break;
+            }
         }
         E1 = E;
+        A1 = A;
+        R1 = R;
     }
     return [[SatelliteRiseSet alloc] initWithName:tle.line0 current:current rise:rise peak:peak set:set];
 }
