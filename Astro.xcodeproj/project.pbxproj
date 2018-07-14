@@ -7,8 +7,28 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9794BCA420F9A98B00CEA3A5 /* Astro.m in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCA320F9A98B00CEA3A5 /* Astro.m */; };
+		9794BCA420F9A98B00CEA3A5 /* Astro.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCA320F9A98B00CEA3A5 /* Astro.mm */; };
 		9794BCA520F9A98B00CEA3A5 /* Astro.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9794BCA220F9A98B00CEA3A5 /* Astro.h */; };
+		9794BCB920F9A9DE00CEA3A5 /* atime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCAD20F9A9DE00CEA3A5 /* atime.cpp */; };
+		9794BCBA20F9A9DE00CEA3A5 /* vec3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCAF20F9A9DE00CEA3A5 /* vec3.cpp */; };
+		9794BCBB20F9A9DE00CEA3A5 /* degree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCB020F9A9DE00CEA3A5 /* degree.cpp */; };
+		9794BCBC20F9A9DE00CEA3A5 /* jday.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCB220F9A9DE00CEA3A5 /* jday.cpp */; };
+		9794BCBD20F9A9DE00CEA3A5 /* planets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCB320F9A9DE00CEA3A5 /* planets.cpp */; };
+		9794BCBE20F9A9DE00CEA3A5 /* acoord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCB420F9A9DE00CEA3A5 /* acoord.cpp */; };
+		9794BCE620F9AA2E00CEA3A5 /* cNoradBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCC120F9AA2E00CEA3A5 /* cNoradBase.cpp */; };
+		9794BCE720F9AA2E00CEA3A5 /* cNoradSDP4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCC320F9AA2E00CEA3A5 /* cNoradSDP4.cpp */; };
+		9794BCE820F9AA2E00CEA3A5 /* cNoradSGP4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCC520F9AA2E00CEA3A5 /* cNoradSGP4.cpp */; };
+		9794BCE920F9AA2E00CEA3A5 /* cOrbit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCC720F9AA2E00CEA3A5 /* cOrbit.cpp */; };
+		9794BCEA20F9AA2E00CEA3A5 /* cSatellite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCC920F9AA2E00CEA3A5 /* cSatellite.cpp */; };
+		9794BCEB20F9AA2E00CEA3A5 /* stdafx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCCF20F9AA2E00CEA3A5 /* stdafx.cpp */; };
+		9794BCEC20F9AA2E00CEA3A5 /* cEci.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCD220F9AA2E00CEA3A5 /* cEci.cpp */; };
+		9794BCED20F9AA2E00CEA3A5 /* cJulian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCD420F9AA2E00CEA3A5 /* cJulian.cpp */; };
+		9794BCEE20F9AA2E00CEA3A5 /* coord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCD620F9AA2E00CEA3A5 /* coord.cpp */; };
+		9794BCEF20F9AA2E00CEA3A5 /* cSite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCDB20F9AA2E00CEA3A5 /* cSite.cpp */; };
+		9794BCF020F9AA2E00CEA3A5 /* cTLE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCDD20F9AA2E00CEA3A5 /* cTLE.cpp */; };
+		9794BCF120F9AA2E00CEA3A5 /* cVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCDF20F9AA2E00CEA3A5 /* cVector.cpp */; };
+		9794BCF220F9AA2E00CEA3A5 /* globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCE220F9AA2E00CEA3A5 /* globals.cpp */; };
+		9794BCF320F9AA2E00CEA3A5 /* stdafx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCE420F9AA2E00CEA3A5 /* stdafx.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,7 +47,51 @@
 /* Begin PBXFileReference section */
 		9794BC9F20F9A98B00CEA3A5 /* libAstro.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAstro.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		9794BCA220F9A98B00CEA3A5 /* Astro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Astro.h; sourceTree = "<group>"; };
-		9794BCA320F9A98B00CEA3A5 /* Astro.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Astro.m; sourceTree = "<group>"; };
+		9794BCA320F9A98B00CEA3A5 /* Astro.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Astro.mm; sourceTree = "<group>"; };
+		9794BCAC20F9A9DD00CEA3A5 /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defs.h; sourceTree = "<group>"; };
+		9794BCAD20F9A9DE00CEA3A5 /* atime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = atime.cpp; sourceTree = "<group>"; };
+		9794BCAE20F9A9DE00CEA3A5 /* planets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = planets.h; sourceTree = "<group>"; };
+		9794BCAF20F9A9DE00CEA3A5 /* vec3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vec3.cpp; sourceTree = "<group>"; };
+		9794BCB020F9A9DE00CEA3A5 /* degree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = degree.cpp; sourceTree = "<group>"; };
+		9794BCB120F9A9DE00CEA3A5 /* vec3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec3.h; sourceTree = "<group>"; };
+		9794BCB220F9A9DE00CEA3A5 /* jday.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jday.cpp; sourceTree = "<group>"; };
+		9794BCB320F9A9DE00CEA3A5 /* planets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = planets.cpp; sourceTree = "<group>"; };
+		9794BCB420F9A9DE00CEA3A5 /* acoord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = acoord.cpp; sourceTree = "<group>"; };
+		9794BCB520F9A9DE00CEA3A5 /* atime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atime.h; sourceTree = "<group>"; };
+		9794BCB620F9A9DE00CEA3A5 /* degree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = degree.h; sourceTree = "<group>"; };
+		9794BCB720F9A9DE00CEA3A5 /* acoord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = acoord.h; sourceTree = "<group>"; };
+		9794BCB820F9A9DE00CEA3A5 /* jday.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jday.h; sourceTree = "<group>"; };
+		9794BCC120F9AA2E00CEA3A5 /* cNoradBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cNoradBase.cpp; sourceTree = "<group>"; };
+		9794BCC220F9AA2E00CEA3A5 /* cNoradBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cNoradBase.h; sourceTree = "<group>"; };
+		9794BCC320F9AA2E00CEA3A5 /* cNoradSDP4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cNoradSDP4.cpp; sourceTree = "<group>"; };
+		9794BCC420F9AA2E00CEA3A5 /* cNoradSDP4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cNoradSDP4.h; sourceTree = "<group>"; };
+		9794BCC520F9AA2E00CEA3A5 /* cNoradSGP4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cNoradSGP4.cpp; sourceTree = "<group>"; };
+		9794BCC620F9AA2E00CEA3A5 /* cNoradSGP4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cNoradSGP4.h; sourceTree = "<group>"; };
+		9794BCC720F9AA2E00CEA3A5 /* cOrbit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cOrbit.cpp; sourceTree = "<group>"; };
+		9794BCC820F9AA2E00CEA3A5 /* cOrbit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cOrbit.h; sourceTree = "<group>"; };
+		9794BCC920F9AA2E00CEA3A5 /* cSatellite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cSatellite.cpp; sourceTree = "<group>"; };
+		9794BCCA20F9AA2E00CEA3A5 /* cSatellite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cSatellite.h; sourceTree = "<group>"; };
+		9794BCCD20F9AA2E00CEA3A5 /* orbitLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = orbitLib.h; sourceTree = "<group>"; };
+		9794BCCF20F9AA2E00CEA3A5 /* stdafx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		9794BCD020F9AA2E00CEA3A5 /* stdafx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		9794BCD220F9AA2E00CEA3A5 /* cEci.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cEci.cpp; sourceTree = "<group>"; };
+		9794BCD320F9AA2E00CEA3A5 /* cEci.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cEci.h; sourceTree = "<group>"; };
+		9794BCD420F9AA2E00CEA3A5 /* cJulian.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cJulian.cpp; sourceTree = "<group>"; };
+		9794BCD520F9AA2E00CEA3A5 /* cJulian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cJulian.h; sourceTree = "<group>"; };
+		9794BCD620F9AA2E00CEA3A5 /* coord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = coord.cpp; sourceTree = "<group>"; };
+		9794BCD720F9AA2E00CEA3A5 /* coord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = coord.h; sourceTree = "<group>"; };
+		9794BCDA20F9AA2E00CEA3A5 /* coreLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = coreLib.h; sourceTree = "<group>"; };
+		9794BCDB20F9AA2E00CEA3A5 /* cSite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cSite.cpp; sourceTree = "<group>"; };
+		9794BCDC20F9AA2E00CEA3A5 /* cSite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cSite.h; sourceTree = "<group>"; };
+		9794BCDD20F9AA2E00CEA3A5 /* cTLE.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cTLE.cpp; sourceTree = "<group>"; };
+		9794BCDE20F9AA2E00CEA3A5 /* cTLE.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cTLE.h; sourceTree = "<group>"; };
+		9794BCDF20F9AA2E00CEA3A5 /* cVector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cVector.cpp; sourceTree = "<group>"; };
+		9794BCE020F9AA2E00CEA3A5 /* cVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cVector.h; sourceTree = "<group>"; };
+		9794BCE120F9AA2E00CEA3A5 /* exceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = exceptions.h; sourceTree = "<group>"; };
+		9794BCE220F9AA2E00CEA3A5 /* globals.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = globals.cpp; sourceTree = "<group>"; };
+		9794BCE320F9AA2E00CEA3A5 /* globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = globals.h; sourceTree = "<group>"; };
+		9794BCE420F9AA2E00CEA3A5 /* stdafx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		9794BCE520F9AA2E00CEA3A5 /* stdafx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,10 +124,86 @@
 		9794BCA120F9A98B00CEA3A5 /* Astro */ = {
 			isa = PBXGroup;
 			children = (
+				9794BCBF20F9AA1000CEA3A5 /* orbit */,
+				9794BCAB20F9A9C300CEA3A5 /* sunmoon */,
 				9794BCA220F9A98B00CEA3A5 /* Astro.h */,
-				9794BCA320F9A98B00CEA3A5 /* Astro.m */,
+				9794BCA320F9A98B00CEA3A5 /* Astro.mm */,
 			);
 			path = Astro;
+			sourceTree = "<group>";
+		};
+		9794BCAB20F9A9C300CEA3A5 /* sunmoon */ = {
+			isa = PBXGroup;
+			children = (
+				9794BCB420F9A9DE00CEA3A5 /* acoord.cpp */,
+				9794BCB720F9A9DE00CEA3A5 /* acoord.h */,
+				9794BCAD20F9A9DE00CEA3A5 /* atime.cpp */,
+				9794BCB520F9A9DE00CEA3A5 /* atime.h */,
+				9794BCAC20F9A9DD00CEA3A5 /* defs.h */,
+				9794BCB020F9A9DE00CEA3A5 /* degree.cpp */,
+				9794BCB620F9A9DE00CEA3A5 /* degree.h */,
+				9794BCB220F9A9DE00CEA3A5 /* jday.cpp */,
+				9794BCB820F9A9DE00CEA3A5 /* jday.h */,
+				9794BCB320F9A9DE00CEA3A5 /* planets.cpp */,
+				9794BCAE20F9A9DE00CEA3A5 /* planets.h */,
+				9794BCAF20F9A9DE00CEA3A5 /* vec3.cpp */,
+				9794BCB120F9A9DE00CEA3A5 /* vec3.h */,
+			);
+			path = sunmoon;
+			sourceTree = "<group>";
+		};
+		9794BCBF20F9AA1000CEA3A5 /* orbit */ = {
+			isa = PBXGroup;
+			children = (
+				9794BCD120F9AA2E00CEA3A5 /* core */,
+				9794BCC020F9AA2E00CEA3A5 /* orbit */,
+			);
+			path = orbit;
+			sourceTree = "<group>";
+		};
+		9794BCC020F9AA2E00CEA3A5 /* orbit */ = {
+			isa = PBXGroup;
+			children = (
+				9794BCC120F9AA2E00CEA3A5 /* cNoradBase.cpp */,
+				9794BCC220F9AA2E00CEA3A5 /* cNoradBase.h */,
+				9794BCC320F9AA2E00CEA3A5 /* cNoradSDP4.cpp */,
+				9794BCC420F9AA2E00CEA3A5 /* cNoradSDP4.h */,
+				9794BCC520F9AA2E00CEA3A5 /* cNoradSGP4.cpp */,
+				9794BCC620F9AA2E00CEA3A5 /* cNoradSGP4.h */,
+				9794BCC720F9AA2E00CEA3A5 /* cOrbit.cpp */,
+				9794BCC820F9AA2E00CEA3A5 /* cOrbit.h */,
+				9794BCC920F9AA2E00CEA3A5 /* cSatellite.cpp */,
+				9794BCCA20F9AA2E00CEA3A5 /* cSatellite.h */,
+				9794BCCD20F9AA2E00CEA3A5 /* orbitLib.h */,
+				9794BCCF20F9AA2E00CEA3A5 /* stdafx.cpp */,
+				9794BCD020F9AA2E00CEA3A5 /* stdafx.h */,
+			);
+			path = orbit;
+			sourceTree = "<group>";
+		};
+		9794BCD120F9AA2E00CEA3A5 /* core */ = {
+			isa = PBXGroup;
+			children = (
+				9794BCD220F9AA2E00CEA3A5 /* cEci.cpp */,
+				9794BCD320F9AA2E00CEA3A5 /* cEci.h */,
+				9794BCD420F9AA2E00CEA3A5 /* cJulian.cpp */,
+				9794BCD520F9AA2E00CEA3A5 /* cJulian.h */,
+				9794BCD620F9AA2E00CEA3A5 /* coord.cpp */,
+				9794BCD720F9AA2E00CEA3A5 /* coord.h */,
+				9794BCDA20F9AA2E00CEA3A5 /* coreLib.h */,
+				9794BCDB20F9AA2E00CEA3A5 /* cSite.cpp */,
+				9794BCDC20F9AA2E00CEA3A5 /* cSite.h */,
+				9794BCDD20F9AA2E00CEA3A5 /* cTLE.cpp */,
+				9794BCDE20F9AA2E00CEA3A5 /* cTLE.h */,
+				9794BCDF20F9AA2E00CEA3A5 /* cVector.cpp */,
+				9794BCE020F9AA2E00CEA3A5 /* cVector.h */,
+				9794BCE120F9AA2E00CEA3A5 /* exceptions.h */,
+				9794BCE220F9AA2E00CEA3A5 /* globals.cpp */,
+				9794BCE320F9AA2E00CEA3A5 /* globals.h */,
+				9794BCE420F9AA2E00CEA3A5 /* stdafx.cpp */,
+				9794BCE520F9AA2E00CEA3A5 /* stdafx.h */,
+			);
+			path = core;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -122,7 +262,27 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9794BCA420F9A98B00CEA3A5 /* Astro.m in Sources */,
+				9794BCE920F9AA2E00CEA3A5 /* cOrbit.cpp in Sources */,
+				9794BCEE20F9AA2E00CEA3A5 /* coord.cpp in Sources */,
+				9794BCE820F9AA2E00CEA3A5 /* cNoradSGP4.cpp in Sources */,
+				9794BCB920F9A9DE00CEA3A5 /* atime.cpp in Sources */,
+				9794BCE620F9AA2E00CEA3A5 /* cNoradBase.cpp in Sources */,
+				9794BCBE20F9A9DE00CEA3A5 /* acoord.cpp in Sources */,
+				9794BCEA20F9AA2E00CEA3A5 /* cSatellite.cpp in Sources */,
+				9794BCEF20F9AA2E00CEA3A5 /* cSite.cpp in Sources */,
+				9794BCF120F9AA2E00CEA3A5 /* cVector.cpp in Sources */,
+				9794BCE720F9AA2E00CEA3A5 /* cNoradSDP4.cpp in Sources */,
+				9794BCA420F9A98B00CEA3A5 /* Astro.mm in Sources */,
+				9794BCBA20F9A9DE00CEA3A5 /* vec3.cpp in Sources */,
+				9794BCF320F9AA2E00CEA3A5 /* stdafx.cpp in Sources */,
+				9794BCF220F9AA2E00CEA3A5 /* globals.cpp in Sources */,
+				9794BCF020F9AA2E00CEA3A5 /* cTLE.cpp in Sources */,
+				9794BCEC20F9AA2E00CEA3A5 /* cEci.cpp in Sources */,
+				9794BCEB20F9AA2E00CEA3A5 /* stdafx.cpp in Sources */,
+				9794BCBC20F9A9DE00CEA3A5 /* jday.cpp in Sources */,
+				9794BCBB20F9A9DE00CEA3A5 /* degree.cpp in Sources */,
+				9794BCED20F9AA2E00CEA3A5 /* cJulian.cpp in Sources */,
+				9794BCBD20F9A9DE00CEA3A5 /* planets.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
