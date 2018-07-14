@@ -107,6 +107,20 @@ void eci2aer(double x, double y, double z, double t, double lat, double lon, dou
 }
 @end
 
+@implementation SatelliteRiseSet
+- (instancetype)initWithName: (const NSString *)name current: (SatellitePosition *)current rise: (SatellitePosition *)rise peak: (SatellitePosition *)peak set: (SatellitePosition *)set {
+    self = [super init];
+    if (self) {
+        self.name = [name copy];
+        self.current = current;
+        self.rise = rise;
+        self.peak = peak;
+        self.set = set;
+    }
+    return self;
+}
+@end
+
 @implementation AstroRiseSet
 - (instancetype)initWithName: (const NSString *)name rise: (NSDate *)rise set: (NSDate *)set {
     self = [super init];
@@ -478,12 +492,6 @@ const NSString *nameFromPlanet(int planet)
         }
         E1 = E;
     }
-    SatelliteRiseSet *riseSet = [SatelliteRiseSet new];
-    riseSet.current = current;
-    riseSet.rise = rise;
-    riseSet.peak = peak;
-    riseSet.set = set;
-    riseSet.name = [tle[0] copy];
-    return riseSet;
+    return [[SatelliteRiseSet alloc] initWithName:tle[0] current:current rise:rise peak:peak set:set];
 }
 @end
