@@ -1,4 +1,4 @@
-﻿//. acoord.h - 天文座標系
+//. acoord.h - 天文座標系
 //	Copyright (C) 1997,1998,2015 hkuno
 //	mailto:hkuno.kuno@nifty.ne.jp
 #ifndef ACOORD_H_
@@ -118,6 +118,8 @@ public:
 
 	// 天文経度を得る(東経を正、西経を負とする)
 	const Degree& longitude() const { return lg; }
+    
+    const double & sunDistance() const { return Rs; }
 
 
 	//----- 観測位置の設定・取得 -------------------------------------

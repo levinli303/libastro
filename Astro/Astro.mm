@@ -465,8 +465,13 @@ const NSString *nameFromPlanet(int planet)
 + (cJulian)julianDateFromDate:(NSDate *)time {
     NSCalendar *calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
     NSDateComponents *compo = [calendar componentsInTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0] fromDate:time];
-    return cJulian((int)[compo year], (int)[compo month], (int)[compo day], (int)[compo hour], (int)[compo minute], (int)[compo second]);
+    return cJulian((int)[compo year], (int)[compo month], (int)[compo day], (int)[compo hour], (int)[compo minute], 0);
 }
+
++ (astro::AstroTime)astroDateFromDate:(NSDate *)time {
+    NSCalendar *calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
+    NSDateComponents *compo = [calendar componentsInTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0] fromDate:time];
+    return astro::AstroTime(astro::Jday((int)[compo year],(int)[compo month],(int)[compo day]),(int)([compo hour] * 3600 + [compo minute] * 60));}
 
 + (SatelliteRiseSet *)getRiseSetForSatelliteWithTLE:(SatelliteTLE *)tle longitude: (double)longitude latitude: (double) latitude forTime: (NSDate *) time {
     using namespace std;
@@ -479,6 +484,14 @@ const NSString *nameFromPlanet(int planet)
     cSatellite sat(ctle);
     /* Construct the Julian Date */
     cJulian julian = [self julianDateFromDate:time];
+    /* Setup Sun observer */
+    astro::AstroCoordinate acoord;
+    astro::Planets pl;
+    astro::Degree lt(int(latitude),(latitude - int(latitude)) * 60, ((latitude - int(latitude)) * 60.0 - (int)((latitude - int(latitude)) * 60.0)) * 60);
+    astro::Degree lg(int(longitude),(longitude - int(longitude)) * 60, ((longitude - int(longitude)) * 60.0 - (int)((longitude - int(longitude)) * 60.0)) * 60);
+    acoord.setPosition(lg, lt);
+    acoord.setLocation(lg, lt, 0);
+    astro::AstroTime astroTime = [self astroDateFromDate:time];
     /* Current ECI */
     cEciTime eci = sat.PositionEci(julian);
     double A0, E0, R0;
@@ -493,6 +506,7 @@ const NSString *nameFromPlanet(int planet)
     for (int i = 1; i < MAX_FORECAST_DAY * 24 * 60; i++) {
         /* +1 Min */
         julian.AddMin(1);
+        astroTime.addSec(60);
         cEciTime eci = sat.PositionEci(julian);
         double A, E, R;
         eci2aer(eci.Position().m_x * 1000, eci.Position().m_y * 1000, eci.Position().m_z * 1000, julian.ToGmst(), latitude, longitude, 0, A, E, R);
@@ -511,7 +525,21 @@ const NSString *nameFromPlanet(int planet)
                 set = nil;
                 peak = nil;
             } else {
-                break;
+                acoord.setTime(astroTime);
+                acoord.beginConvert();
+                pl.calc(acoord);
+                astro::Vec3 sun  = pl.vecQ(astro::Planets::SUN);
+                acoord.conv_q2tq(sun);
+                acoord.conv_q2h(sun);
+                astro::Degree az, alt;
+                sun.getLtLg(alt, az);
+                if (alt.degree() < -6 && alt.degree() > -20) {
+                    break;
+                } else {
+                    rise = nil;
+                    set = nil;
+                    peak = nil;
+                }
             }
         }
         E1 = E;
