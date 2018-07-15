@@ -249,7 +249,7 @@ const NSString *nameFromPlanet(int planet)
     NSCalendar *calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
     NSDateComponents *compo = [calendar componentsInTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0] fromDate:time];
     astro::AstroTime astroTime(astro::Jday((int)[compo year],(int)[compo month],(int)[compo day]),(int)([compo hour] * 3600 + [compo minute] * 60 + [compo second]));
-//    astroTime.addDay(-1);
+    astroTime.addDay(-1);
     acoord.setTime(astroTime);
     acoord.beginConvert();
     pl.calc(acoord);
