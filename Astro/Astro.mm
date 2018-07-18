@@ -11,8 +11,9 @@
 #include "acoord.h"
 #include "planets.h"
 #include <vector>
-#include "orbit/core/coreLib.h"
-#include "orbit/orbit/orbitLib.h"
+#include "ephem/astro.h"
+
+#undef lat
 
 // MARK: Earth Parameter
 #define WGS84_A     6378137
@@ -20,7 +21,7 @@
 #define WGS84_B     (WGS84_A * (1 - WGS84_F))
 #define MIN_VISIBLE_ELEVATION_DEGREE        10
 #define MIN_VISIBLE_ELEVATION_RADIAN        (radian(MIN_VISIBLE_ELEVATION_DEGREE))
-#define MAX_FORECAST_DAY                    10
+#define MAX_FORECAST_DAY                    5
 
 // MARK: Geo Conversion
 double radian(const double &degree)
@@ -462,16 +463,18 @@ const NSString *nameFromPlanet(int planet)
     return resultArray;
 }
 
-+ (cJulian)julianDateFromDate:(NSDate *)time {
-    NSCalendar *calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
-    NSDateComponents *compo = [calendar componentsInTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0] fromDate:time];
-    return cJulian((int)[compo year], (int)[compo month], (int)[compo day], (int)[compo hour], (int)[compo minute], 0);
-}
-
 + (astro::AstroTime)astroDateFromDate:(NSDate *)time {
     NSCalendar *calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
     NSDateComponents *compo = [calendar componentsInTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0] fromDate:time];
     return astro::AstroTime(astro::Jday((int)[compo year],(int)[compo month],(int)[compo day]),(int)([compo hour] * 3600 + [compo minute] * 60));}
+
++ (double)modifiedJulianDateFromDate:(NSDate *)time {
+    NSCalendar *calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
+    NSDateComponents *compo = [calendar componentsInTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0] fromDate:time];
+    double x;
+    cal_mjd((int)[compo month], [compo day] + ([compo hour] * 3600 + [compo minute] * 60) / 86400.0, (int)[compo year], &x);
+    return x;
+}
 
 + (SatelliteRiseSet *)getRiseSetForSatelliteWithTLE:(SatelliteTLE *)tle longitude: (double)longitude latitude: (double) latitude forTime: (NSDate *) time {
     using namespace std;
@@ -479,23 +482,26 @@ const NSString *nameFromPlanet(int planet)
     string line0 = [tle.line0 UTF8String];
     string line1 = [tle.line1 UTF8String];
     string line2 = [tle.line2 UTF8String];
-    cTle ctle(line0, line1, line2);
+    Obj satillite_b;
+    Obj satillite;
     /* Construct the Satellite */
-    cSatellite sat(ctle);
+    db_tle((char *)[tle.line0 UTF8String], (char *)[tle.line1 UTF8String], (char *)[tle.line2 UTF8String], &satillite_b);
+    memcpy(&satillite, &satillite_b, sizeof(Obj));
+    /* Construct the observer */
+    Now now;
+    memset(&now, 0, sizeof(Now));
+    now.n_lng = radian(longitude);
+    now.n_lat = radian(latitude);
+    now.n_elev = 0;
+    now.n_tz = 0;
     /* Construct the Julian Date */
-    cJulian julian = [self julianDateFromDate:time];
-    /* Setup Sun observer */
-    astro::AstroCoordinate acoord;
-    astro::Planets pl;
-    astro::Degree lt(int(latitude),(latitude - int(latitude)) * 60, ((latitude - int(latitude)) * 60.0 - (int)((latitude - int(latitude)) * 60.0)) * 60);
-    astro::Degree lg(int(longitude),(longitude - int(longitude)) * 60, ((longitude - int(longitude)) * 60.0 - (int)((longitude - int(longitude)) * 60.0)) * 60);
-    acoord.setPosition(lg, lt);
-    acoord.setLocation(lg, lt, 0);
-    astro::AstroTime astroTime = [self astroDateFromDate:time];
-    /* Current ECI */
-    cEciTime eci = sat.PositionEci(julian);
-    double A0, E0, R0;
-    eci2aer(eci.Position().m_x * 1000, eci.Position().m_y * 1000, eci.Position().m_z * 1000, julian.ToGmst(), latitude, longitude, 0, A0, E0, R0);
+    now.n_mjd = [self modifiedJulianDateFromDate:time];
+    now.n_pressure = 1010;
+    /* Current Position */
+    obj_earthsat(&now, &satillite);
+    double A0 = satillite.es.co_az;
+    double E0 = satillite.es.co_alt;
+    double R0 = satillite.es.ess_range;
     SatellitePosition *current = [[SatellitePosition alloc] initWithTime:time azimuth:A0 elevation:E0 range:R0];
     SatellitePosition *rise = nil;
     SatellitePosition *set = nil;
@@ -505,11 +511,12 @@ const NSString *nameFromPlanet(int planet)
     double R1 = R0;
     for (int i = 1; i < MAX_FORECAST_DAY * 24 * 60; i++) {
         /* +1 Min */
-        julian.AddMin(1);
-        astroTime.addSec(60);
-        cEciTime eci = sat.PositionEci(julian);
-        double A, E, R;
-        eci2aer(eci.Position().m_x * 1000, eci.Position().m_y * 1000, eci.Position().m_z * 1000, julian.ToGmst(), latitude, longitude, 0, A, E, R);
+        now.n_mjd += (60 / 86400.0);
+        memcpy(&satillite, &satillite_b, sizeof(Obj));
+        obj_earthsat(&now, &satillite);
+        double A = satillite.es.co_az;
+        double E = satillite.es.co_alt;
+        double R = satillite.es.ess_range;
         if (rise == nil && E >= 0 && E1 < 0) {
             rise = [[SatellitePosition alloc] initWithTime:[time dateByAddingTimeInterval:60 * i] azimuth:A elevation:E range:R];
             peak = [[SatellitePosition alloc] initWithTime:[time dateByAddingTimeInterval:60 * i] azimuth:A elevation:E range:R];
@@ -525,15 +532,15 @@ const NSString *nameFromPlanet(int planet)
                 set = nil;
                 peak = nil;
             } else {
-                acoord.setTime(astroTime);
-                acoord.beginConvert();
-                pl.calc(acoord);
-                astro::Vec3 sun  = pl.vecQ(astro::Planets::SUN);
-                acoord.conv_q2tq(sun);
-                acoord.conv_q2h(sun);
-                astro::Degree az, alt;
-                sun.getLtLg(alt, az);
-                if (alt.degree() < -6 && alt.degree() > -20) {
+                Now sunNow;
+                memcpy(&sunNow, &now, sizeof(Now));
+                sunNow.n_mjd = [self modifiedJulianDateFromDate:peak.time];
+                Obj sunObj;
+                sunObj.pl.plo_code = SUN;
+                sunObj.any.co_type = PLANET;
+                obj_cir(&sunNow, &sunObj);
+                double alt_degree = sunObj.pl.co_alt / M_PI * 180;
+                if (alt_degree < -6 && alt_degree > -30 && !satillite.es.ess_eclipsed) {
                     break;
                 } else {
                     rise = nil;
