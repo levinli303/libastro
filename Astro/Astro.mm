@@ -152,6 +152,19 @@ void eci2aer(double x, double y, double z, double t, double lat, double lon, dou
 }
 @end
 
+@implementation LunarPhase
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self.name = @"";
+        self.nextFull = [NSDate date];
+        self.nextNew = [NSDate date];
+        self.phase = 0;
+    }
+    return self;
+}
+@end
+
 @implementation Astro
 
 int vecFromPlanet(AstroPlanet plantet)
@@ -236,7 +249,7 @@ const NSString *nameFromPlanet(int planet)
 }
 
 
-+ (void) getMoonRiseSetWithLongitude: (double) longitude latitude: (double) latitude forTime: (NSDate *) time completion:(nullable void (^)(NSDate *, NSDate *, NSDate *, NSDate *))handler {
++ (void) getMoonRiseSetWithLongitude: (double) longitude latitude: (double) latitude forTime: (NSDate *) time completion:(nullable void (^)(NSDate *, NSDate *, NSDate *, NSDate *, LunarPhase *))handler {
     
     astro::Degree lt(int(latitude),(latitude - int(latitude)) * 60, ((latitude - int(latitude)) * 60.0 - (int)((latitude - int(latitude)) * 60.0)) * 60);
     astro::Degree lg(int(longitude),(longitude - int(longitude)) * 60, ((longitude - int(longitude)) * 60.0 - (int)((longitude - int(longitude)) * 60.0)) * 60);
@@ -256,7 +269,13 @@ const NSString *nameFromPlanet(int planet)
     pl.calc(acoord);
     astro::Vec3 sun  = pl.vecQ(astro::Planets::SUN);
     astro::Vec3 moon = pl.vecQ(astro::Planets::MOON);
-    //--- 結果表示.
+    double cosSun = sun.inner(moon);    // sun/moonは方向余弦なので、その内積は位相角のcosである.
+    if (cosSun > 1) cosSun = 1;            // acos()でのDOMAINエラー回避.
+    if (cosSun < -1) cosSun = -1;        // acos()でのDOMAINエラー回避.
+    astro::Degree phase1; phase1.setArcCos(cosSun);    // acos は 0..180度の範囲で値を返す.
+    if (sun.x * moon.y - sun.y * moon.x < 0) { // XY平面の外積値が負の値なら、位相角度を 180～360度の範囲に補正する.
+        phase1.setNeg(); phase1.mod360();
+    }
     
     NSMutableArray *moons = [NSMutableArray array];
     NSMutableArray *suns = [NSMutableArray array];
@@ -367,7 +386,33 @@ const NSString *nameFromPlanet(int planet)
         }
     }
     
-    handler(sr,ss,mr,ms);
+    // Calculate lunar phase
+    double phase = phase1.degree() / 360.0;
+    double day_to_next_new = (1 - phase) * 29.53059;
+    double day_to_next_full = ((phase > 0.5) ? (1.5 - phase) : (0.5 - phase)) * 29.53059;
+    LunarPhase *p = [[LunarPhase alloc] init];
+    p.phase = phase;
+    p.nextNew = [time dateByAddingTimeInterval:day_to_next_new * 86400];
+    p.nextFull = [time dateByAddingTimeInterval:day_to_next_full * 86400];
+    if (phase <= 0.01 || phase >= 0.99) {
+        p.name = @"New Moon";
+    } else if (phase < 0.24) {
+        p.name = @"Waxing Crescent";
+    } else if (phase <= 0.26) {
+        p.name = @"First Quarter";
+    } else if (phase < 0.49) {
+        p.name = @"Waxing Gibbous";
+    } else if (phase <= 0.51) {
+        p.name = @"Full Moon";
+    } else if (phase < 0.74) {
+        p.name = @"Waning Crescent";
+    } else if (phase < 0.76) {
+        p.name = @"Last Quarter";
+    } else if (phase < 0.99) {
+        p.name = @"Waning Gibbous";
+    }
+    
+    handler(sr,ss,mr,ms,p);
 }
 
 + (NSArray *)getRiseSetForAllSolarSystemObjectsInLongitude:(double) longitude latitude: (double) latitude forTime: (NSDate *) time {
