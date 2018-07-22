@@ -269,13 +269,6 @@ const NSString *nameFromPlanet(int planet)
     pl.calc(acoord);
     astro::Vec3 sun  = pl.vecQ(astro::Planets::SUN);
     astro::Vec3 moon = pl.vecQ(astro::Planets::MOON);
-    double cosSun = sun.inner(moon);    // sun/moonは方向余弦なので、その内積は位相角のcosである.
-    if (cosSun > 1) cosSun = 1;            // acos()でのDOMAINエラー回避.
-    if (cosSun < -1) cosSun = -1;        // acos()でのDOMAINエラー回避.
-    astro::Degree phase1; phase1.setArcCos(cosSun);    // acos は 0..180度の範囲で値を返す.
-    if (sun.x * moon.y - sun.y * moon.x < 0) { // XY平面の外積値が負の値なら、位相角度を 180～360度の範囲に補正する.
-        phase1.setNeg(); phase1.mod360();
-    }
     
     NSMutableArray *moons = [NSMutableArray array];
     NSMutableArray *suns = [NSMutableArray array];
@@ -387,13 +380,13 @@ const NSString *nameFromPlanet(int planet)
     }
     
     // Calculate lunar phase
-    double phase = phase1.degree() / 360.0;
-    double day_to_next_new = (1 - phase) * 29.53059;
-    double day_to_next_full = ((phase > 0.5) ? (1.5 - phase) : (0.5 - phase)) * 29.53059;
     LunarPhase *p = [[LunarPhase alloc] init];
+    NSDate *prevNew = [self findMoonPhase:time motion:M_PI * -2 target:0];
+    p.nextNew = [self findMoonPhase:time motion:M_PI * 2 target:0];
+    p.nextFull = [self findMoonPhase:time motion:M_PI * 2 target:M_PI];
+    double phase = [time timeIntervalSinceDate:prevNew] / [p.nextNew timeIntervalSinceDate:prevNew];
     p.phase = phase;
-    p.nextNew = [time dateByAddingTimeInterval:day_to_next_new * 86400];
-    p.nextFull = [time dateByAddingTimeInterval:day_to_next_full * 86400];
+
     if (phase <= 0.01 || phase >= 0.99) {
         p.name = @"New Moon";
     } else if (phase < 0.24) {
@@ -413,6 +406,55 @@ const NSString *nameFromPlanet(int planet)
     }
     
     handler(sr,ss,mr,ms,p);
+}
+
+double fmod2(double m1, double m2)
+{
+    return m1 - floor(m1 / m2) * m2;
+}
+
+double calc_phase(double x, double antitarget)
+{
+    Obj moonObj;
+    memset(&moonObj, 0, sizeof(Obj));
+    moonObj.pl.plo_code = MOON;
+    moonObj.any.co_type = PLANET;
+    Obj sunObj;
+    memset(&sunObj, 0, sizeof(Obj));
+    sunObj.pl.plo_code = SUN;
+    sunObj.any.co_type = PLANET;
+    Now now;
+    memset(&now, 0, sizeof(Now));
+    now.n_mjd = x;
+    now.n_pressure = 1010;
+    obj_cir(&now, &sunObj);
+    obj_cir(&now, &moonObj);
+    double slon, slat, mlon, mlat;
+    eq_ecl(now.n_mjd, sunObj.pl.co_gaera, sunObj.pl.co_gaedec, &slat, &slon);
+    eq_ecl(now.n_mjd, moonObj.pl.co_gaera, moonObj.pl.co_gaedec, &mlat, &mlon);
+    double res = fmod2(mlon - slon - antitarget, 2 * M_PI) - M_PI;
+    return res;
+}
+
++(NSDate *)findMoonPhase: (NSDate *)d motion:(double) motion target:(double)target {
+    double antitarget = target + M_PI;
+    double time = [self modifiedJulianDateFromDate:d];
+    double res = calc_phase(time, antitarget);
+    double angle_to_cover = fmod2(-res, motion);
+    double dd = time + 29.53 * angle_to_cover / (2 * M_PI);
+    double hour = 1.0 / 24;
+    double x0 = dd;
+    double x1 = dd + hour;
+    double f0 = calc_phase(x0, antitarget);
+    double f1 = calc_phase(x1, antitarget);
+    while (fabs(x1 - x0) > 1.0 / 24 / 60 && f1 != f0) {
+        double x2 = x0;
+        x0 = x1;
+        x1 = x1 + (x1 - x2) / (f0 / f1 - 1);
+        f0 = f1;
+        f1 = calc_phase(x1, antitarget);
+    }
+    return [d dateByAddingTimeInterval:(x1 - time) * 86400.0];
 }
 
 + (NSArray *)getRiseSetForAllSolarSystemObjectsInLongitude:(double) longitude latitude: (double) latitude forTime: (NSDate *) time {
