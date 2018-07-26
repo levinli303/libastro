@@ -7,7 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		97400AAD20FE3148002F82A3 /* mars.1020.c in Sources */ = {isa = PBXBuildFile; fileRef = 97400AA920FE3147002F82A3 /* mars.1020.c */; };
+		97055D2E2109DD7900B8CBC2 /* refract.c in Sources */ = {isa = PBXBuildFile; fileRef = 97055D2D2109DD7900B8CBC2 /* refract.c */; };
+		97055D302109DD8900B8CBC2 /* parallactic.c in Sources */ = {isa = PBXBuildFile; fileRef = 97055D2F2109DD8900B8CBC2 /* parallactic.c */; };
+		97055D322109DD9700B8CBC2 /* mars.1020.c in Sources */ = {isa = PBXBuildFile; fileRef = 97055D312109DD9700B8CBC2 /* mars.1020.c */; };
+		97055D342109DDB000B8CBC2 /* aa_hadec.c in Sources */ = {isa = PBXBuildFile; fileRef = 97055D332109DDB000B8CBC2 /* aa_hadec.c */; };
 		97400AAE20FE3148002F82A3 /* jupiter.9910.c in Sources */ = {isa = PBXBuildFile; fileRef = 97400AAA20FE3147002F82A3 /* jupiter.9910.c */; };
 		97400AAF20FE3148002F82A3 /* jupiter.1020.c in Sources */ = {isa = PBXBuildFile; fileRef = 97400AAB20FE3147002F82A3 /* jupiter.1020.c */; };
 		97400AB020FE3148002F82A3 /* mars.9910.c in Sources */ = {isa = PBXBuildFile; fileRef = 97400AAC20FE3148002F82A3 /* mars.9910.c */; };
@@ -43,7 +46,6 @@
 		978316A720FE2630009C66E2 /* obliq.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783166D20FE262B009C66E2 /* obliq.c */; };
 		978316A820FE2630009C66E2 /* vsop87_data.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783166E20FE262B009C66E2 /* vsop87_data.c */; };
 		978316A920FE2630009C66E2 /* satmoon.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783166F20FE262B009C66E2 /* satmoon.c */; };
-		978316AA20FE2630009C66E2 /* aa_hadec.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783167020FE262B009C66E2 /* aa_hadec.c */; };
 		978316AB20FE2630009C66E2 /* helio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783167120FE262B009C66E2 /* helio.c */; };
 		978316AC20FE2630009C66E2 /* utc_gst.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783167220FE262C009C66E2 /* utc_gst.c */; };
 		978316AD20FE2630009C66E2 /* moon.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783167320FE262C009C66E2 /* moon.c */; };
@@ -67,7 +69,6 @@
 		978316BF20FE2630009C66E2 /* deep.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783168620FE262E009C66E2 /* deep.c */; };
 		978316C020FE2630009C66E2 /* sun.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783168820FE262F009C66E2 /* sun.c */; };
 		978316C120FE2630009C66E2 /* mooncolong.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783168B20FE262F009C66E2 /* mooncolong.c */; };
-		978316C220FE2630009C66E2 /* parallactic.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783168C20FE262F009C66E2 /* parallactic.c */; };
 		978316C320FE2630009C66E2 /* jupmoon.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783168D20FE262F009C66E2 /* jupmoon.c */; };
 		978316C420FE2630009C66E2 /* sgp4.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783168E20FE262F009C66E2 /* sgp4.c */; };
 		9794BCA420F9A98B00CEA3A5 /* Astro.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCA320F9A98B00CEA3A5 /* Astro.mm */; };
@@ -78,7 +79,6 @@
 		9794BCBC20F9A9DE00CEA3A5 /* jday.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCB220F9A9DE00CEA3A5 /* jday.cpp */; };
 		9794BCBD20F9A9DE00CEA3A5 /* planets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCB320F9A9DE00CEA3A5 /* planets.cpp */; };
 		9794BCBE20F9A9DE00CEA3A5 /* acoord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCB420F9A9DE00CEA3A5 /* acoord.cpp */; };
-		97B06D6C20FE309900FF4F10 /* refract.c in Sources */ = {isa = PBXBuildFile; fileRef = 97B06D6B20FE309900FF4F10 /* refract.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -95,7 +95,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		97400AA920FE3147002F82A3 /* mars.1020.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mars.1020.c; path = "../../../../../Downloads/pyephem-master-2/extensions/data/mars.1020.c"; sourceTree = "<group>"; };
+		97055D2D2109DD7900B8CBC2 /* refract.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = refract.c; sourceTree = "<group>"; };
+		97055D2F2109DD8900B8CBC2 /* parallactic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = parallactic.c; sourceTree = "<group>"; };
+		97055D312109DD9700B8CBC2 /* mars.1020.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mars.1020.c; sourceTree = "<group>"; };
+		97055D332109DDB000B8CBC2 /* aa_hadec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aa_hadec.c; sourceTree = "<group>"; };
 		97400AAA20FE3147002F82A3 /* jupiter.9910.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = jupiter.9910.c; sourceTree = "<group>"; };
 		97400AAB20FE3147002F82A3 /* jupiter.1020.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = jupiter.1020.c; sourceTree = "<group>"; };
 		97400AAC20FE3148002F82A3 /* mars.9910.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mars.9910.c; sourceTree = "<group>"; };
@@ -137,7 +140,6 @@
 		9783166D20FE262B009C66E2 /* obliq.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obliq.c; sourceTree = "<group>"; };
 		9783166E20FE262B009C66E2 /* vsop87_data.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vsop87_data.c; sourceTree = "<group>"; };
 		9783166F20FE262B009C66E2 /* satmoon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = satmoon.c; sourceTree = "<group>"; };
-		9783167020FE262B009C66E2 /* aa_hadec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = aa_hadec.c; path = "../../../../../Downloads/pyephem-master/libastro-3.7.7/aa_hadec.c"; sourceTree = "<group>"; };
 		9783167120FE262B009C66E2 /* helio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = helio.c; sourceTree = "<group>"; };
 		9783167220FE262C009C66E2 /* utc_gst.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utc_gst.c; sourceTree = "<group>"; };
 		9783167320FE262C009C66E2 /* moon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = moon.c; sourceTree = "<group>"; };
@@ -165,7 +167,6 @@
 		9783168920FE262F009C66E2 /* bdl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bdl.h; sourceTree = "<group>"; };
 		9783168A20FE262F009C66E2 /* vsop87.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vsop87.h; sourceTree = "<group>"; };
 		9783168B20FE262F009C66E2 /* mooncolong.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mooncolong.c; sourceTree = "<group>"; };
-		9783168C20FE262F009C66E2 /* parallactic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = parallactic.c; path = "../../../../../Downloads/pyephem-master/libastro-3.7.7/parallactic.c"; sourceTree = "<group>"; };
 		9783168D20FE262F009C66E2 /* jupmoon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = jupmoon.c; sourceTree = "<group>"; };
 		9783168E20FE262F009C66E2 /* sgp4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sgp4.c; sourceTree = "<group>"; };
 		9794BC9F20F9A98B00CEA3A5 /* libAstro.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAstro.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -185,7 +186,6 @@
 		9794BCB720F9A9DE00CEA3A5 /* acoord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = acoord.h; sourceTree = "<group>"; };
 		9794BCB820F9A9DE00CEA3A5 /* jday.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jday.h; sourceTree = "<group>"; };
 		97B06D6A20FE266600FF4F10 /* astro_export.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = astro_export.h; sourceTree = "<group>"; };
-		97B06D6B20FE309900FF4F10 /* refract.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = refract.c; path = "../../../../../Downloads/pyephem-master-2/libastro-3.7.7/refract.c"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -252,14 +252,14 @@
 				97400AB920FE325B002F82A3 /* dtoa.c */,
 				97400AAB20FE3147002F82A3 /* jupiter.1020.c */,
 				97400AAA20FE3147002F82A3 /* jupiter.9910.c */,
-				97400AA920FE3147002F82A3 /* mars.1020.c */,
 				97400AAC20FE3148002F82A3 /* mars.9910.c */,
+				97055D312109DD9700B8CBC2 /* mars.1020.c */,
 				97400AB320FE3183002F82A3 /* saturne.9910.c */,
 				97400AB420FE3184002F82A3 /* uranus.1020.c */,
 				97400AB520FE3184002F82A3 /* uranus.9910.c */,
 				97400AB120FE316D002F82A3 /* saturne.1020.c */,
 				97B06D6A20FE266600FF4F10 /* astro_export.h */,
-				9783167020FE262B009C66E2 /* aa_hadec.c */,
+				97055D332109DDB000B8CBC2 /* aa_hadec.c */,
 				9783167A20FE262D009C66E2 /* aberration.c */,
 				9783167D20FE262D009C66E2 /* actan.c */,
 				9783168220FE262E009C66E2 /* airmass.c */,
@@ -272,7 +272,6 @@
 				9783168920FE262F009C66E2 /* bdl.h */,
 				9783165920FE2627009C66E2 /* chap95_data.c */,
 				9783166720FE2629009C66E2 /* chap95.c */,
-				97B06D6B20FE309900FF4F10 /* refract.c */,
 				9783166520FE2629009C66E2 /* chap95.h */,
 				9783168020FE262E009C66E2 /* circum.c */,
 				9783166820FE262A009C66E2 /* comet.c */,
@@ -297,7 +296,7 @@
 				9783167520FE262C009C66E2 /* moonnf.c */,
 				9783167820FE262C009C66E2 /* nutation.c */,
 				9783166D20FE262B009C66E2 /* obliq.c */,
-				9783168C20FE262F009C66E2 /* parallactic.c */,
+				97055D2F2109DD8900B8CBC2 /* parallactic.c */,
 				9783167920FE262D009C66E2 /* parallax.c */,
 				9783166C20FE262A009C66E2 /* plans.c */,
 				9783166620FE2629009C66E2 /* plmoon.c */,
@@ -305,6 +304,7 @@
 				9783165520FE2626009C66E2 /* precess.c */,
 				9783168720FE262F009C66E2 /* preferences.h */,
 				9783165E20FE2628009C66E2 /* reduce.c */,
+				97055D2D2109DD7900B8CBC2 /* refract.c */,
 				9783164F20FE2626009C66E2 /* rings.c */,
 				9783168520FE262E009C66E2 /* riset_cir.c */,
 				9783166020FE2628009C66E2 /* riset.c */,
@@ -387,13 +387,14 @@
 				978316AD20FE2630009C66E2 /* moon.c in Sources */,
 				978316C020FE2630009C66E2 /* sun.c in Sources */,
 				978316C320FE2630009C66E2 /* jupmoon.c in Sources */,
-				978316AA20FE2630009C66E2 /* aa_hadec.c in Sources */,
 				978316A720FE2630009C66E2 /* obliq.c in Sources */,
 				9794BCB920F9A9DE00CEA3A5 /* atime.cpp in Sources */,
+				97055D322109DD9700B8CBC2 /* mars.1020.c in Sources */,
 				9783169020FE2630009C66E2 /* marsmoon.c in Sources */,
 				978316BC20FE2630009C66E2 /* eq_ecl.c in Sources */,
 				978316A120FE2630009C66E2 /* plmoon.c in Sources */,
 				9794BCBE20F9A9DE00CEA3A5 /* acoord.cpp in Sources */,
+				97055D2E2109DD7900B8CBC2 /* refract.c in Sources */,
 				978316B620FE2630009C66E2 /* actan.c in Sources */,
 				97400AAE20FE3148002F82A3 /* jupiter.9910.c in Sources */,
 				9783169520FE2630009C66E2 /* deltat.c in Sources */,
@@ -412,6 +413,7 @@
 				9783169720FE2630009C66E2 /* chap95_data.c in Sources */,
 				978316BE20FE2630009C66E2 /* riset_cir.c in Sources */,
 				9794BCA420F9A98B00CEA3A5 /* Astro.mm in Sources */,
+				97055D342109DDB000B8CBC2 /* aa_hadec.c in Sources */,
 				9783169C20FE2630009C66E2 /* reduce.c in Sources */,
 				9794BCBA20F9A9DE00CEA3A5 /* vec3.cpp in Sources */,
 				97400AB620FE3184002F82A3 /* saturne.9910.c in Sources */,
@@ -422,13 +424,11 @@
 				978316A420FE2630009C66E2 /* bdl.c in Sources */,
 				978316AF20FE2630009C66E2 /* moonnf.c in Sources */,
 				978316BA20FE2630009C66E2 /* umoon.c in Sources */,
-				97400AAD20FE3148002F82A3 /* mars.1020.c in Sources */,
-				978316C220FE2630009C66E2 /* parallactic.c in Sources */,
-				97B06D6C20FE309900FF4F10 /* refract.c in Sources */,
 				97400AB020FE3148002F82A3 /* mars.9910.c in Sources */,
 				9783169A20FE2630009C66E2 /* sdp4.c in Sources */,
 				978316B520FE2630009C66E2 /* vsop87.c in Sources */,
 				9783168F20FE2630009C66E2 /* rings.c in Sources */,
+				97055D302109DD8900B8CBC2 /* parallactic.c in Sources */,
 				978316B120FE2630009C66E2 /* nutation.c in Sources */,
 				978316B320FE2630009C66E2 /* aberration.c in Sources */,
 				978316C120FE2630009C66E2 /* mooncolong.c in Sources */,
