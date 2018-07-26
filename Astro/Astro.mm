@@ -287,13 +287,13 @@ const NSString *nameFromPlanet(int planet)
     return [date dateByAddingTimeInterval:utc];
 }
 
-+ (void)getRiseSetWithLongitude:(double) longitude latitude: (double) latitude forTime: (NSDate *) time completion:(void (^)(AstroRiset *sun, AstroRiset *moon))handler {
++ (void)getRisetInLocation:(double) longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *) time completion:(void (^)(AstroRiset *sun, AstroRiset *moon))handler {
 
     // Position info
     astro::Degree lt(latitude * 3600);
     astro::Degree lg(longitude * 3600);
     // TODO: add height
-    double sea = 0;
+    double sea = altitude;
 
     astro::AstroCoordinate acoord;
     astro::Planets pl;
@@ -356,19 +356,15 @@ const NSString *nameFromPlanet(int planet)
         moon.z += sun_rz;
         if (step > 0) {
             astro::Degree az0, el0, az, el;
-            double azDeg, azDeg0, elDeg, elDeg0;
+            double azDeg, elDeg, elDeg0;
 
             // Sun
             if (sunriset == nil) {
                 sun.getLtLg(el, az);
                 sun0.getLtLg(el0, az0);
-                // South 0, West 90, North 180, East 270
-                az.setNeg();
+                // South 0, East 90, North 180, West 270
                 az.mod360();
-                az0.setNeg();
-                az0.mod360();
                 azDeg = az.degree();
-                azDeg0 = az0.degree();
                 elDeg = el.degree();
                 elDeg0 = el0.degree();
 
@@ -409,13 +405,9 @@ const NSString *nameFromPlanet(int planet)
                 // Moon
                 moon.getLtLg(el, az);
                 moon0.getLtLg(el0, az0);
-                // South 0, West 90, North 180, East 270
-                az.setNeg();
+                // South 0, East 90, North 180, West 270
                 az.mod360();
-                az0.setNeg();
-                az0.mod360();
                 azDeg = az.degree();
-                azDeg0 = az0.degree();
                 elDeg = el.degree();
                 elDeg0 = el0.degree();
 
