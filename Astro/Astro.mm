@@ -95,6 +95,45 @@ void eci2aer(double x, double y, double z, double t, double lat, double lon, dou
     ecef2aer(X, Y, Z, lat, lon, h, A, E, R);
 }
 
+@implementation AstroPosition
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.azimuth = 0;
+        self.elevation = 0;
+        self.time = [NSDate date];
+    }
+    return self;
+}
+
+- (id)copyWithZone:(NSZone *)zone {
+    AstroPosition *pos = [AstroPosition allocWithZone:zone];
+    if (pos) {
+        [self copyPropertyTo:pos];
+    }
+    return pos;
+}
+
+- (void)copyPropertyTo:(AstroPosition *)copy {
+    copy.azimuth = self.azimuth;
+    copy.elevation = self.elevation;
+    copy.time = [self.time copy];
+}
+@end
+
+@implementation AstroRiset
+- (instancetype)initWithRise:(AstroPosition *)rise peak:(AstroPosition *)peak set:(AstroPosition *)set {
+    self = [super init];
+    if (self) {
+        self.rise = rise;
+        self.peak = peak;
+        self.set = set;
+    }
+    return self;
+}
+@end
+
 @interface SatelliteTLE ()
 @property (nonatomic, copy) NSString *line0;
 @property (nonatomic, copy) NSString *line1;
@@ -248,8 +287,199 @@ const NSString *nameFromPlanet(int planet)
     return [date dateByAddingTimeInterval:utc];
 }
 
++ (void)getRiseSetWithLongitude:(double) longitude latitude: (double) latitude forTime: (NSDate *) time completion:(void (^)(AstroRiset *sun, AstroRiset *moon))handler {
 
-+ (void) getMoonRiseSetWithLongitude: (double) longitude latitude: (double) latitude forTime: (NSDate *) time completion:(nullable void (^)(NSDate *, NSDate *, NSDate *, NSDate *, LunarPhase *))handler {
+    // Position info
+    astro::Degree lt(latitude * 3600);
+    astro::Degree lg(longitude * 3600);
+    // TODO: add height
+    double sea = 0;
+
+    astro::AstroCoordinate acoord;
+    astro::Planets pl;
+    acoord.setPosition(lg, lt);
+    acoord.setLocation(lg, lt, sea);
+
+    // Time info
+    astro::AstroTime astroTime = [self astroDateFromDate:time];
+    // Starts from previous day
+    astroTime.addDay(-1);
+    acoord.setTime(astroTime);
+    acoord.beginConvert();
+    pl.calc(acoord);
+
+    // Sun and moon
+    astro::Vec3 sun  = pl.vecQ(astro::Planets::SUN);
+    astro::Vec3 moon = pl.vecQ(astro::Planets::MOON);
+    acoord.conv_q2tq(sun);
+    acoord.conv_q2tq(moon);
+    acoord.conv_q2h(sun);
+    acoord.conv_q2h(moon);
+    acoord.addRefraction(sun);
+    acoord.addRefraction(moon);
+
+    astro::AstroTime t = acoord.getTime();
+    // Calculate up to 2 days
+    const double jd_end = t.jd() + 2;
+    const double sun_rz  = sin(astro::dms2rad(0,0,960));
+    const double min30_z = sin(astro::hms2rad(0,30,0));
+    const double min3_z  = sin(astro::hms2rad(0,3,0));
+    const double sec15_z = sin(astro::hms2rad(0,0,15));
+    int step = -1;    // Backward 1s to calculate
+
+    AstroPosition *sunpeak = nil;
+    AstroPosition *moonpeak = nil;
+    AstroPosition *sunrise = nil;
+    AstroPosition *moonrise = nil;
+
+    AstroRiset *sunriset = nil;
+    AstroRiset *moonriset = nil;
+    t.addSec(step);
+    NSDate *currentTime = [self dateFromAstroTime:t];
+    for (; t.jd() < jd_end; t.addSec(step)) {
+        // Save last data for comparation
+        const astro::Vec3 sun0 = sun;
+        const astro::Vec3 moon0 = moon;
+        // Calculate current position
+        acoord.setTime(t);
+        acoord.beginConvert();
+        pl.calc(acoord);
+        sun  = pl.vecQ(astro::Planets::SUN);
+        moon = pl.vecQ(astro::Planets::MOON);
+        acoord.conv_q2tq(sun);
+        acoord.conv_q2tq(moon);
+        acoord.conv_q2h(sun);
+        acoord.conv_q2h(moon);
+        acoord.addRefraction(sun);
+        acoord.addRefraction(moon);
+        sun.z += sun_rz;
+        moon.z += sun_rz;
+        if (step > 0) {
+            astro::Degree az0, el0, az, el;
+            double azDeg, azDeg0, elDeg, elDeg0;
+
+            // Sun
+            if (sunriset == nil) {
+                sun.getLtLg(el, az);
+                sun0.getLtLg(el0, az0);
+                // South 0, West 90, North 180, East 270
+                az.setNeg();
+                az.mod360();
+                az0.setNeg();
+                az0.mod360();
+                azDeg = az.degree();
+                azDeg0 = az0.degree();
+                elDeg = el.degree();
+                elDeg0 = el0.degree();
+
+                if (elDeg0 < 0 && elDeg >= 0) {
+                    // Sunrise
+                    sunrise = [AstroPosition new];
+                    sunrise.azimuth = azDeg;
+                    sunrise.elevation = elDeg;
+                    sunrise.time = currentTime;
+                    sunpeak = [sunrise copy];
+                } else if (elDeg0 >=0 && elDeg < 0) {
+                    // Sunset
+                    if ([currentTime timeIntervalSinceDate:time] < 0) {
+                        // Already happened, disregard & clear
+                        sunrise = nil;
+                        sunpeak = nil;
+                    } else if (sunpeak != nil && sunrise != nil) {
+                        // Disregard if there is no rise/peak
+                        AstroPosition *sunset = [AstroPosition new];
+                        sunset.azimuth = azDeg;
+                        sunset.elevation = elDeg;
+                        sunset.time = currentTime;
+
+                        sunriset = [[AstroRiset alloc] initWithRise:sunrise peak:sunpeak set:sunset];
+
+                        // Clear rise & peak
+                        sunrise = nil;
+                        sunpeak = nil;
+                    }
+                } else if (elDeg > elDeg0 && sunpeak != nil && sunrise != nil) {
+                    sunpeak.azimuth = azDeg;
+                    sunpeak.elevation = elDeg;
+                    sunpeak.time = currentTime;
+                }
+            }
+
+            if (moonriset == nil) {
+                // Moon
+                moon.getLtLg(el, az);
+                moon0.getLtLg(el0, az0);
+                // South 0, West 90, North 180, East 270
+                az.setNeg();
+                az.mod360();
+                az0.setNeg();
+                az0.mod360();
+                azDeg = az.degree();
+                azDeg0 = az0.degree();
+                elDeg = el.degree();
+                elDeg0 = el0.degree();
+
+                if (elDeg0 < 0 && elDeg >= 0) {
+                    // Moonrise
+                    moonrise = [AstroPosition new];
+                    moonrise.azimuth = azDeg;
+                    moonrise.elevation = elDeg;
+                    moonrise.time = currentTime;
+                    moonpeak = [moonrise copy];
+                } else if (elDeg0 >=0 && elDeg < 0) {
+                    // Moonset
+                    if ([currentTime timeIntervalSinceDate:time] < 0) {
+                        // Already happened, disregard & clear
+                        moonrise = nil;
+                        moonpeak = nil;
+                    } else if (moonpeak != nil && moonrise != nil) {
+                        // Disregard if there is no rise/peak
+                        AstroPosition *moonset = [AstroPosition new];
+                        moonset.azimuth = azDeg;
+                        moonset.elevation = elDeg;
+                        moonset.time = currentTime;
+
+                        moonriset = [[AstroRiset alloc] initWithRise:moonrise peak:moonpeak set:moonset];
+
+                        // Clear rise & peak
+                        moonrise = nil;
+                        moonpeak = nil;
+                    }
+                } else if (elDeg > elDeg0 && moonpeak != nil && moonrise != nil) {
+                    moonpeak.azimuth = azDeg;
+                    moonpeak.elevation = elDeg;
+                    moonpeak.time = currentTime;
+                }
+            }
+        }
+
+        if (sunriset != nil && moonriset != nil) {
+            break;
+        }
+
+        // Calculate the step size
+        double z = min(fabs(sun.z), fabs(moon.z));
+        double y = min(fabs(sun.y), fabs(moon.y));
+        z = min(z, y);
+        if (z >= min30_z)
+            step = 20*60;
+        else if (z >= min3_z)
+            step = 2*60;
+        else if (z >= sec15_z)
+            step = 10;
+        else
+            step = 1;
+
+        // Recalculate current time
+        currentTime = [currentTime dateByAddingTimeInterval:step];
+    }
+
+    if (handler != nil) {
+        handler(sunriset, moonriset);
+    }
+}
+
++ (void) getMoonRiseSetWithLongitude: (double) longitude latitude: (double) latitude forTime: (NSDate *) time completion:(void (^)(NSDate *, NSDate *, NSDate *, NSDate *, LunarPhase *))handler {
     
     astro::Degree lt(int(latitude),(latitude - int(latitude)) * 60, ((latitude - int(latitude)) * 60.0 - (int)((latitude - int(latitude)) * 60.0)) * 60);
     astro::Degree lg(int(longitude),(longitude - int(longitude)) * 60, ((longitude - int(longitude)) * 60.0 - (int)((longitude - int(longitude)) * 60.0)) * 60);
@@ -378,34 +608,9 @@ const NSString *nameFromPlanet(int planet)
             }
         }
     }
-    
-    // Calculate lunar phase
-    LunarPhase *p = [[LunarPhase alloc] init];
-    NSDate *prevNew = [self findMoonPhase:time motion:M_PI * -2 target:0];
-    p.nextNew = [self findMoonPhase:time motion:M_PI * 2 target:0];
-    p.nextFull = [self findMoonPhase:time motion:M_PI * 2 target:M_PI];
-    double phase = [time timeIntervalSinceDate:prevNew] / [p.nextNew timeIntervalSinceDate:prevNew];
-    p.phase = phase;
-
-    if (phase <= 0.01 || phase >= 0.99) {
-        p.name = @"New Moon";
-    } else if (phase < 0.24) {
-        p.name = @"Waxing Crescent";
-    } else if (phase <= 0.26) {
-        p.name = @"First Quarter";
-    } else if (phase < 0.49) {
-        p.name = @"Waxing Gibbous";
-    } else if (phase <= 0.51) {
-        p.name = @"Full Moon";
-    } else if (phase < 0.74) {
-        p.name = @"Waning Crescent";
-    } else if (phase < 0.76) {
-        p.name = @"Last Quarter";
-    } else if (phase < 0.99) {
-        p.name = @"Waning Gibbous";
+    if (handler != nil) {
+        handler(sr,ss,mr,ms, [self getCurrentMoonPhase]);
     }
-    
-    handler(sr,ss,mr,ms,p);
 }
 
 double fmod2(double m1, double m2)
@@ -455,6 +660,36 @@ double calc_phase(double x, double antitarget)
         f1 = calc_phase(x1, antitarget);
     }
     return [d dateByAddingTimeInterval:(x1 - time) * 86400.0];
+}
+
++ (LunarPhase *)getCurrentMoonPhase {
+    // Calculate lunar phase
+    LunarPhase *p = [[LunarPhase alloc] init];
+    NSDate *time = [NSDate date];
+    NSDate *prevNew = [self findMoonPhase:time motion:M_PI * -2 target:0];
+    p.nextNew = [self findMoonPhase:time motion:M_PI * 2 target:0];
+    p.nextFull = [self findMoonPhase:time motion:M_PI * 2 target:M_PI];
+    double phase = [time timeIntervalSinceDate:prevNew] / [p.nextNew timeIntervalSinceDate:prevNew];
+    p.phase = phase;
+
+    if (phase <= 0.01 || phase >= 0.99) {
+        p.name = @"New Moon";
+    } else if (phase < 0.24) {
+        p.name = @"Waxing Crescent";
+    } else if (phase <= 0.26) {
+        p.name = @"First Quarter";
+    } else if (phase < 0.49) {
+        p.name = @"Waxing Gibbous";
+    } else if (phase <= 0.51) {
+        p.name = @"Full Moon";
+    } else if (phase < 0.74) {
+        p.name = @"Waning Crescent";
+    } else if (phase < 0.76) {
+        p.name = @"Last Quarter";
+    } else if (phase < 0.99) {
+        p.name = @"Waning Gibbous";
+    }
+    return p;
 }
 
 + (NSArray *)getRiseSetForAllSolarSystemObjectsInLongitude:(double) longitude latitude: (double) latitude forTime: (NSDate *) time {
