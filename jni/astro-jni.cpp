@@ -34,7 +34,7 @@ jobject getRiset(JNIEnv *env,
     int year = env->CallIntMethod(calendar, getCompoMethod, 1);
     int month = env->CallIntMethod(calendar, getCompoMethod, 2) + 1;
     int day = env->CallIntMethod(calendar, getCompoMethod, 5);
-    int hour = env->CallIntMethod(calendar, getCompoMethod, 10);
+    int hour = env->CallIntMethod(calendar, getCompoMethod, 11);
     int minute = env->CallIntMethod(calendar, getCompoMethod, 12);
     int second = env->CallIntMethod(calendar, getCompoMethod, 13);
 
@@ -232,7 +232,7 @@ jdouble modifiedJulianDate(JNIEnv *env, jobject time) {
     int year = env->CallIntMethod(calendar, getCompoMethod, 1);
     int month = env->CallIntMethod(calendar, getCompoMethod, 2) + 1;
     int day = env->CallIntMethod(calendar, getCompoMethod, 5);
-    int hour = env->CallIntMethod(calendar, getCompoMethod, 10);
+    int hour = env->CallIntMethod(calendar, getCompoMethod, 11);
     int minute = env->CallIntMethod(calendar, getCompoMethod, 12);
     int second = env->CallIntMethod(calendar, getCompoMethod, 13);
 
