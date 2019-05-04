@@ -41,14 +41,14 @@ jobject getRiset(JNIEnv *env,
     jclass dateCls = env->FindClass("java/util/Date");
     jmethodID getTimeMethod = env->GetMethodID(dateCls, "getTime", "()J");
 
-    jclass posCls = env->FindClass("cc/meowssage/astroweather/Models/AstroPosition");
-    jclass risetCls = env->FindClass("cc/meowssage/astroweather/Models/AstroRiset");
+    jclass posCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroPosition");
+    jclass risetCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroRiset");
     jmethodID posInitMethod = env->GetMethodID(posCls, "<init>", "(DDJ)V");
     jmethodID updatePosMehod = env->GetMethodID(posCls, "update", "(DDJ)V");
-    jmethodID risetInitMethod = env->GetMethodID(risetCls, "<init>", "(Lcc/meowssage/astroweather/Models/AstroPosition;Lcc/meowssage/astroweather/Models/AstroPosition;Lcc/meowssage/astroweather/Models/AstroPosition;)V");
+    jmethodID risetInitMethod = env->GetMethodID(risetCls, "<init>", "(Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;)V");
 
-    jclass sunMoonCls = env->FindClass("cc/meowssage/astroweather/Models/SunMoonRiset");
-    jmethodID sunMoonInitMethod = env->GetMethodID(sunMoonCls, "<init>", "(Lcc/meowssage/astroweather/Models/AstroRiset;Lcc/meowssage/astroweather/Models/AstroRiset;)V");
+    jclass sunMoonCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/SunMoonRiset");
+    jmethodID sunMoonInitMethod = env->GetMethodID(sunMoonCls, "<init>", "(Lcc/meowssage/astroweather/SunMoon/Model/AstroRiset;Lcc/meowssage/astroweather/SunMoon/Model/AstroRiset;)V");
 
     astro::AstroTime astroTime(astro::Jday(year, month, day), hour * 3600 + minute * 60 + second);
     jlong origTime = env->CallLongMethod(time, getTimeMethod);
@@ -291,7 +291,7 @@ jlong findMoonPhase(JNIEnv *env, jobject date, jlong mi, jdouble motion, jdouble
 }
 
 jobject getLunarPhase(JNIEnv *env, jobject time) {
-    jclass lpCls = env->FindClass("cc/meowssage/astroweather/Models/LunarPhase");
+    jclass lpCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/LunarPhase");
     jmethodID lpInitMethod = env->GetMethodID(lpCls, "<init>", "(JJLjava/lang/String;D)V");
     jclass dateCls = env->FindClass("java/util/Date");
     jmethodID getTimeMethod = env->GetMethodID(dateCls, "getTime", "()J");
