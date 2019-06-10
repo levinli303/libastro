@@ -307,7 +307,8 @@ jobject getAllRiset(JNIEnv *env,
     astro::AstroTime t = acoord.getTime();
     const double jd_end = t.jd() + 2;
     const int step = 60;
-    for (; t.jd() < jd_end; t.addSec(step)) {
+    currentTime += 60000;
+    for (t.addSec(step); t.jd() < jd_end; t.addSec(step)) {
         // 前回時刻の高度を保存する. ただし、初回はこの値を使ってはいけない.
         std::vector<astro::Vec3> newPlvs;
         // 今回時刻の高度を計算する.
