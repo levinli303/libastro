@@ -1,4 +1,5 @@
 #include <jni.h>
+#include <vector>
 #include "degree.h"
 #include "acoord.h"
 #include "planets.h"
@@ -45,7 +46,7 @@ jobject getRiset(JNIEnv *env,
     jclass risetCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroRiset");
     jmethodID posInitMethod = env->GetMethodID(posCls, "<init>", "(DDJ)V");
     jmethodID updatePosMehod = env->GetMethodID(posCls, "update", "(DDJ)V");
-    jmethodID risetInitMethod = env->GetMethodID(risetCls, "<init>", "(Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;)V");
+    jmethodID risetInitMethod = env->GetMethodID(risetCls, "<init>", "(Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Ljava/lang/String;)V");
 
     jclass sunMoonCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/SunMoonRiset");
     jmethodID sunMoonInitMethod = env->GetMethodID(sunMoonCls, "<init>", "(Lcc/meowssage/astroweather/SunMoon/Model/AstroRiset;Lcc/meowssage/astroweather/SunMoon/Model/AstroRiset;)V");
@@ -145,7 +146,7 @@ jobject getRiset(JNIEnv *env,
                     } else if (sunrise != NULL) {
                         // Disregard if there is no rise/peak
                         jobject sunset = env->NewObject(posCls, posInitMethod, elDeg, azDeg, currentTime);
-                        sunriset = env->NewObject(risetCls, risetInitMethod, sunrise, sunset, sunpeak);
+                        sunriset = env->NewObject(risetCls, risetInitMethod, sunrise, sunset, sunpeak, env->NewStringUTF("Sun"));
                     }
                 } else if (elDeg > elDeg0 && sunpeak != NULL && sunrise != NULL) {
                     env->CallVoidMethod(sunpeak, updatePosMehod, elDeg, azDeg, currentTime);
@@ -185,7 +186,7 @@ jobject getRiset(JNIEnv *env,
                     } else if (moonrise != NULL) {
                         // Disregard if there is no rise/peak
                         jobject moonset = env->NewObject(posCls, posInitMethod, elDeg, azDeg, currentTime);
-                        moonriset = env->NewObject(risetCls, risetInitMethod, moonrise, moonset, moonpeak);
+                        moonriset = env->NewObject(risetCls, risetInitMethod, moonrise, moonset, moonpeak, env->NewStringUTF("Moon"));
                     }
                 } else if (elDeg > elDeg0 && moonpeak != NULL && moonrise != NULL) {
                     env->CallVoidMethod(moonpeak, updatePosMehod, elDeg, azDeg, currentTime);
@@ -214,6 +215,151 @@ jobject getRiset(JNIEnv *env,
         currentTime += step * 1000;
     }
     return env->NewObject(sunMoonCls, sunMoonInitMethod, sunriset, moonriset);
+}
+
+
+jobject getAllRiset(JNIEnv *env,
+                    jdouble longitude, jdouble latitude,
+                    jobject time) {
+    const char *planets[] = {
+        "Sun",
+        "Moon",
+        "Mercury",
+        "Venus",
+        "Mars",
+        "Jupiter",
+        "Saturn",
+        "Uranus",
+        "Neptune",
+        "Pluto",
+    };
+
+    astro::Degree lt(latitude * 3600);
+    astro::Degree lg(longitude * 3600);
+    double sea = 0;
+
+    astro::AstroCoordinate acoord;
+    astro::Planets pl;
+    acoord.setPosition(lg, lt);
+    acoord.setLocation(lg, lt, sea);
+
+    jclass tzCls = env->FindClass("java/util/TimeZone");
+    jmethodID tzInitMethod = env->GetStaticMethodID(tzCls, "getTimeZone", "(Ljava/lang/String;)Ljava/util/TimeZone;");
+    jobject timezone = env->CallStaticObjectMethod(tzCls, tzInitMethod, env->NewStringUTF("GMT"));
+
+    jclass calCls = env->FindClass("java/util/Calendar");
+    jmethodID getCalMethod = env->GetStaticMethodID(calCls, "getInstance", "(Ljava/util/TimeZone;)Ljava/util/Calendar;");
+    jobject calendar = env->CallStaticObjectMethod(calCls, getCalMethod, timezone);
+
+    jmethodID setTimeMethod = env->GetMethodID(calCls, "setTime", "(Ljava/util/Date;)V");
+    env->CallVoidMethod(calendar, setTimeMethod, time);
+
+    jmethodID getCompoMethod = env->GetMethodID(calCls, "get", "(I)I");
+    int year = env->CallIntMethod(calendar, getCompoMethod, 1);
+    int month = env->CallIntMethod(calendar, getCompoMethod, 2) + 1;
+    int day = env->CallIntMethod(calendar, getCompoMethod, 5);
+    int hour = env->CallIntMethod(calendar, getCompoMethod, 11);
+    int minute = env->CallIntMethod(calendar, getCompoMethod, 12);
+    int second = env->CallIntMethod(calendar, getCompoMethod, 13);
+
+    jclass dateCls = env->FindClass("java/util/Date");
+    jmethodID getTimeMethod = env->GetMethodID(dateCls, "getTime", "()J");
+
+    jclass posCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroPosition");
+    jclass risetCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroRiset");
+    jmethodID posInitMethod = env->GetMethodID(posCls, "<init>", "(DDJ)V");
+    jmethodID updatePosMehod = env->GetMethodID(posCls, "update", "(DDJ)V");
+    jmethodID risetInitMethod = env->GetMethodID(risetCls, "<init>", "(Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Ljava/lang/String;)V");
+
+    jclass sunMoonCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/SunMoonRiset");
+    jmethodID sunMoonInitMethod = env->GetMethodID(sunMoonCls, "<init>", "(Lcc/meowssage/astroweather/SunMoon/Model/AstroRiset;Lcc/meowssage/astroweather/SunMoon/Model/AstroRiset;)V");
+
+    astro::AstroTime astroTime(astro::Jday(year, month, day), hour * 3600 + minute * 60 + second);
+    jlong origTime = env->CallLongMethod(time, getTimeMethod);
+    jlong currentTime = origTime;
+
+    // Starts from previous day
+    astroTime.addDay(-1);
+    currentTime -= 86400000;
+    acoord.setTime(astroTime);
+    acoord.beginConvert();
+    pl.calc(acoord);
+
+    // record the first calculated plvs
+    std::vector<astro::Vec3> plvs;
+    std::vector<std::vector<std::pair<jlong, bool>>> temps;
+    for (int i = astro::Planets::SUN; i <= astro::Planets::PLUTO; i++)
+    {
+        astro::Vec3 vec = pl.vecQ(i);
+        acoord.conv_q2tq(vec);
+        acoord.conv_q2h(vec);
+        // 大気差補正は常時実施する.
+        acoord.addRefraction(vec);
+        if (i == astro::Planets::SUN || i == astro::Planets::MOON)
+        {
+            vec.z += sin(astro::dms2rad(0,0,960)); // 太陽視半径分を高度補正する.
+        }
+        plvs.push_back(pl.vecQ(i));
+        std::vector<std::pair<jlong, bool>> empty;
+        temps.push_back(empty);
+    }
+
+    astro::AstroTime t = acoord.getTime();
+    const double jd_end = t.jd() + 2;
+    const int step = 60;
+    for (; t.jd() < jd_end; t.addSec(step)) {
+        // 前回時刻の高度を保存する. ただし、初回はこの値を使ってはいけない.
+        std::vector<astro::Vec3> newPlvs;
+        // 今回時刻の高度を計算する.
+        acoord.setTime(t);
+        acoord.beginConvert();
+        pl.calc(acoord);
+        for (int i = astro::Planets::SUN; i <= astro::Planets::PLUTO; i++)
+        {
+            astro::Vec3 vec = pl.vecQ(i);
+            acoord.conv_q2tq(vec);
+            acoord.conv_q2h(vec);
+            // 大気差補正は常時実施する.
+            acoord.addRefraction(vec);
+            if (i == astro::Planets::SUN || i == astro::Planets::MOON)
+            {
+                vec.z += sin(astro::dms2rad(0,0,960)); // 太陽視半径分を高度補正する.
+            }
+            if (vec.z >= 0 && plvs[i].z < 0)
+            {
+                temps[i].push_back(std::make_pair(currentTime, true));
+            }
+            if (vec.z < 0 && plvs[i].z >= 0)
+            {
+                temps[i].push_back(std::make_pair(currentTime, false));
+            }
+            newPlvs.push_back(vec);
+        }
+        plvs = newPlvs;
+
+        // Recalculate current time
+        currentTime += step * 1000;
+    }
+
+    jclass arrayListClass = env->FindClass("java/util/ArrayList");
+    jmethodID construct = env->GetMethodID(arrayListClass, "<init>", "(I)V");
+    jobject result = env->NewObject(arrayListClass, construct, temps.size());
+    jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+
+    for (int i = 0; i < temps.size(); i++) {
+        for (int j = 0; j < temps[i].size() - 1; j++) {
+            jlong curr = temps[i][j].first;
+            jlong next = temps[i][j + 1].first;
+            if (temps[i][j].second && !temps[i][j + 1].second && next > origTime) {
+                jobject rise = env->NewObject(posCls, posInitMethod, 0, 0, curr);
+                jobject set = env->NewObject(posCls, posInitMethod, 0, 0, next);
+                jobject riset = env->NewObject(risetCls, risetInitMethod, rise, set, NULL, env->NewStringUTF(planets[i]));
+                env->CallBooleanMethod(result, arrayListAdd, riset);
+                break;
+            }
+        }
+    }
+    return result;
 }
 
 jdouble modifiedJulianDate(JNIEnv *env, jobject time) {
