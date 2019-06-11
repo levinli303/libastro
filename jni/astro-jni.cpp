@@ -352,8 +352,8 @@ jobject getAllRiset(JNIEnv *env,
             jlong curr = temps[i][j].first;
             jlong next = temps[i][j + 1].first;
             if (temps[i][j].second && !temps[i][j + 1].second && next > origTime) {
-                jobject rise = env->NewObject(posCls, posInitMethod, 0, 0, curr);
-                jobject set = env->NewObject(posCls, posInitMethod, 0, 0, next);
+                jobject rise = env->NewObject(posCls, posInitMethod, 0.0, 0.0, curr);
+                jobject set = env->NewObject(posCls, posInitMethod, 0.0, 0.0, next);
                 jobject riset = env->NewObject(risetCls, risetInitMethod, rise, set, NULL, env->NewStringUTF(planets[i]));
                 env->CallBooleanMethod(result, arrayListAdd, riset);
                 break;
