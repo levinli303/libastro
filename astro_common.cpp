@@ -20,6 +20,11 @@ static const char *planetNames[] = {
         "Moon",
 };
 
+const char *GetStarName(int index)
+{
+    return planetNames[index];
+}
+
 double EpochToEphemTime(double seconds_since_epoch)
 {
     return (seconds_since_epoch + EPHEM_SECONDS_DIFFERENCE) / 86400;
@@ -35,20 +40,28 @@ int FindAlt0(Now *now, Obj *obj, double step, double limit, int forward, int go_
     double orig = now->n_mjd;
     double current = orig;
 
-    obj_cir(now, obj);
-    double prev_az = obj->es.co_az;
-    double prev_alt = obj->es.co_alt;
+    Obj backup;
+    memcpy(&backup, obj, sizeof(Obj));
+
+    obj_cir(now, &backup);
+
+    double prev_az = backup.pl.co_az;
+    double prev_alt = backup.pl.co_alt;
     double prev_time = current;
+
+    memcpy(&backup, obj, sizeof(Obj));
 
     go_down = forward ? go_down : !go_down;
 
-    for (;forward ? (current < orig + limit) : (current > orig - limit); forward ? current += 1 : current -= 1)
+    for (;;)
     {
         now->n_mjd = current;
-        obj_cir(now, obj);
+        obj_cir(now, &backup);
 
-        double curr_alt = obj->es.co_alt;
-        double curr_az = obj->es.co_az;
+        double curr_alt = backup.pl.co_alt;
+        double curr_az = backup.pl.co_az;
+
+        memcpy(&backup, obj, sizeof(Obj));
 
         if (go_down)
         {
@@ -74,6 +87,22 @@ int FindAlt0(Now *now, Obj *obj, double step, double limit, int forward, int go_
         prev_alt = curr_alt;
         prev_az = curr_az;
         prev_time = current;
+
+        if (forward)
+        {
+            if (current > orig + limit)
+            {
+                break;
+            }
+        }
+        else
+        {
+            if (current < orig - limit)
+            {
+                break;
+            }
+        }
+        forward ? current += step : current -= step;
     }
     now->n_mjd = orig;
     return 1;
@@ -91,12 +120,19 @@ int GetModifiedRiset(Now *now, int index, RiseSet *riset)
     Obj *objs;
     getBuiltInObjs(&objs);
 
-    Obj obj = objs[index];
+    Obj origObj = objs[index];
+    Obj obj;
+
+    memcpy(&obj, &origObj, sizeof(Obj));
 
     // get current status
     obj_cir(&backup, &obj);
 
-    if (obj.es.co_alt > 0) {
+    int isUp = obj.pl.co_alt > 0;
+
+    memcpy(&obj, &origObj, sizeof(Obj));
+
+    if (isUp) {
         if (FindAlt0(&backup, &obj, step, limit, false, false, &riset->rs_riseaz, &riset->rs_risetm) == 0 &&
             FindAlt0(&backup, &obj, step, limit, true, true, &riset->rs_settm, &riset->rs_settm) == 0)
         {
