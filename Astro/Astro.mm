@@ -662,11 +662,10 @@ double calc_phase(double x, double antitarget)
     string line0 = [tle.line0 UTF8String];
     string line1 = [tle.line1 UTF8String];
     string line2 = [tle.line2 UTF8String];
-    Obj satillite_b;
-    Obj satillite;
+    Obj satillite, satillite_backup;
     /* Construct the Satellite */
-    db_tle((char *)[tle.line0 UTF8String], (char *)[tle.line1 UTF8String], (char *)[tle.line2 UTF8String], &satillite_b);
-    memcpy(&satillite, &satillite_b, sizeof(Obj));
+    db_tle((char *)[tle.line0 UTF8String], (char *)[tle.line1 UTF8String], (char *)[tle.line2 UTF8String], &satillite);
+    memcpy(&satillite_backup, &satillite, sizeof(Obj));
     /* Construct the observer */
     Now now;
     memset(&now, 0, sizeof(Now));
@@ -686,13 +685,14 @@ double calc_phase(double x, double antitarget)
     SatellitePosition *rise = nil;
     SatellitePosition *set = nil;
     SatellitePosition *peak = nil;
+
     double E1 = E0;
     double A1 = A0;
     double R1 = R0;
     for (int i = 1; i < MAX_FORECAST_DAY * 24 * 60; i++) {
         /* +1 Min */
         now.n_mjd += (60 / 86400.0);
-        memcpy(&satillite, &satillite_b, sizeof(Obj));
+        memcpy(&satillite, &satillite_backup, sizeof(Obj));
         obj_earthsat(&now, &satillite);
         double A = satillite.es.co_az;
         double E = satillite.es.co_alt;
