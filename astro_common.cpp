@@ -3,8 +3,9 @@
 //
 
 #include "astro_common.h"
-#include "astro.h"
 #include <cstring>
+
+#define EPHEM_SECONDS_DIFFERENCE   2209032000
 
 static const char *planetNames[] = {
         "Mercury",
@@ -18,6 +19,16 @@ static const char *planetNames[] = {
         "Sun",
         "Moon",
 };
+
+double EpochToEphemTime(double seconds_since_epoch)
+{
+    return (seconds_since_epoch + EPHEM_SECONDS_DIFFERENCE) / 86400;
+}
+
+double EphemToEpochTime(double ephem)
+{
+    return ephem * 86400 - EPHEM_SECONDS_DIFFERENCE;
+}
 
 int FindAlt0(Now *now, Obj *obj, double step, double limit, int forward, int go_down, double *az, double *jd)
 {

@@ -5,4 +5,10 @@
 #ifndef ASTROWEATHER_ASTRO_COMMON_H
 #define ASTROWEATHER_ASTRO_COMMON_H
 
+#include "astro.h"
+
+double EpochToEphemTime(double seconds_since_epoch);
+double EphemToEpochTime(double ephem);
+int GetModifiedRiset(Now *now, int index, RiseSet *riset);
+
 #endif //ASTROWEATHER_ASTRO_COMMON_H
