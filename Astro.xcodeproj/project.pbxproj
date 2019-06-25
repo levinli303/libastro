@@ -73,12 +73,6 @@
 		978316C420FE2630009C66E2 /* sgp4.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783168E20FE262F009C66E2 /* sgp4.c */; };
 		9794BCA420F9A98B00CEA3A5 /* Astro.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCA320F9A98B00CEA3A5 /* Astro.mm */; };
 		9794BCA520F9A98B00CEA3A5 /* Astro.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9794BCA220F9A98B00CEA3A5 /* Astro.h */; };
-		9794BCB920F9A9DE00CEA3A5 /* atime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCAD20F9A9DE00CEA3A5 /* atime.cpp */; };
-		9794BCBA20F9A9DE00CEA3A5 /* vec3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCAF20F9A9DE00CEA3A5 /* vec3.cpp */; };
-		9794BCBB20F9A9DE00CEA3A5 /* degree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCB020F9A9DE00CEA3A5 /* degree.cpp */; };
-		9794BCBC20F9A9DE00CEA3A5 /* jday.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCB220F9A9DE00CEA3A5 /* jday.cpp */; };
-		9794BCBD20F9A9DE00CEA3A5 /* planets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCB320F9A9DE00CEA3A5 /* planets.cpp */; };
-		9794BCBE20F9A9DE00CEA3A5 /* acoord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCB420F9A9DE00CEA3A5 /* acoord.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -172,19 +166,6 @@
 		9794BC9F20F9A98B00CEA3A5 /* libAstro.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAstro.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		9794BCA220F9A98B00CEA3A5 /* Astro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Astro.h; sourceTree = "<group>"; };
 		9794BCA320F9A98B00CEA3A5 /* Astro.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Astro.mm; sourceTree = "<group>"; };
-		9794BCAC20F9A9DD00CEA3A5 /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defs.h; sourceTree = "<group>"; };
-		9794BCAD20F9A9DE00CEA3A5 /* atime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = atime.cpp; sourceTree = "<group>"; };
-		9794BCAE20F9A9DE00CEA3A5 /* planets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = planets.h; sourceTree = "<group>"; };
-		9794BCAF20F9A9DE00CEA3A5 /* vec3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vec3.cpp; sourceTree = "<group>"; };
-		9794BCB020F9A9DE00CEA3A5 /* degree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = degree.cpp; sourceTree = "<group>"; };
-		9794BCB120F9A9DE00CEA3A5 /* vec3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec3.h; sourceTree = "<group>"; };
-		9794BCB220F9A9DE00CEA3A5 /* jday.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jday.cpp; sourceTree = "<group>"; };
-		9794BCB320F9A9DE00CEA3A5 /* planets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = planets.cpp; sourceTree = "<group>"; };
-		9794BCB420F9A9DE00CEA3A5 /* acoord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = acoord.cpp; sourceTree = "<group>"; };
-		9794BCB520F9A9DE00CEA3A5 /* atime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atime.h; sourceTree = "<group>"; };
-		9794BCB620F9A9DE00CEA3A5 /* degree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = degree.h; sourceTree = "<group>"; };
-		9794BCB720F9A9DE00CEA3A5 /* acoord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = acoord.h; sourceTree = "<group>"; };
-		9794BCB820F9A9DE00CEA3A5 /* jday.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jday.h; sourceTree = "<group>"; };
 		97B06D6A20FE266600FF4F10 /* astro_export.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = astro_export.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -219,31 +200,10 @@
 			isa = PBXGroup;
 			children = (
 				97BBBC4220FE25B3003C9191 /* ephem */,
-				9794BCAB20F9A9C300CEA3A5 /* sunmoon */,
 				9794BCA220F9A98B00CEA3A5 /* Astro.h */,
 				9794BCA320F9A98B00CEA3A5 /* Astro.mm */,
 			);
 			path = Astro;
-			sourceTree = "<group>";
-		};
-		9794BCAB20F9A9C300CEA3A5 /* sunmoon */ = {
-			isa = PBXGroup;
-			children = (
-				9794BCB420F9A9DE00CEA3A5 /* acoord.cpp */,
-				9794BCB720F9A9DE00CEA3A5 /* acoord.h */,
-				9794BCAD20F9A9DE00CEA3A5 /* atime.cpp */,
-				9794BCB520F9A9DE00CEA3A5 /* atime.h */,
-				9794BCAC20F9A9DD00CEA3A5 /* defs.h */,
-				9794BCB020F9A9DE00CEA3A5 /* degree.cpp */,
-				9794BCB620F9A9DE00CEA3A5 /* degree.h */,
-				9794BCB220F9A9DE00CEA3A5 /* jday.cpp */,
-				9794BCB820F9A9DE00CEA3A5 /* jday.h */,
-				9794BCB320F9A9DE00CEA3A5 /* planets.cpp */,
-				9794BCAE20F9A9DE00CEA3A5 /* planets.h */,
-				9794BCAF20F9A9DE00CEA3A5 /* vec3.cpp */,
-				9794BCB120F9A9DE00CEA3A5 /* vec3.h */,
-			);
-			path = sunmoon;
 			sourceTree = "<group>";
 		};
 		97BBBC4220FE25B3003C9191 /* ephem */ = {
@@ -389,12 +349,10 @@
 				978316C020FE2630009C66E2 /* sun.c in Sources */,
 				978316C320FE2630009C66E2 /* jupmoon.c in Sources */,
 				978316A720FE2630009C66E2 /* obliq.c in Sources */,
-				9794BCB920F9A9DE00CEA3A5 /* atime.cpp in Sources */,
 				97055D322109DD9700B8CBC2 /* mars.1020.c in Sources */,
 				9783169020FE2630009C66E2 /* marsmoon.c in Sources */,
 				978316BC20FE2630009C66E2 /* eq_ecl.c in Sources */,
 				978316A120FE2630009C66E2 /* plmoon.c in Sources */,
-				9794BCBE20F9A9DE00CEA3A5 /* acoord.cpp in Sources */,
 				97055D2E2109DD7900B8CBC2 /* refract.c in Sources */,
 				978316B620FE2630009C66E2 /* actan.c in Sources */,
 				97400AAE20FE3148002F82A3 /* jupiter.9910.c in Sources */,
@@ -416,7 +374,6 @@
 				9794BCA420F9A98B00CEA3A5 /* Astro.mm in Sources */,
 				97055D342109DDB000B8CBC2 /* aa_hadec.c in Sources */,
 				9783169C20FE2630009C66E2 /* reduce.c in Sources */,
-				9794BCBA20F9A9DE00CEA3A5 /* vec3.cpp in Sources */,
 				97400AB620FE3184002F82A3 /* saturne.9910.c in Sources */,
 				97400ABA20FE325C002F82A3 /* dtoa.c in Sources */,
 				97400AB820FE3184002F82A3 /* uranus.9910.c in Sources */,
@@ -442,12 +399,10 @@
 				978316AB20FE2630009C66E2 /* helio.c in Sources */,
 				978316BF20FE2630009C66E2 /* deep.c in Sources */,
 				97400AAF20FE3148002F82A3 /* jupiter.1020.c in Sources */,
-				9794BCBC20F9A9DE00CEA3A5 /* jday.cpp in Sources */,
 				9783169E20FE2630009C66E2 /* riset.c in Sources */,
 				9783169420FE2630009C66E2 /* precess.c in Sources */,
 				978316B220FE2630009C66E2 /* parallax.c in Sources */,
 				978316BD20FE2630009C66E2 /* formats.c in Sources */,
-				9794BCBB20F9A9DE00CEA3A5 /* degree.cpp in Sources */,
 				978316A320FE2630009C66E2 /* comet.c in Sources */,
 				978316AC20FE2630009C66E2 /* utc_gst.c in Sources */,
 				978316B420FE2630009C66E2 /* dbfmt.c in Sources */,
@@ -455,7 +410,6 @@
 				978316C420FE2630009C66E2 /* sgp4.c in Sources */,
 				978316A020FE2630009C66E2 /* magdecl.c in Sources */,
 				9783169B20FE2630009C66E2 /* libration.c in Sources */,
-				9794BCBD20F9A9DE00CEA3A5 /* planets.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

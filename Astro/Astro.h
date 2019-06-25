@@ -8,19 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSUInteger, AstroPlanet) {
-    AstroPlanetSun,
-    AstroPlanetMoon,
-    AstroPlanetMercury,
-    AstroPlanetVenus,
-    AstroPlanetMars,
-    AstroPlanetJupiter,
-    AstroPlanetSaturn,
-    AstroPlanetUranus,
-    AstroPlanetNeptune,
-    AstroPlanetPluto,
-};
-
 @interface AstroPosition : NSObject <NSCopying>
 @property (nonatomic) double elevation;
 @property (nonatomic) double azimuth;
@@ -31,11 +18,6 @@ typedef NS_ENUM(NSUInteger, AstroPlanet) {
 @property (nonatomic) AstroPosition * _Nonnull rise;
 @property (nonatomic) AstroPosition * _Nonnull peak;
 @property (nonatomic) AstroPosition * _Nonnull set;
-@end
-
-@interface AstroRiseSet : NSObject
-@property (nonatomic, copy) NSDate * _Nullable rise;
-@property (nonatomic, copy) NSDate * _Nullable set;
 @property (nonatomic, copy) NSString * _Nonnull name;
 @end
 
@@ -69,7 +51,7 @@ typedef NS_ENUM(NSUInteger, AstroPlanet) {
 
 + (void)getRisetInLocation:(double) longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *_Nonnull) time completion:(nullable void (^)(AstroRiset *_Nullable sun, AstroRiset *_Nullable moon))handler;
 + (LunarPhase *_Nonnull)getCurrentMoonPhase;
-+ (NSArray<AstroRiseSet *>*_Nonnull)getRiseSetForAllSolarSystemObjectsInLongitude:(double) longitude latitude: (double) latitude forTime: (NSDate *_Nonnull) time;
-+ (SatelliteRiseSet *_Nonnull)getRiseSetForSatelliteWithTLE:(SatelliteTLE *_Nonnull)tle longitude: (double)longitude latitude: (double) latitude forTime: (NSDate *_Nonnull) time;
++ (NSArray<AstroRiset *>*_Nonnull)getRiseSetForAllSolarSystemObjectsInLongitude:(double) longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *_Nonnull) time;
++ (SatelliteRiseSet *_Nonnull)getRiseSetForSatelliteWithTLE:(SatelliteTLE *_Nonnull)tle longitude: (double)longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *_Nonnull) time;
 
 @end
