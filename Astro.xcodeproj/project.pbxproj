@@ -73,6 +73,7 @@
 		978316C420FE2630009C66E2 /* sgp4.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783168E20FE262F009C66E2 /* sgp4.c */; };
 		9794BCA420F9A98B00CEA3A5 /* Astro.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCA320F9A98B00CEA3A5 /* Astro.mm */; };
 		9794BCA520F9A98B00CEA3A5 /* Astro.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9794BCA220F9A98B00CEA3A5 /* Astro.h */; };
+		97991F0122C25C1900AFA0A5 /* astro_common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 97991F0022C25C1900AFA0A5 /* astro_common.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -166,6 +167,8 @@
 		9794BC9F20F9A98B00CEA3A5 /* libAstro.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAstro.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		9794BCA220F9A98B00CEA3A5 /* Astro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Astro.h; sourceTree = "<group>"; };
 		9794BCA320F9A98B00CEA3A5 /* Astro.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Astro.mm; sourceTree = "<group>"; };
+		97991EFF22C25C1900AFA0A5 /* astro_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = astro_common.h; sourceTree = "<group>"; };
+		97991F0022C25C1900AFA0A5 /* astro_common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = astro_common.cpp; sourceTree = "<group>"; };
 		97B06D6A20FE266600FF4F10 /* astro_export.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = astro_export.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -183,6 +186,8 @@
 		9794BC9620F9A98B00CEA3A5 = {
 			isa = PBXGroup;
 			children = (
+				97991F0022C25C1900AFA0A5 /* astro_common.cpp */,
+				97991EFF22C25C1900AFA0A5 /* astro_common.h */,
 				9794BCA120F9A98B00CEA3A5 /* Astro */,
 				9794BCA020F9A98B00CEA3A5 /* Products */,
 			);
@@ -355,6 +360,7 @@
 				978316A120FE2630009C66E2 /* plmoon.c in Sources */,
 				97055D2E2109DD7900B8CBC2 /* refract.c in Sources */,
 				978316B620FE2630009C66E2 /* actan.c in Sources */,
+				97991F0122C25C1900AFA0A5 /* astro_common.cpp in Sources */,
 				97400AAE20FE3148002F82A3 /* jupiter.9910.c in Sources */,
 				9783169520FE2630009C66E2 /* deltat.c in Sources */,
 				978316A920FE2630009C66E2 /* satmoon.c in Sources */,

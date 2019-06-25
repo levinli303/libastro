@@ -7,6 +7,7 @@
 //
 
 #import "Astro.h"
+#include "astro_common.h"
 #include "ephem/astro.h"
 
 #undef lat
@@ -23,35 +24,12 @@ double radian(const double &degree)
 
 NSDate *ModernDate(double d)
 {
-    int year, month;
-    double dday;
-    mjd_cal(d, &month, &dday, &year);
-    NSCalendar *calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
-    NSDateComponents *compo = [[NSDateComponents alloc] init];
-    [compo setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-    [compo setYear:year];
-    [compo setMonth:month];
-    NSInteger day = round(dday);
-    [compo setDay:day];
-    double dhour = (dday - day) * 24;
-    NSInteger hour = round(dhour);
-    [compo setHour:hour];
-    double dminute = (dhour - hour) * 60;
-    NSInteger minute = round(dminute);
-    [compo setMinute:minute];
-    double dsecond = (dminute - minute) * 60;
-    NSInteger second = round(dsecond);
-    [compo setSecond:second];
-    return [calendar dateFromComponents:compo];
+    return [NSDate dateWithTimeIntervalSince1970:EphemToEpochTime(d)];
 }
 
 double ModifiedJulianDate(NSDate *time)
 {
-    NSCalendar *calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
-    NSDateComponents *compo = [calendar componentsInTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0] fromDate:time];
-    double x;
-    cal_mjd((int)[compo month], [compo day] + ([compo hour] * 3600 + [compo minute] * 60 + [compo second]) / 86400.0, (int)[compo year], &x);
-    return x;
+    return EpochToEphemTime([time timeIntervalSince1970]);
 }
 
 @implementation AstroPosition
@@ -153,122 +131,41 @@ double ModifiedJulianDate(NSDate *time)
 
 @implementation Astro
 
-const NSString *NameFromLibastro(int index)
-{
-    switch (index) {
-        case SUN:
-            return @"Sun";
-        case MOON:
-            return @"Moon";
-        case MERCURY:
-            return @"Mercury";
-        case VENUS:
-            return @"Venus";
-        case MARS:
-            return @"Mars";
-        case JUPITER:
-            return @"Jupiter";
-        case SATURN:
-            return @"Saturn";
-        case URANUS:
-            return @"Uranus";
-        case NEPTUNE:
-            return @"Neptune";
-        case PLUTO:
-            return @"Pluto";
-    }
-    return @"Unknown";
-}
-
-AstroRiset *RisetForObserver(Now *now, int index)
-{
-    RiseSet rs;
-
-    Obj *objects;
-    getBuiltInObjs(&objects);
-
-    riset_cir(now, &objects[index], 0, &rs);
-
-    if (rs.rs_flags != 0) {
-        return nil;
-    }
-
-    AstroPosition *rise = [AstroPosition new];
-    rise.azimuth = rs.rs_riseaz;
-    rise.elevation = 0;
-    rise.time = ModernDate(rs.rs_risetm);
-
-    AstroPosition *transit = [AstroPosition new];
-    transit.azimuth = rs.rs_tranaz;
-    transit.elevation = rs.rs_tranalt;
-    transit.time = ModernDate(rs.rs_trantm);
-
-    AstroPosition *set = [AstroPosition new];
-    set.azimuth = rs.rs_setaz;
-    set.elevation = 0;
-    set.time = ModernDate(rs.rs_settm);
-
-    AstroRiset *riset = [[AstroRiset alloc] initWithRise:rise peak:transit set:set];;
-    riset.name = [NameFromLibastro(index) copy];
-
-    return riset;
-}
-
-AstroRiset *ModifiedRisetForObserver(Now *now, int index)
-{
-    Now backup;
-    memcpy(&backup, now, sizeof(Now));
-
-    AstroRiset *today = RisetForObserver(&backup, index);
-
-    if (today == nil) {
-        return nil;
-    }
-
-    if ([today.peak.time timeIntervalSinceDate: today.rise.time] >= 0 && [today.set.time timeIntervalSinceDate: today.rise.time] >= 0) {
-        return today;
-    }
-
-    BOOL go_back = [ModernDate(now->n_mjd) timeIntervalSinceDate:today.rise.time] < 0;
-    if (go_back) {
-        backup.n_mjd -= 1;
-
-        AstroRiset *yesterday = RisetForObserver(&backup, index);
-        if (yesterday == nil) {
-            return nil;
-        }
-
-        if ([today.set.time timeIntervalSinceDate: today.rise.time] < 0) {
-            today.rise = yesterday.rise;
-            today.peak = yesterday.peak;
-        } else if ([today.peak.time timeIntervalSinceDate: today.rise.time] < 0) {
-            today.rise = yesterday.rise;
-        }
-        return today;
-    }
-
-    backup.n_mjd += 1;
-    AstroRiset *tomorrow = RisetForObserver(&backup, index);
-    if (tomorrow == nil) {
-        return nil;
-    }
-
-    if ([today.peak.time timeIntervalSinceDate: today.rise.time] < 0) {
-        today.peak = tomorrow.peak;
-        today.set = tomorrow.set;
-    } else {
-        today.set = tomorrow.set;
-    }
-    return today;
-}
-
 + (void)getRisetInLocation:(double) longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *) time completion:(void (^)(AstroRiset *sun, AstroRiset *moon))handler {
     /* Construct the observer */
     Now now;
     ConfigureObserver(longitude, latitude, altitude, time, &now);
+    
+    AstroRiset *sunriset = nil;
+    AstroRiset *moonriset = nil;
+    
+    RiseSet riset;
+    if (GetModifiedRiset(&now, SUN, &riset) == 0) {
+        AstroPosition *rise = [AstroPosition new];
+        rise.azimuth = riset.rs_riseaz;
+        rise.time = ModernDate(riset.rs_risetm);
+        
+        AstroPosition *set = [AstroPosition new];
+        set.azimuth = riset.rs_setaz;
+        set.time = ModernDate(riset.rs_settm);
+        
+        sunriset = [[AstroRiset alloc] initWithRise:rise peak:nil set:set];
+        sunriset.name = [NSString stringWithUTF8String:GetStarName(SUN)];
+    }
+    
+    if (GetModifiedRiset(&now, MOON, &riset) == 0) {
+        AstroPosition *rise = [AstroPosition new];
+        rise.azimuth = riset.rs_riseaz;
+        rise.time = ModernDate(riset.rs_risetm);
+        
+        AstroPosition *set = [AstroPosition new];
+        set.azimuth = riset.rs_setaz;
+        set.time = ModernDate(riset.rs_settm);
+        
+        moonriset = [[AstroRiset alloc] initWithRise:rise peak:nil set:set];
+        moonriset.name = [NSString stringWithUTF8String:GetStarName(MOON)];
+    }
 
-    AstroRiset *sunriset = ModifiedRisetForObserver(&now, SUN);
-    AstroRiset *moonriset = ModifiedRisetForObserver(&now, MOON);
 
     if (handler) {
         handler(sunriset, moonriset);
@@ -360,12 +257,23 @@ double calc_phase(double x, double antitarget)
     Now now;
     ConfigureObserver(longitude, latitude, altitude, time, &now);
 
+    RiseSet riset;
     NSMutableArray *array = [NSMutableArray array];
     for (int i = MERCURY; i <= MOON; i++) {
-        AstroRiset *riset = ModifiedRisetForObserver(&now, i);
-        if (riset != nil) {
+        if (GetModifiedRiset(&now, i, &riset) == 0) {
+            AstroPosition *rise = [AstroPosition new];
+            rise.azimuth = riset.rs_riseaz;
+            rise.time = ModernDate(riset.rs_risetm);
+            
+            AstroPosition *set = [AstroPosition new];
+            set.azimuth = riset.rs_setaz;
+            set.time = ModernDate(riset.rs_settm);
+            
+            AstroRiset *riset = [[AstroRiset alloc] initWithRise:rise peak:nil set:set];
+            riset.name = [NSString stringWithUTF8String:GetStarName(i)];
             [array addObject:riset];
         }
+
     }
     return array;
 }
@@ -385,7 +293,6 @@ void ConfigureObserver(double longitude, double latitude, double altitude, NSDat
 }
 
 + (SatelliteRiseSet *)getRiseSetForSatelliteWithTLE:(SatelliteTLE *)tle longitude: (double)longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *) time {
-    using namespace std;
     /* Construct the TLE */
     Obj satillite, satillite_backup;
     /* Construct the Satellite */
