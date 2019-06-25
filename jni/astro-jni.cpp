@@ -4,12 +4,6 @@
 #include "astro.h"
 #include "astro_common.h"
 
-// MARK: Geo Conversion
-double radian(const double &degree)
-{
-    return degree / 180.0 * M_PI;
-}
-
 jobject getRiset(JNIEnv *env,
                  jdouble longitude, jdouble latitude,
                  jdouble altitude, jobject time) {
@@ -27,13 +21,7 @@ jobject getRiset(JNIEnv *env,
     jlong origTime = env->CallLongMethod(time, getTimeMethod);
 
     Now now;
-    now.n_lng = radian(longitude);
-    now.n_lat = radian(latitude);
-    now.n_elev = altitude / ERAD;
-    now.n_mjd = EpochToEphemTime((double)origTime / 1000);
-    now.n_tz = 0;
-    now.n_pressure = 1010;
-    now.n_temp = 15;
+    ConfigureObserver(longitude, latitude, altitude, (double)origTime / 1000, &now);
 
     jobject sunriset = nullptr;
     jobject moonriset = nullptr;
@@ -68,18 +56,10 @@ jobject getAllRiset(JNIEnv *env,
     jmethodID updatePosMehod = env->GetMethodID(posCls, "update", "(DDJ)V");
     jmethodID risetInitMethod = env->GetMethodID(risetCls, "<init>", "(Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Ljava/lang/String;)V");
 
-    jclass sunMoonCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/SunMoonRiset");
-    jmethodID sunMoonInitMethod = env->GetMethodID(sunMoonCls, "<init>", "(Lcc/meowssage/astroweather/SunMoon/Model/AstroRiset;Lcc/meowssage/astroweather/SunMoon/Model/AstroRiset;)V");
     jlong origTime = env->CallLongMethod(time, getTimeMethod);
 
     Now now;
-    now.n_lng = radian(longitude);
-    now.n_lat = radian(latitude);
-    now.n_elev = altitude / ERAD;
-    now.n_mjd = EpochToEphemTime((double)origTime / 1000);
-    now.n_tz = 0;
-    now.n_pressure = 1010;
-    now.n_temp = 15;
+    ConfigureObserver(longitude, latitude, altitude, (double)origTime / 1000, &now);
 
     jclass arrayListClass = env->FindClass("java/util/ArrayList");
     jmethodID construct = env->GetMethodID(arrayListClass, "<init>", "(I)V");
