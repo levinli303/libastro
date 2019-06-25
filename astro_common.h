@@ -1,0 +1,8 @@
+//
+// Created by 李林峰 on 2019-06-25.
+//
+
+#ifndef ASTROWEATHER_ASTRO_COMMON_H
+#define ASTROWEATHER_ASTRO_COMMON_H
+
+#endif //ASTROWEATHER_ASTRO_COMMON_H
