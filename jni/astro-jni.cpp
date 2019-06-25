@@ -138,5 +138,5 @@ jobject getLunarPhase(JNIEnv *env, jobject time) {
         pcDesc = "Waning Gibbous";
     }
 
-    return env->NewObject(lpCls, lpInitMethod, (long)(nn * 1000), (long)(nf * 1000), env->NewStringUTF(pcDesc), phase);
+    return env->NewObject(lpCls, lpInitMethod, (jlong)(nn * 1000), (jlong)(nf * 1000), env->NewStringUTF(pcDesc), phase);
 }
