@@ -229,6 +229,24 @@ AstroRiset *ModifiedRisetForObserver(Now *now, int index)
         return today;
     }
 
+    BOOL go_back = [ModernDate(now->n_mjd) timeIntervalSinceDate:today.rise.time] < 0;
+    if (go_back) {
+        backup.n_mjd -= 1;
+
+        AstroRiset *yesterday = RisetForObserver(&backup, index);
+        if (yesterday == nil) {
+            return nil;
+        }
+
+        if ([today.set.time timeIntervalSinceDate: today.rise.time] < 0) {
+            today.rise = yesterday.rise;
+            today.peak = yesterday.peak;
+        } else if ([today.peak.time timeIntervalSinceDate: today.rise.time] < 0) {
+            today.rise = yesterday.rise;
+        }
+        return today;
+    }
+
     backup.n_mjd += 1;
     AstroRiset *tomorrow = RisetForObserver(&backup, index);
     if (tomorrow == nil) {
