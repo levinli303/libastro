@@ -166,62 +166,13 @@ double ModifiedJulianDate(NSDate *time)
     }
 }
 
-double fmod2(double m1, double m2)
-{
-    return m1 - floor(m1 / m2) * m2;
-}
-
-double calc_phase(double x, double antitarget)
-{
-    Obj moonObj;
-    memset(&moonObj, 0, sizeof(Obj));
-    moonObj.pl.plo_code = MOON;
-    moonObj.any.co_type = PLANET;
-    Obj sunObj;
-    memset(&sunObj, 0, sizeof(Obj));
-    sunObj.pl.plo_code = SUN;
-    sunObj.any.co_type = PLANET;
-    Now now;
-    memset(&now, 0, sizeof(Now));
-    now.n_mjd = x;
-    now.n_pressure = 1010;
-    obj_cir(&now, &sunObj);
-    obj_cir(&now, &moonObj);
-    double slon, slat, mlon, mlat;
-    eq_ecl(now.n_mjd, sunObj.pl.co_gaera, sunObj.pl.co_gaedec, &slat, &slon);
-    eq_ecl(now.n_mjd, moonObj.pl.co_gaera, moonObj.pl.co_gaedec, &mlat, &mlon);
-    double res = fmod2(mlon - slon - antitarget, 2 * M_PI) - M_PI;
-    return res;
-}
-
-+(NSDate *)findMoonPhase: (NSDate *)d motion:(double) motion target:(double)target {
-    double antitarget = target + M_PI;
-    double time = ModifiedJulianDate(d);
-    double res = calc_phase(time, antitarget);
-    double angle_to_cover = fmod2(-res, motion);
-    double dd = time + 29.53 * angle_to_cover / (2 * M_PI);
-    double hour = 1.0 / 24;
-    double x0 = dd;
-    double x1 = dd + hour;
-    double f0 = calc_phase(x0, antitarget);
-    double f1 = calc_phase(x1, antitarget);
-    while (fabs(x1 - x0) > 1.0 / 24 / 60 && f1 != f0) {
-        double x2 = x0;
-        x0 = x1;
-        x1 = x1 + (x1 - x2) / (f0 / f1 - 1);
-        f0 = f1;
-        f1 = calc_phase(x1, antitarget);
-    }
-    return [d dateByAddingTimeInterval:(x1 - time) * 86400.0];
-}
-
 + (LunarPhase *)getCurrentMoonPhase {
     // Calculate lunar phase
     LunarPhase *p = [[LunarPhase alloc] init];
     NSDate *time = [NSDate date];
-    NSDate *prevNew = [self findMoonPhase:time motion:M_PI * -2 target:0];
-    p.nextNew = [self findMoonPhase:time motion:M_PI * 2 target:0];
-    p.nextFull = [self findMoonPhase:time motion:M_PI * 2 target:M_PI];
+    NSDate *prevNew =  [NSDate dateWithTimeIntervalSince1970:FindMoonPhase([time timeIntervalSince1970], M_PI * -2, 0)];
+    p.nextNew = [NSDate dateWithTimeIntervalSince1970:FindMoonPhase([time timeIntervalSince1970], M_PI * 2, 0)];
+    p.nextFull = [NSDate dateWithTimeIntervalSince1970:FindMoonPhase([time timeIntervalSince1970], M_PI * 2, M_PI)];
     double phase = [time timeIntervalSinceDate:prevNew] / [p.nextNew timeIntervalSinceDate:prevNew];
     p.phase = phase;
 
