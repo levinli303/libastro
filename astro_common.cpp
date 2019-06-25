@@ -145,10 +145,14 @@ int GetModifiedRiset(Now *now, int index, RiseSet *riset)
             return 0;
         }
     } else {
-        if (FindAlt0(&backup, &obj, step, limit, true, false, &riset->rs_riseaz, &riset->rs_risetm) == 0 &&
-            FindAlt0(&backup, &obj, step, limit, true, true, &riset->rs_settm, &riset->rs_settm) == 0)
+        if (FindAlt0(&backup, &obj, step, limit, true, false, &riset->rs_riseaz, &riset->rs_risetm) == 0)
         {
-            return 0;
+            // set time is always behind rise time
+            backup.n_mjd = riset->rs_risetm;
+            if (FindAlt0(&backup, &obj, step, limit, true, true, &riset->rs_settm, &riset->rs_settm) == 0)
+            {
+                return 0;
+            }
         }
     }
     return RS_ERROR;
