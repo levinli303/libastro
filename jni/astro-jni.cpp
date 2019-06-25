@@ -105,55 +105,6 @@ jdouble modifiedJulianDate(JNIEnv *env, jobject time) {
     return x;
 }
 
-double fmod2(double m1, double m2)
-{
-    return m1 - floor(m1 / m2) * m2;
-}
-
-double calc_phase(double x, double antitarget)
-{
-    Obj moonObj;
-    memset(&moonObj, 0, sizeof(Obj));
-    moonObj.pl.plo_code = MOON;
-    moonObj.any.co_type = PLANET;
-    Obj sunObj;
-    memset(&sunObj, 0, sizeof(Obj));
-    sunObj.pl.plo_code = SUN;
-    sunObj.any.co_type = PLANET;
-    Now now;
-    memset(&now, 0, sizeof(Now));
-    now.n_mjd = x;
-    now.n_pressure = 1010;
-    obj_cir(&now, &sunObj);
-    obj_cir(&now, &moonObj);
-    double slon, slat, mlon, mlat;
-    eq_ecl(now.n_mjd, sunObj.pl.co_gaera, sunObj.pl.co_gaedec, &slat, &slon);
-    eq_ecl(now.n_mjd, moonObj.pl.co_gaera, moonObj.pl.co_gaedec, &mlat, &mlon);
-    double res = fmod2(mlon - slon - antitarget, 2 * M_PI) - M_PI;
-    return res;
-}
-
-jlong findMoonPhase(JNIEnv *env, jobject date, jlong mi, jdouble motion, jdouble target) {
-    double antitarget = target + M_PI;
-    double time = modifiedJulianDate(env, date);
-    double res = calc_phase(time, antitarget);
-    double angle_to_cover = fmod2(-res, motion);
-    double dd = time + 29.53 * angle_to_cover / (2 * M_PI);
-    double hour = 1.0 / 24;
-    double x0 = dd;
-    double x1 = dd + hour;
-    double f0 = calc_phase(x0, antitarget);
-    double f1 = calc_phase(x1, antitarget);
-    while (fabs(x1 - x0) > 1.0 / 24 / 60 && f1 != f0) {
-        double x2 = x0;
-        x0 = x1;
-        x1 = x1 + (x1 - x2) / (f0 / f1 - 1);
-        f0 = f1;
-        f1 = calc_phase(x1, antitarget);
-    }
-    return mi + (x1 - time) * 86400000;
-}
-
 jobject getLunarPhase(JNIEnv *env, jobject time) {
     jclass lpCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/LunarPhase");
     jmethodID lpInitMethod = env->GetMethodID(lpCls, "<init>", "(JJLjava/lang/String;D)V");
@@ -162,9 +113,9 @@ jobject getLunarPhase(JNIEnv *env, jobject time) {
 
     jlong mi = env->CallLongMethod(time, getTimeMethod);
 
-    jlong pn = findMoonPhase(env, time, mi, M_PI * -2, 0);
-    jlong nn = findMoonPhase(env, time, mi, M_PI * 2, 0);
-    jlong nf = findMoonPhase(env, time, mi, M_PI * 2, M_PI);
+    double pn = FindMoonPhase((double)mi / 1000, M_PI * -2, 0);
+    double nn = FindMoonPhase((double)mi / 1000, M_PI * 2, 0);
+    double nf = FindMoonPhase((double)mi / 1000, M_PI * 2, M_PI);
     double phase = (mi - pn) / (double)(nn - pn);
 
     const char *pcDesc = NULL;
@@ -187,5 +138,5 @@ jobject getLunarPhase(JNIEnv *env, jobject time) {
         pcDesc = "Waning Gibbous";
     }
 
-    return env->NewObject(lpCls, lpInitMethod, nn, nf, env->NewStringUTF(pcDesc), phase);
+    return env->NewObject(lpCls, lpInitMethod, (long)(nn * 1000), (long)(nf * 1000), env->NewStringUTF(pcDesc), phase);
 }
