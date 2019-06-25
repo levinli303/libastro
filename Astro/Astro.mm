@@ -29,70 +29,13 @@ double radian(const double &degree)
     return degree / 180.0 * M_PI;
 }
 
-void _uvw2enu(double u, double v, double w, double lat, double lon, double &E, double &N, double &U)
+double ModifiedJulianDate(NSDate *time)
 {
-    lon = radian(lon);
-    lat = radian(lat);
-    double t = cos(lon) * u + sin(lon) * v;
-    E = -sin(lon) * u + cos(lon) * v;
-    U = cos(lat) * t + sin(lat) * w;
-    N = -sin(lat) * t + cos(lat) * w;
-}
-
-double get_radius_normal(double lat)
-{
-    return pow(WGS84_A, 2) / sqrt(pow(WGS84_A, 2) * pow(cos(lat), 2) + pow(WGS84_B, 2) * pow(sin(lat), 2));
-}
-
-void geodetic2ecef(double lat, double lon, double h, double &X, double &Y, double &Z)
-{
-    lon = radian(lon);
-    lat = radian(lat);
-    double N = get_radius_normal(lat);
-    X = (N + h) * cos(lat) * cos(lon);
-    Y = (N + h) * cos(lat) * sin(lon);
-    Z = (N * pow(WGS84_B / WGS84_A, 2) + h) * sin(lat);
-}
-
-void ecef2enu(double x, double y, double z, double lat, double lon, double h, double &E, double &N, double &U)
-{
-    double x0, y0, z0;
-    geodetic2ecef(lat, lon, h, x0, y0, z0);
-    _uvw2enu(x - x0, y - y0, z - z0, lat, lon, E, N, U);
-}
-
-void enu2aer(double e, double n, double u, double &A, double &E, double &R)
-{
-    double r = hypot(e, n);
-    const double two_pi = M_PI * 2;
-    R = hypot(u, r);
-    E = atan2(u, r);
-    double a = atan2(e, n);
-    A = a - two_pi * floor(a / two_pi);
-}
-
-void ecef2aer(double x, double y, double z, double lat, double lon, double h, double &A, double &E, double &R)
-{
-    double xEast, yNorth, zUp;
-    ecef2enu(x, y, z, lat, lon, h, xEast, yNorth, zUp);
-    enu2aer(xEast, yNorth, zUp, A, E, R);
-}
-
-void eci2ecef(double x, double y, double z, double t, double &X, double &Y, double &Z)
-{
-    double cos_s = cos(t);
-    double sin_s = sin(t);
-
-    X =   x * cos_s  + y * sin_s;
-    Y =  -x * sin_s  + y * cos_s;
-    Z =   z;
-}
-
-void eci2aer(double x, double y, double z, double t, double lat, double lon, double h, double &A, double &E, double &R)
-{
-    double X, Y, Z;
-    eci2ecef(x, y, z, t, X, Y, Z);
-    ecef2aer(X, Y, Z, lat, lon, h, A, E, R);
+    NSCalendar *calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
+    NSDateComponents *compo = [calendar componentsInTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0] fromDate:time];
+    double x;
+    cal_mjd((int)[compo month], [compo day] + ([compo hour] * 3600 + [compo minute] * 60) / 86400.0, (int)[compo year], &x);
+    return x;
 }
 
 @implementation AstroPosition
@@ -501,7 +444,7 @@ double calc_phase(double x, double antitarget)
 
 +(NSDate *)findMoonPhase: (NSDate *)d motion:(double) motion target:(double)target {
     double antitarget = target + M_PI;
-    double time = [self modifiedJulianDateFromDate:d];
+    double time = ModifiedJulianDate(d);
     double res = calc_phase(time, antitarget);
     double angle_to_cover = fmod2(-res, motion);
     double dd = time + 29.53 * angle_to_cover / (2 * M_PI);
@@ -646,14 +589,19 @@ double calc_phase(double x, double antitarget)
 + (astro::AstroTime)astroDateFromDate:(NSDate *)time {
     NSCalendar *calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
     NSDateComponents *compo = [calendar componentsInTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0] fromDate:time];
-    return astro::AstroTime(astro::Jday((int)[compo year],(int)[compo month],(int)[compo day]),(int)([compo hour] * 3600 + [compo minute] * 60));}
+    return astro::AstroTime(astro::Jday((int)[compo year],(int)[compo month],(int)[compo day]),(int)([compo hour] * 3600 + [compo minute] * 60));
+}
 
-+ (double)modifiedJulianDateFromDate:(NSDate *)time {
-    NSCalendar *calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
-    NSDateComponents *compo = [calendar componentsInTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0] fromDate:time];
-    double x;
-    cal_mjd((int)[compo month], [compo day] + ([compo hour] * 3600 + [compo minute] * 60) / 86400.0, (int)[compo year], &x);
-    return x;
+void ConfigureObserver(double longitude, double latitude, double altitude, NSDate *time, Now *obj)
+{
+    memset(obj, 0, sizeof(Now));
+    obj->n_lng = radian(longitude);
+    obj->n_lat = radian(latitude);
+    obj->n_elev = altitude;
+    obj->n_tz = 0;
+    /* Construct the Julian Date */
+    obj->n_mjd = ModifiedJulianDate(time);
+    obj->n_pressure = 1010;
 }
 
 + (SatelliteRiseSet *)getRiseSetForSatelliteWithTLE:(SatelliteTLE *)tle longitude: (double)longitude latitude: (double) latitude forTime: (NSDate *) time {
@@ -662,20 +610,16 @@ double calc_phase(double x, double antitarget)
     string line0 = [tle.line0 UTF8String];
     string line1 = [tle.line1 UTF8String];
     string line2 = [tle.line2 UTF8String];
+
     Obj satillite, satillite_backup;
     /* Construct the Satellite */
     db_tle((char *)[tle.line0 UTF8String], (char *)[tle.line1 UTF8String], (char *)[tle.line2 UTF8String], &satillite);
     memcpy(&satillite_backup, &satillite, sizeof(Obj));
+
     /* Construct the observer */
     Now now;
-    memset(&now, 0, sizeof(Now));
-    now.n_lng = radian(longitude);
-    now.n_lat = radian(latitude);
-    now.n_elev = 0;
-    now.n_tz = 0;
-    /* Construct the Julian Date */
-    now.n_mjd = [self modifiedJulianDateFromDate:time];
-    now.n_pressure = 1010;
+    ConfigureObserver(longitude, latitude, 0, time, &now);
+
     /* Current Position */
     obj_earthsat(&now, &satillite);
     double A0 = satillite.es.co_az;
@@ -714,7 +658,7 @@ double calc_phase(double x, double antitarget)
             } else {
                 Now sunNow;
                 memcpy(&sunNow, &now, sizeof(Now));
-                sunNow.n_mjd = [self modifiedJulianDateFromDate:peak.time];
+                sunNow.n_mjd = ModifiedJulianDate(peak.time);
                 Obj sunObj;
                 sunObj.pl.plo_code = SUN;
                 sunObj.any.co_type = PLANET;
@@ -735,4 +679,5 @@ double calc_phase(double x, double antitarget)
     }
     return [[SatelliteRiseSet alloc] initWithName:tle.line0 current:current rise:rise peak:peak set:set];
 }
+
 @end
