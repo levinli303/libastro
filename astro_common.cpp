@@ -4,6 +4,7 @@
 
 #include "astro_common.h"
 #include <cstring>
+#include <cmath>
 
 #define EPHEM_SECONDS_DIFFERENCE   2209032000
 
@@ -19,6 +20,11 @@ static const char *planetNames[] = {
         "Sun",
         "Moon",
 };
+
+double radian(double degree)
+{
+    return degree / 180.0 * M_PI;
+}
 
 const char *GetStarName(int index)
 {
@@ -146,4 +152,17 @@ int GetModifiedRiset(Now *now, int index, RiseSet *riset)
         }
     }
     return RS_ERROR;
+}
+
+void ConfigureObserver(double longitude, double latitude, double altitude, double seconds_since_epoch, Now *obj)
+{
+    memset(obj, 0, sizeof(Now));
+    obj->n_lng = radian(longitude);
+    obj->n_lat = radian(latitude);
+    obj->n_elev = altitude / ERAD;
+    obj->n_dip = 0;
+    obj->n_temp = 15.0;
+    obj->n_tz = 0;
+    obj->n_mjd = EpochToEphemTime(seconds_since_epoch);
+    obj->n_pressure = 1010;
 }

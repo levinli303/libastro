@@ -16,12 +16,6 @@
 #define MIN_VISIBLE_ELEVATION_RADIAN        (radian(MIN_VISIBLE_ELEVATION_DEGREE))
 #define MAX_FORECAST_DAY                    5
 
-// MARK: Geo Conversion
-double radian(const double &degree)
-{
-    return degree / 180.0 * M_PI;
-}
-
 NSDate *ModernDate(double d)
 {
     return [NSDate dateWithTimeIntervalSince1970:EphemToEpochTime(d)];
@@ -134,7 +128,7 @@ double ModifiedJulianDate(NSDate *time)
 + (void)getRisetInLocation:(double) longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *) time completion:(void (^)(AstroRiset *sun, AstroRiset *moon))handler {
     /* Construct the observer */
     Now now;
-    ConfigureObserver(longitude, latitude, altitude, time, &now);
+    ConfigureObserver(longitude, latitude, altitude, [time timeIntervalSince1970], &now);
     
     AstroRiset *sunriset = nil;
     AstroRiset *moonriset = nil;
@@ -255,7 +249,7 @@ double calc_phase(double x, double antitarget)
 
     /* Construct the observer */
     Now now;
-    ConfigureObserver(longitude, latitude, altitude, time, &now);
+    ConfigureObserver(longitude, latitude, altitude, [time timeIntervalSince1970], &now);
 
     RiseSet riset;
     NSMutableArray *array = [NSMutableArray array];
@@ -278,20 +272,6 @@ double calc_phase(double x, double antitarget)
     return array;
 }
 
-void ConfigureObserver(double longitude, double latitude, double altitude, NSDate *time, Now *obj)
-{
-    memset(obj, 0, sizeof(Now));
-    obj->n_lng = radian(longitude);
-    obj->n_lat = radian(latitude);
-    obj->n_elev = altitude / ERAD;
-    obj->n_dip = 0;
-    obj->n_temp = 15.0;
-    obj->n_tz = 0;
-    /* Construct the Julian Date */
-    obj->n_mjd = ModifiedJulianDate(time);
-    obj->n_pressure = 1010;
-}
-
 + (SatelliteRiseSet *)getRiseSetForSatelliteWithTLE:(SatelliteTLE *)tle longitude: (double)longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *) time {
     /* Construct the TLE */
     Obj satillite, satillite_backup;
@@ -301,7 +281,7 @@ void ConfigureObserver(double longitude, double latitude, double altitude, NSDat
 
     /* Construct the observer */
     Now now;
-    ConfigureObserver(longitude, latitude, latitude, time, &now);
+    ConfigureObserver(longitude, latitude, latitude, [time timeIntervalSince1970], &now);
 
     /* Current Position */
     obj_earthsat(&now, &satillite);
