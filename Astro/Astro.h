@@ -67,7 +67,6 @@ typedef NS_ENUM(NSUInteger, AstroPlanet) {
 
 @interface Astro : NSObject
 
-+ (void)getMoonRiseSetWithLongitude:(double) longitude latitude: (double) latitude forTime: (NSDate *_Nonnull) time completion:(nullable void (^)(NSDate *_Nullable, NSDate *_Nullable, NSDate *_Nullable, NSDate *_Nullable, LunarPhase *_Nonnull))handler;
 + (void)getRisetInLocation:(double) longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *_Nonnull) time completion:(nullable void (^)(AstroRiset *_Nullable sun, AstroRiset *_Nullable moon))handler;
 + (LunarPhase *_Nonnull)getCurrentMoonPhase;
 + (NSArray<AstroRiseSet *>*_Nonnull)getRiseSetForAllSolarSystemObjectsInLongitude:(double) longitude latitude: (double) latitude forTime: (NSDate *_Nonnull) time;
