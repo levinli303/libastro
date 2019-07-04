@@ -8,50 +8,55 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface AstroPosition : NSObject <NSCopying>
 @property (nonatomic) double elevation;
 @property (nonatomic) double azimuth;
-@property (nonatomic, copy) NSDate * _Nonnull time;
+@property (nonatomic, copy) NSDate *time;
 @end
 
 @interface AstroRiset : NSObject
-@property (nonatomic) AstroPosition * _Nonnull rise;
-@property (nonatomic) AstroPosition * _Nonnull peak;
-@property (nonatomic) AstroPosition * _Nonnull set;
-@property (nonatomic, copy) NSString * _Nonnull name;
+@property (nonatomic) AstroPosition *rise;
+@property (nonatomic) AstroPosition *peak;
+@property (nonatomic) AstroPosition *set;
+@property (nonatomic, copy) NSString *name;
 @end
 
 @interface SatelliteTLE : NSObject
-- (instancetype _Nonnull)initWithLine0: (NSString *_Nonnull)line0 line1: (NSString *_Nonnull)line1 Line2: (NSString *_Nonnull)line2;
+- (instancetype)initWithLine0: (NSString *)line0 line1: (NSString *)line1 Line2: (NSString *)line2;
 @end
 
 @interface SatellitePosition : NSObject
-@property (nonatomic, copy) NSDate * _Nonnull time;
+@property (nonatomic, copy) NSDate *time;
 @property (nonatomic) double azimuth;
 @property (nonatomic) double elevation;
 @property (nonatomic) double range;
 @end
 
 @interface SatelliteRiseSet : NSObject
-@property (nonatomic) SatellitePosition * _Nullable rise;
-@property (nonatomic) SatellitePosition * _Nullable set;
-@property (nonatomic) SatellitePosition * _Nullable peak;
-@property (nonatomic) SatellitePosition * _Nonnull current;
-@property (nonatomic, copy) NSString * _Nonnull name;
+@property (nonatomic, nullable) SatellitePosition *rise;
+@property (nonatomic, nullable) SatellitePosition *set;
+@property (nonatomic, nullable) SatellitePosition *peak;
+@property (nonatomic) SatellitePosition *current;
+@property (nonatomic, copy) NSString *name;
 @end
 
 @interface LunarPhase : NSObject
-@property (nonatomic, copy) NSDate * _Nonnull nextNew;
-@property (nonatomic, copy) NSDate * _Nonnull nextFull;
-@property (nonatomic, copy) NSString * _Nonnull name;
+@property (nonatomic, copy) NSDate *nextNew;
+@property (nonatomic, copy) NSDate *nextFull;
+@property (nonatomic, copy) NSString *name;
 @property (nonatomic) double phase;
 @end
 
 @interface Astro : NSObject
 
-+ (void)getRisetInLocation:(double) longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *_Nonnull) time completion:(nullable void (^)(AstroRiset *_Nullable sun, AstroRiset *_Nullable moon))handler;
-+ (LunarPhase *_Nonnull)getCurrentMoonPhase;
-+ (NSArray<AstroRiset *>*_Nonnull)getRiseSetForAllSolarSystemObjectsInLongitude:(double) longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *_Nonnull) time;
-+ (SatelliteRiseSet *_Nonnull)getRiseSetForSatelliteWithTLE:(SatelliteTLE *_Nonnull)tle longitude: (double)longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *_Nonnull) time;
+@property (class, nonatomic, readonly) LunarPhase *currentMoonPhase;
+
++ (void)risetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time completion:(nullable void (^)(AstroRiset * _Nullable sun, AstroRiset * _Nullable moon))handler;
++ (NSArray<AstroRiset *>*)risetForSolarSystemObjectsInLongitude:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time;
++ (SatelliteRiseSet *)risetForSatelliteWithTLE:(SatelliteTLE *)tle longitude:(double)longitude latitude: (double)latitude altitude:(double)altitude forTime: (NSDate *)time;
 
 @end
+
+NS_ASSUME_NONNULL_END

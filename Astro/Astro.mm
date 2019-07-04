@@ -32,8 +32,8 @@ double ModifiedJulianDate(NSDate *time)
     self = [super init];
     if (self) {
         self.azimuth = 0;
-        self.elevation = 0;
-        self.time = [NSDate date];
+        _elevation = 0;
+        _time = [NSDate date];
     }
     return self;
 }
@@ -125,7 +125,7 @@ double ModifiedJulianDate(NSDate *time)
 
 @implementation Astro
 
-+ (void)getRisetInLocation:(double) longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *) time completion:(void (^)(AstroRiset *sun, AstroRiset *moon))handler {
++ (void)risetInLocation:(double) longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *) time completion:(void (^)(AstroRiset *sun, AstroRiset *moon))handler {
     /* Construct the observer */
     Now now;
     ConfigureObserver(longitude, latitude, altitude, [time timeIntervalSince1970], &now);
@@ -166,7 +166,7 @@ double ModifiedJulianDate(NSDate *time)
     }
 }
 
-+ (LunarPhase *)getCurrentMoonPhase {
++ (LunarPhase *)currentMoonPhase {
     // Calculate lunar phase
     LunarPhase *p = [[LunarPhase alloc] init];
     NSDate *time = [NSDate date];
@@ -196,7 +196,7 @@ double ModifiedJulianDate(NSDate *time)
     return p;
 }
 
-+ (NSArray *)getRiseSetForAllSolarSystemObjectsInLongitude:(double) longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *) time {
++ (NSArray *)risetForSolarSystemObjectsInLongitude:(double) longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *) time {
 
     /* Construct the observer */
     Now now;
@@ -223,7 +223,7 @@ double ModifiedJulianDate(NSDate *time)
     return array;
 }
 
-+ (SatelliteRiseSet *)getRiseSetForSatelliteWithTLE:(SatelliteTLE *)tle longitude: (double)longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *) time {
++ (SatelliteRiseSet *)risetForSatelliteWithTLE:(SatelliteTLE *)tle longitude: (double)longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *) time {
     /* Construct the TLE */
     Obj satillite, satillite_backup;
     /* Construct the Satellite */
