@@ -27,97 +27,100 @@ double ModifiedJulianDate(NSDate *time)
 }
 
 @implementation AstroPosition
-- (instancetype)init
-{
+- (instancetype)initWithAzimuth:(double)azimuth elevation:(double)elevation time:(NSDate *)time {
     self = [super init];
     if (self) {
-        self.azimuth = 0;
-        _elevation = 0;
-        _time = [NSDate date];
+        _azimuth = azimuth;
+        _elevation = elevation;
+        _time = time;
     }
     return self;
-}
-
-- (id)copyWithZone:(NSZone *)zone {
-    AstroPosition *pos = [AstroPosition allocWithZone:zone];
-    if (pos) {
-        [self copyPropertyTo:pos];
-    }
-    return pos;
-}
-
-- (void)copyPropertyTo:(AstroPosition *)copy {
-    copy.azimuth = self.azimuth;
-    copy.elevation = self.elevation;
-    copy.time = [self.time copy];
 }
 @end
 
 @implementation AstroRiset
-- (instancetype)initWithRise:(AstroPosition *)rise peak:(AstroPosition *)peak set:(AstroPosition *)set {
+- (instancetype)initWithRise:(AstroPosition *)rise peak:(AstroPosition *)peak set:(AstroPosition *)set name:(NSString *)name {
     self = [super init];
     if (self) {
-        self.rise = rise;
-        self.peak = peak;
-        self.set = set;
+        _rise = rise;
+        _peak = peak;
+        _set = set;
+        _name = name;
     }
     return self;
 }
 @end
 
 @interface SatelliteTLE ()
-@property (nonatomic, copy) NSString *line0;
-@property (nonatomic, copy) NSString *line1;
-@property (nonatomic, copy) NSString *line2;
+@property (nonatomic, readonly) NSString *line0;
+@property (nonatomic, readonly) NSString *line1;
+@property (nonatomic, readonly) NSString *line2;
 @end
 
 @implementation SatelliteTLE : NSObject
 - (instancetype)initWithLine0: (NSString *)line0 line1: (NSString *)line1 Line2: (NSString *)line2 {
     self = [super init];
     if (self) {
-        self.line0 = [line0 copy];
-        self.line1 = [line1 copy];
-        self.line2 = [line2 copy];
+        _line0 = line0;
+        _line1 = line1;
+        _line2 = line2;
     }
     return self;
 }
 @end
 
 @implementation SatellitePosition
-- (instancetype)initWithTime: (const NSDate *)time azimuth: (double)azimuth elevation: (double)elevation range: (double)range {
+- (instancetype)initWithTime:(NSDate *)time azimuth:(double)azimuth elevation:(double)elevation range:(double)range {
     self = [super init];
     if (self) {
-        self.time = [time copy];
-        self.azimuth = azimuth;
-        self.elevation = elevation;
-        self.range = range;
+        _time = time;
+        _azimuth = azimuth;
+        _elevation = elevation;
+        _range = range;
     }
     return self;
 }
 @end
 
 @implementation SatelliteRiseSet
-- (instancetype)initWithName: (const NSString *)name current: (SatellitePosition *)current rise: (SatellitePosition *)rise peak: (SatellitePosition *)peak set: (SatellitePosition *)set {
+- (instancetype)initWithName:(NSString *)name current:(SatellitePosition *)current rise: (SatellitePosition *)rise peak: (SatellitePosition *)peak set: (SatellitePosition *)set {
     self = [super init];
     if (self) {
-        self.name = [name copy];
-        self.current = current;
-        self.rise = rise;
-        self.peak = peak;
-        self.set = set;
+        _name = name;
+        _current = current;
+        _rise = rise;
+        _peak = peak;
+        _set = set;
     }
     return self;
 }
 @end
 
 @implementation LunarPhase
-- (instancetype)init {
+- (instancetype)initWithPhase:(double)phase nextNewMoon:(NSDate *)nextNew nextFullMoon:(NSDate *)nextFull {
     self = [super init];
     if (self) {
-        self.name = @"";
-        self.nextFull = [NSDate date];
-        self.nextNew = [NSDate date];
-        self.phase = 0;
+        _nextFull = nextFull;
+        _nextNew = nextNew;
+        _phase = phase;
+
+        if (phase <= 0.01 || phase >= 0.99) {
+            _name = @"New Moon";
+        } else if (phase < 0.24) {
+            _name = @"Waxing Crescent";
+        } else if (phase <= 0.26) {
+            _name = @"First Quarter";
+        } else if (phase < 0.49) {
+            _name = @"Waxing Gibbous";
+        } else if (phase <= 0.51) {
+            _name = @"Full Moon";
+        } else if (phase < 0.74) {
+            _name = @"Waning Crescent";
+        } else if (phase < 0.76) {
+            _name = @"Last Quarter";
+        } else if (phase < 0.99) {
+            _name = @"Waning Gibbous";
+        }
     }
     return self;
 }
@@ -125,7 +128,7 @@ double ModifiedJulianDate(NSDate *time)
 
 @implementation Astro
 
-+ (void)risetInLocation:(double) longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *) time completion:(void (^)(AstroRiset *sun, AstroRiset *moon))handler {
++ (void)risetInLocation:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time completion:(void (^)(AstroRiset *sun, AstroRiset *moon))handler {
     /* Construct the observer */
     Now now;
     ConfigureObserver(longitude, latitude, altitude, [time timeIntervalSince1970], &now);
@@ -135,29 +138,19 @@ double ModifiedJulianDate(NSDate *time)
     
     RiseSet riset;
     if (GetModifiedRiset(&now, SUN, &riset) == 0) {
-        AstroPosition *rise = [AstroPosition new];
-        rise.azimuth = riset.rs_riseaz;
-        rise.time = ModernDate(riset.rs_risetm);
+        AstroPosition *rise = [[AstroPosition alloc] initWithAzimuth:riset.rs_riseaz elevation:0 time:ModernDate(riset.rs_risetm)];
         
-        AstroPosition *set = [AstroPosition new];
-        set.azimuth = riset.rs_setaz;
-        set.time = ModernDate(riset.rs_settm);
+        AstroPosition *set = [[AstroPosition alloc] initWithAzimuth:riset.rs_setaz elevation:0 time:ModernDate(riset.rs_settm)];
         
-        sunriset = [[AstroRiset alloc] initWithRise:rise peak:nil set:set];
-        sunriset.name = [NSString stringWithUTF8String:GetStarName(SUN)];
+        sunriset = [[AstroRiset alloc] initWithRise:rise peak:nil set:set name:[NSString stringWithUTF8String:GetStarName(SUN)]];
     }
     
     if (GetModifiedRiset(&now, MOON, &riset) == 0) {
-        AstroPosition *rise = [AstroPosition new];
-        rise.azimuth = riset.rs_riseaz;
-        rise.time = ModernDate(riset.rs_risetm);
+        AstroPosition *rise = [[AstroPosition alloc] initWithAzimuth:riset.rs_riseaz elevation:0 time:ModernDate(riset.rs_risetm)];
+
+        AstroPosition *set = [[AstroPosition alloc] initWithAzimuth:riset.rs_setaz elevation:0 time:ModernDate(riset.rs_settm)];
         
-        AstroPosition *set = [AstroPosition new];
-        set.azimuth = riset.rs_setaz;
-        set.time = ModernDate(riset.rs_settm);
-        
-        moonriset = [[AstroRiset alloc] initWithRise:rise peak:nil set:set];
-        moonriset.name = [NSString stringWithUTF8String:GetStarName(MOON)];
+        moonriset = [[AstroRiset alloc] initWithRise:rise peak:nil set:set name:[NSString stringWithUTF8String:GetStarName(MOON)]];
     }
 
 
@@ -168,36 +161,16 @@ double ModifiedJulianDate(NSDate *time)
 
 + (LunarPhase *)currentMoonPhase {
     // Calculate lunar phase
-    LunarPhase *p = [[LunarPhase alloc] init];
     NSDate *time = [NSDate date];
     NSDate *prevNew =  [NSDate dateWithTimeIntervalSince1970:FindMoonPhase([time timeIntervalSince1970], M_PI * -2, 0)];
-    p.nextNew = [NSDate dateWithTimeIntervalSince1970:FindMoonPhase([time timeIntervalSince1970], M_PI * 2, 0)];
-    p.nextFull = [NSDate dateWithTimeIntervalSince1970:FindMoonPhase([time timeIntervalSince1970], M_PI * 2, M_PI)];
-    double phase = [time timeIntervalSinceDate:prevNew] / [p.nextNew timeIntervalSinceDate:prevNew];
-    p.phase = phase;
+    NSDate *nextNew = [NSDate dateWithTimeIntervalSince1970:FindMoonPhase([time timeIntervalSince1970], M_PI * 2, 0)];
+    NSDate *nextFull = [NSDate dateWithTimeIntervalSince1970:FindMoonPhase([time timeIntervalSince1970], M_PI * 2, M_PI)];
+    double phase = [time timeIntervalSinceDate:prevNew] / [nextNew timeIntervalSinceDate:prevNew];
 
-    if (phase <= 0.01 || phase >= 0.99) {
-        p.name = @"New Moon";
-    } else if (phase < 0.24) {
-        p.name = @"Waxing Crescent";
-    } else if (phase <= 0.26) {
-        p.name = @"First Quarter";
-    } else if (phase < 0.49) {
-        p.name = @"Waxing Gibbous";
-    } else if (phase <= 0.51) {
-        p.name = @"Full Moon";
-    } else if (phase < 0.74) {
-        p.name = @"Waning Crescent";
-    } else if (phase < 0.76) {
-        p.name = @"Last Quarter";
-    } else if (phase < 0.99) {
-        p.name = @"Waning Gibbous";
-    }
-    return p;
+    return [[LunarPhase alloc] initWithPhase:phase nextNewMoon:nextNew nextFullMoon:nextFull];
 }
 
-+ (NSArray *)risetForSolarSystemObjectsInLongitude:(double) longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *) time {
-
++ (NSArray *)risetForSolarSystemObjectsInLongitude:(double)longitude latitude:(double) latitude altitude:(double)altitude forTime:(NSDate *)time {
     /* Construct the observer */
     Now now;
     ConfigureObserver(longitude, latitude, altitude, [time timeIntervalSince1970], &now);
@@ -206,16 +179,11 @@ double ModifiedJulianDate(NSDate *time)
     NSMutableArray *array = [NSMutableArray array];
     for (int i = MERCURY; i <= MOON; i++) {
         if (GetModifiedRiset(&now, i, &riset) == 0) {
-            AstroPosition *rise = [AstroPosition new];
-            rise.azimuth = riset.rs_riseaz;
-            rise.time = ModernDate(riset.rs_risetm);
-            
-            AstroPosition *set = [AstroPosition new];
-            set.azimuth = riset.rs_setaz;
-            set.time = ModernDate(riset.rs_settm);
-            
-            AstroRiset *riset = [[AstroRiset alloc] initWithRise:rise peak:nil set:set];
-            riset.name = [NSString stringWithUTF8String:GetStarName(i)];
+            AstroPosition *rise = [[AstroPosition alloc] initWithAzimuth:riset.rs_riseaz elevation:0 time:ModernDate(riset.rs_risetm)];
+
+            AstroPosition *set = [[AstroPosition alloc] initWithAzimuth:riset.rs_setaz elevation:0 time:ModernDate(riset.rs_settm)];
+
+            AstroRiset *riset = [[AstroRiset alloc] initWithRise:rise peak:nil set:set name:[NSString stringWithUTF8String:GetStarName(i)]];
             [array addObject:riset];
         }
 
@@ -223,7 +191,7 @@ double ModifiedJulianDate(NSDate *time)
     return array;
 }
 
-+ (SatelliteRiseSet *)risetForSatelliteWithTLE:(SatelliteTLE *)tle longitude: (double)longitude latitude: (double) latitude altitude: (double)altitude forTime: (NSDate *) time {
++ (SatelliteRiseSet *)risetForSatelliteWithTLE:(SatelliteTLE *)tle longitude:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime: (NSDate *) time {
     /* Construct the TLE */
     Obj satillite, satillite_backup;
     /* Construct the Satellite */

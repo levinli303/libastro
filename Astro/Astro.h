@@ -10,17 +10,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface AstroPosition : NSObject <NSCopying>
-@property (nonatomic) double elevation;
-@property (nonatomic) double azimuth;
-@property (nonatomic, copy) NSDate *time;
+@interface AstroPosition : NSObject
+@property (nonatomic, readonly) double elevation;
+@property (nonatomic, readonly) double azimuth;
+@property (nonatomic, readonly) NSDate *time;
 @end
 
 @interface AstroRiset : NSObject
-@property (nonatomic) AstroPosition *rise;
-@property (nonatomic) AstroPosition *peak;
-@property (nonatomic) AstroPosition *set;
-@property (nonatomic, copy) NSString *name;
+@property (nonatomic, readonly) AstroPosition *rise;
+@property (nonatomic, readonly) AstroPosition *peak;
+@property (nonatomic, readonly) AstroPosition *set;
+@property (nonatomic, readonly) NSString *name;
 @end
 
 @interface SatelliteTLE : NSObject
@@ -28,25 +28,25 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface SatellitePosition : NSObject
-@property (nonatomic, copy) NSDate *time;
-@property (nonatomic) double azimuth;
-@property (nonatomic) double elevation;
-@property (nonatomic) double range;
+@property (nonatomic, readonly) NSDate *time;
+@property (nonatomic, readonly) double azimuth;
+@property (nonatomic, readonly) double elevation;
+@property (nonatomic, readonly) double range;
 @end
 
 @interface SatelliteRiseSet : NSObject
-@property (nonatomic, nullable) SatellitePosition *rise;
-@property (nonatomic, nullable) SatellitePosition *set;
-@property (nonatomic, nullable) SatellitePosition *peak;
-@property (nonatomic) SatellitePosition *current;
-@property (nonatomic, copy) NSString *name;
+@property (nonatomic, readonly, nullable) SatellitePosition *rise;
+@property (nonatomic, readonly, nullable) SatellitePosition *set;
+@property (nonatomic, readonly, nullable) SatellitePosition *peak;
+@property (nonatomic, readonly) SatellitePosition *current;
+@property (nonatomic, readonly) NSString *name;
 @end
 
 @interface LunarPhase : NSObject
-@property (nonatomic, copy) NSDate *nextNew;
-@property (nonatomic, copy) NSDate *nextFull;
-@property (nonatomic, copy) NSString *name;
-@property (nonatomic) double phase;
+@property (nonatomic, readonly) NSDate *nextNew;
+@property (nonatomic, readonly) NSDate *nextFull;
+@property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) double phase;
 @end
 
 @interface Astro : NSObject
