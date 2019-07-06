@@ -116,7 +116,7 @@ jobject getLunarPhase(JNIEnv *env, jobject time) {
     double pn = FindMoonPhase((double)mi / 1000, M_PI * -2, 0);
     double nn = FindMoonPhase((double)mi / 1000, M_PI * 2, 0);
     double nf = FindMoonPhase((double)mi / 1000, M_PI * 2, M_PI);
-    double phase = (mi - pn) / (double)(nn - pn);
+    double phase = ((double)mi / 1000 - pn) / (nn - pn);
 
     const char *pcDesc = NULL;
 
