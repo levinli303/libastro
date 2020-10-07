@@ -27,13 +27,13 @@ jobject getRiset(JNIEnv *env,
     jobject moonriset = nullptr;
 
     RiseSet riset;
-    if (GetModifiedRiset(&now, SUN, &riset) == 0) {
+    if (GetModifiedRiset(&now, SUN, &riset, nullptr) == 0) {
         jobject rise = env->NewObject(posCls, posInitMethod, (double)0, riset.rs_riseaz, jlong(EphemToEpochTime(riset.rs_risetm) * 1000));
         jobject set = env->NewObject(posCls, posInitMethod, (double)0, riset.rs_setaz, jlong(EphemToEpochTime(riset.rs_settm) * 1000));
         sunriset = env->NewObject(risetCls, risetInitMethod, rise, set, nullptr, env->NewStringUTF("Sun"));
     }
 
-    if (GetModifiedRiset(&now, MOON, &riset) == 0) {
+    if (GetModifiedRiset(&now, MOON, &riset, nullptr) == 0) {
         jobject rise = env->NewObject(posCls, posInitMethod, (double)0, riset.rs_riseaz, jlong(EphemToEpochTime(riset.rs_risetm) * 1000));
         jobject set = env->NewObject(posCls, posInitMethod, (double)0, riset.rs_setaz, jlong(EphemToEpochTime(riset.rs_settm) * 1000));
         moonriset = env->NewObject(risetCls, risetInitMethod, rise, set, nullptr, env->NewStringUTF("Moon"));
@@ -69,7 +69,7 @@ jobject getAllRiset(JNIEnv *env,
     RiseSet riset;
     for (int i = MERCURY; i <= MOON; ++i)
     {
-        if (GetModifiedRiset(&now, i, &riset) == 0)
+        if (GetModifiedRiset(&now, i, &riset, nullptr) == 0)
         {
             jobject rise = env->NewObject(posCls, posInitMethod, (double)0, riset.rs_riseaz, jlong(EphemToEpochTime(riset.rs_risetm) * 1000));
             jobject set = env->NewObject(posCls, posInitMethod, (double)0, riset.rs_setaz, jlong(EphemToEpochTime(riset.rs_settm) * 1000));

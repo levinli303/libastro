@@ -39,15 +39,20 @@ double ModifiedJulianDate(NSDate *time)
 @end
 
 @implementation AstroRiset
-- (instancetype)initWithRise:(AstroPosition *)rise peak:(AstroPosition *)peak set:(AstroPosition *)set name:(NSString *)name {
+- (instancetype)initWithRise:(AstroPosition *)rise peak:(AstroPosition *)peak set:(AstroPosition *)set isUp:(BOOL)isUp name:(NSString *)name {
     self = [super init];
     if (self) {
         _rise = rise;
         _peak = peak;
         _set = set;
         _name = name;
+        _isUp = isUp;
     }
     return self;
+}
+
+- (BOOL)isComplete {
+    return _rise != nil && _set != nil;
 }
 @end
 
@@ -128,35 +133,37 @@ double ModifiedJulianDate(NSDate *time)
 
 @implementation Astro
 
-+ (void)risetInLocation:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time completion:(void (^)(AstroRiset *sun, AstroRiset *moon))handler {
++ (AstroRiset *)objectRisetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time objectIndex:(NSInteger)index {
     /* Construct the observer */
     Now now;
     ConfigureObserver(longitude, latitude, altitude, [time timeIntervalSince1970], &now);
-    
-    AstroRiset *sunriset = nil;
-    AstroRiset *moonriset = nil;
-    
+
     RiseSet riset;
-    if (GetModifiedRiset(&now, SUN, &riset) == 0) {
-        AstroPosition *rise = [[AstroPosition alloc] initWithAzimuth:riset.rs_riseaz elevation:0 time:ModernDate(riset.rs_risetm)];
-        
-        AstroPosition *set = [[AstroPosition alloc] initWithAzimuth:riset.rs_setaz elevation:0 time:ModernDate(riset.rs_settm)];
-        
-        sunriset = [[AstroRiset alloc] initWithRise:rise peak:nil set:set name:[NSString stringWithUTF8String:GetStarName(SUN)]];
-    }
-    
-    if (GetModifiedRiset(&now, MOON, &riset) == 0) {
+    NSString *name = [NSString stringWithUTF8String:GetStarName((int)index)];
+    bool isUp;
+    int result = GetModifiedRiset(&now, (int)index, &riset, &isUp);
+    if (result == 0) {
         AstroPosition *rise = [[AstroPosition alloc] initWithAzimuth:riset.rs_riseaz elevation:0 time:ModernDate(riset.rs_risetm)];
 
         AstroPosition *set = [[AstroPosition alloc] initWithAzimuth:riset.rs_setaz elevation:0 time:ModernDate(riset.rs_settm)];
-        
-        moonriset = [[AstroRiset alloc] initWithRise:rise peak:nil set:set name:[NSString stringWithUTF8String:GetStarName(MOON)]];
+
+        AstroRiset *riset = [[AstroRiset alloc] initWithRise:rise peak:nil set:set isUp:isUp ? YES : NO name:name];
+        return riset;
     }
+    return [[AstroRiset alloc] initWithRise:nil peak:nil set:nil isUp:isUp ? YES : NO name:name];
+}
 
++ (void)risetInLocation:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time completion:(void (^)(AstroRiset *sun, AstroRiset *moon))handler {
+    AstroRiset *sunriset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:SUN];
+    AstroRiset *moonriset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:MOON];
 
-    if (handler) {
+    if (![sunriset isComplete])
+        sunriset = nil;
+    if (![moonriset isComplete])
+        moonriset = nil;
+
+    if (handler)
         handler(sunriset, moonriset);
-    }
 }
 
 + (LunarPhase *)currentMoonPhase {
@@ -171,22 +178,11 @@ double ModifiedJulianDate(NSDate *time)
 }
 
 + (NSArray *)risetForSolarSystemObjectsInLongitude:(double)longitude latitude:(double) latitude altitude:(double)altitude forTime:(NSDate *)time {
-    /* Construct the observer */
-    Now now;
-    ConfigureObserver(longitude, latitude, altitude, [time timeIntervalSince1970], &now);
-
-    RiseSet riset;
     NSMutableArray *array = [NSMutableArray array];
     for (int i = MERCURY; i <= MOON; i++) {
-        if (GetModifiedRiset(&now, i, &riset) == 0) {
-            AstroPosition *rise = [[AstroPosition alloc] initWithAzimuth:riset.rs_riseaz elevation:0 time:ModernDate(riset.rs_risetm)];
-
-            AstroPosition *set = [[AstroPosition alloc] initWithAzimuth:riset.rs_setaz elevation:0 time:ModernDate(riset.rs_settm)];
-
-            AstroRiset *riset = [[AstroRiset alloc] initWithRise:rise peak:nil set:set name:[NSString stringWithUTF8String:GetStarName(i)]];
+        AstroRiset *riset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:i];
+        if ([riset isComplete])
             [array addObject:riset];
-        }
-
     }
     return array;
 }

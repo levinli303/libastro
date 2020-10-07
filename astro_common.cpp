@@ -114,13 +114,12 @@ int FindAlt0(Now *now, Obj *obj, double step, double limit, int forward, int go_
     return 1;
 }
 
-int GetModifiedRiset(Now *now, int index, RiseSet *riset)
+int GetModifiedRiset(Now *now, int index, RiseSet *riset, bool *up)
 {
     const double step = 1.0 / 1440;
     const double limit = 1;
 
     Now backup;
-
     memcpy(&backup, now, sizeof(Now));
 
     Obj *objs;
@@ -134,7 +133,11 @@ int GetModifiedRiset(Now *now, int index, RiseSet *riset)
     // get current status
     obj_cir(&backup, &obj);
 
-    int isUp = obj.pl.co_alt > 0;
+    bool isUp = obj.pl.co_alt > 0;
+
+    if (up)
+        *up = isUp;
+
 
     memcpy(&obj, &origObj, sizeof(Obj));
 

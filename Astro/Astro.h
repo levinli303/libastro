@@ -17,10 +17,12 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface AstroRiset : NSObject
-@property (nonatomic, readonly) AstroPosition *rise;
-@property (nonatomic, readonly) AstroPosition *peak;
-@property (nonatomic, readonly) AstroPosition *set;
+@property (nullable, nonatomic, readonly) AstroPosition *rise;
+@property (nullable, nonatomic, readonly) AstroPosition *peak;
+@property (nullable, nonatomic, readonly) AstroPosition *set;
 @property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) BOOL isUp;
+@property (nonatomic, readonly) BOOL isComplete;
 @end
 
 @interface SatelliteTLE : NSObject
@@ -53,6 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (class, nonatomic, readonly) LunarPhase *currentMoonPhase;
 
++ (AstroRiset *)objectRisetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time objectIndex:(NSInteger)index;
 + (void)risetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time completion:(nullable void (^)(AstroRiset * _Nullable sun, AstroRiset * _Nullable moon))handler;
 + (NSArray<AstroRiset *>*)risetForSolarSystemObjectsInLongitude:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time;
 + (SatelliteRiseSet *)risetForSatelliteWithTLE:(SatelliteTLE *)tle longitude:(double)longitude latitude: (double)latitude altitude:(double)altitude forTime: (NSDate *)time;
