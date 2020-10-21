@@ -8,7 +8,6 @@
 
 #import "Astro.h"
 #include "astro_common.h"
-#include "ephem/astro.h"
 
 #undef lat
 

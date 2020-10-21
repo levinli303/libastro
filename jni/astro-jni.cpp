@@ -1,7 +1,7 @@
 #include <jni.h>
 #include <cmath>
 #include <cstring>
-#include "astro.h"
+
 #include "astro_common.h"
 
 jobject getRiset(JNIEnv *env,

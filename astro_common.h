@@ -5,7 +5,9 @@
 #ifndef ASTROWEATHER_ASTRO_COMMON_H
 #define ASTROWEATHER_ASTRO_COMMON_H
 
+extern "C" {
 #include "astro.h"
+}
 
 double radian(const double degree);
 double EpochToEphemTime(double seconds_since_epoch);

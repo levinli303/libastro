@@ -1,16 +1,6 @@
 #ifndef _ASTRO_H
 #define _ASTRO_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* for PyEphem: silence Windows complaints about sprintf() */
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
-#include "astro_export.h"
 #include <stdio.h>
 
 #ifndef PI
@@ -145,12 +135,10 @@ typedef unsigned char byte;
     byte co_flags;	/* FUSER*... used by others */			\
     ObjAge_t co_age;	/* update aging code; see db.c */		\
     char co_name[MAXNM];/* name, including \0 */			\
-    double co_ra;	/* geo/topo app/mean ra, rads */		\
-    double co_dec;	/* geo/topo app/mean dec, rads */		\
-    double co_gaera;	/* geo apparent ra, rads */			\
-    double co_gaedec;	/* geo apparent dec, rads */			\
-    double co_astrora;	/* geo astrometric ra, rads */			\
-    double co_astrodec;	/* geo astrometric dec, rads */			\
+    float co_ra;	/* geo/topo app/mean ra, rads */		\
+    float co_dec;	/* geo/topo app/mean dec, rads */		\
+    float co_gaera;	/* geo apparent ra, rads */			\
+    float co_gaedec;	/* geo apparent dec, rads */			\
     float co_az;	/* azimuth, >0 e of n, rads */			\
     float co_alt;	/* altitude above topocentric horizon, rads */	\
     float co_elong;	/* angular sep btwen obj and sun, >0 E, degs */	\
@@ -169,9 +157,9 @@ typedef unsigned char byte;
 /* fields common to all fixed objects in the Obj union */
 #define	OBJ_FIXED_FLDS 							\
     char  fo_spect[2];	/* spectral codes, if appropriate */		\
-    double fo_epoch;	/* eq of ra/dec and time when pm=0; mjd */ 	\
-    double fo_ra;	/* ra, rads, in epoch frame */ 			\
-    double fo_dec;	/* dec, rads, in epoch frame */ 		\
+    float fo_epoch;	/* eq of ra/dec and time when pm=0; mjd */ 	\
+    float fo_ra;	/* ra, rads, in epoch frame */ 			\
+    float fo_dec;	/* dec, rads, in epoch frame */ 		\
     float fo_pmra;	/* ra proper motion, rads/day/cos(dec) */ 	\
     float fo_pmdec;	/* dec proper motion, rads/day */ 		\
     char  fo_class	/* object class */
@@ -378,8 +366,6 @@ typedef union {
 #define	s_dec		any.co_dec
 #define	s_gaera		any.co_gaera
 #define	s_gaedec 	any.co_gaedec
-#define	s_astrora	any.co_astrora
-#define	s_astrodec	any.co_astrodec
 #define	s_az		any.co_az
 #define	s_alt		any.co_alt
 #define	s_elong		any.co_elong
@@ -591,237 +577,231 @@ enum _uramoons {
 
 
 /* aa_hadec.c */
-ASTRO_EXPORT void aa_hadec (double lt, double alt, double az, double *ha,
+extern void aa_hadec (double lt, double alt, double az, double *ha,
     double *dec);
-ASTRO_EXPORT  void hadec_aa (double lt, double ha, double dec, double *alt,
+extern void hadec_aa (double lt, double ha, double dec, double *alt,
     double *az); 
 
 /* aberration.c */
-ASTRO_EXPORT  void ab_ecl (double m, double lsn, double *lam, double *bet);
-ASTRO_EXPORT  void ab_eq (double m, double lsn, double *ra, double *dec);
+extern void ab_ecl (double m, double lsn, double *lam, double *bet);
+extern void ab_eq (double m, double lsn, double *ra, double *dec);
 
 /* airmass.c */
-ASTRO_EXPORT  void airmass (double aa, double *Xp);
+extern void airmass (double aa, double *Xp);
 
 /* anomaly.c */
-ASTRO_EXPORT  void anomaly (double ma, double s, double *nu, double *ea);
+extern void anomaly (double ma, double s, double *nu, double *ea);
 
 /* ap_as.c */
-ASTRO_EXPORT  void ap_as ( Now *np, double Mjd, double *rap, double *decp);
-ASTRO_EXPORT  void as_ap ( Now *np, double Mjd, double *rap, double *decp);
+extern void ap_as ( Now *np, double Mjd, double *rap, double *decp);
+extern void as_ap ( Now *np, double Mjd, double *rap, double *decp);
 
 /* atlas.c */
-ASTRO_EXPORT  char *um_atlas (double ra, double dec);
-ASTRO_EXPORT  char *u2k_atlas (double ra, double dec);
-ASTRO_EXPORT  char *msa_atlas (double ra, double dec);
+extern char *um_atlas (double ra, double dec);
+extern char *u2k_atlas (double ra, double dec);
+extern char *msa_atlas (double ra, double dec);
 
 /* aux.c */
-ASTRO_EXPORT  double mm_mjed (Now *np);
+extern double mm_mjed (Now *np);
 
 /* chap95.c */
-ASTRO_EXPORT  int chap95 (double m, int obj, double prec, double *ret);
+extern int chap95 (double m, int obj, double prec, double *ret);
 
 /* chap95_data.c */
 
 /* circum.c */
-ASTRO_EXPORT  int obj_cir (Now *np, Obj *op);
+extern int obj_cir (Now *np, Obj *op);
 
 /* comet.c */
-ASTRO_EXPORT  void comet (double m, double ep, double inc, double ap, double qp,
+extern void comet (double m, double ep, double inc, double ap, double qp,
     double om, double *lpd, double *psi, double *rp, double *rho, double *lam,
     double *bet);
 
 /* constel.c */
 #define	NCNS	89
-ASTRO_EXPORT  int cns_pick (double r, double d, double e);
-ASTRO_EXPORT  int cns_id (char *abbrev);
-ASTRO_EXPORT  char *cns_name (int id);
-ASTRO_EXPORT  int cns_edges (double e, double **ra0p, double **dec0p, double **ra1p,
+extern int cns_pick (double r, double d, double e);
+extern int cns_id (char *abbrev);
+extern char *cns_name (int id);
+extern int cns_edges (double e, double **ra0p, double **dec0p, double **ra1p,
     double **dec1p);
-ASTRO_EXPORT  int cns_list (double ra, double dec, double e, double rad, int ids[]);
-ASTRO_EXPORT  int cns_figure (int id, double e, double ra[],double dec[],int dcodes[]);
-ASTRO_EXPORT  int cns_loadfigs (FILE *fp, char msg[]);
+extern int cns_list (double ra, double dec, double e, double rad, int ids[]);
+extern int cns_figure (int id, double e, double ra[],double dec[],int dcodes[]);
+extern int cns_loadfigs (FILE *fp, char msg[]);
 
 /* dbfmt.c */
-ASTRO_EXPORT  int db_crack_line (char s[], Obj *op, char nm[][MAXNM], int nnm,
+extern int db_crack_line (char s[], Obj *op, char nm[][MAXNM], int nnm,
     char whynot[]);
-ASTRO_EXPORT  void db_write_line (Obj *op, char *lp);
-ASTRO_EXPORT  int dbline_candidate (char line[]);
-ASTRO_EXPORT  int get_fields (char *s, int delim, char *fields[]);
-ASTRO_EXPORT  int db_tle (char *name, char *l1, char *l2, Obj *op);
-ASTRO_EXPORT  int dateRangeOK (Now *np, Obj *op);
+extern void db_write_line (Obj *op, char *lp);
+extern int dbline_candidate (char line[]);
+extern int get_fields (char *s, int delim, char *fields[]);
+extern int db_tle (char *name, char *l1, char *l2, Obj *op);
+extern int dateRangeOK (Now *np, Obj *op);
 
 /* deltat.c */
-ASTRO_EXPORT  double deltat (double m);
+extern double deltat (double m);
 
 /* earthsat.c */
-ASTRO_EXPORT  int obj_earthsat (Now *np, Obj *op);
+extern int obj_earthsat (Now *np, Obj *op);
 
 /* eq_ecl.c */
-ASTRO_EXPORT  void eq_ecl (double m, double ra, double dec, double *lt,double *lg);
-ASTRO_EXPORT  void ecl_eq (double m, double lt, double lg, double *ra,double *dec);
+extern void eq_ecl (double m, double ra, double dec, double *lt,double *lg);
+extern void ecl_eq (double m, double lt, double lg, double *ra,double *dec);
 
 /* eq_gal.c */
-ASTRO_EXPORT  void eq_gal (double m, double ra, double dec, double *lt,double *lg);
-ASTRO_EXPORT  void gal_eq (double m, double lt, double lg, double *ra,double *dec);
+extern void eq_gal (double m, double ra, double dec, double *lt,double *lg);
+extern void gal_eq (double m, double lt, double lg, double *ra,double *dec);
 
 /* formats.c */
-ASTRO_EXPORT  int fs_sexa (char *out, double a, int w, int fracbase);
-ASTRO_EXPORT  int fs_date (char out[], int format, double jd);
-ASTRO_EXPORT  int f_scansexa (const char *str, double *dp);
-ASTRO_EXPORT  void f_sscandate (char *bp, int pref, int *m, double *d, int *y);
+extern int fs_sexa (char *out, double a, int w, int fracbase);
+extern int fs_date (char out[], int format, double jd);
+extern int f_scansexa (const char *str, double *dp);
+extern void f_sscandate (char *bp, int pref, int *m, double *d, int *y);
 
 /* helio.c */
-ASTRO_EXPORT  void heliocorr (double jd, double ra, double dec, double *hcp);
+extern void heliocorr (double jd, double ra, double dec, double *hcp);
 
 /* jupmoon.c */
-ASTRO_EXPORT  void jupiter_data (double Mjd, char dir[], Obj *sop, Obj *jop,
+extern void jupiter_data (double Mjd, char dir[], Obj *sop, Obj *jop,
     double *jupsize, double *cmlI, double *cmlII, double *polera,
     double *poledec, MoonData md[J_NMOONS]); 
-ASTRO_EXPORT  void meeus_jupiter (double d, double *cmlI, double *cmlII,
-    MoonData md[J_NMOONS]);
 
 /* libration.c */
-ASTRO_EXPORT  void llibration (double JD, double *llatp, double *llonp);
+extern void llibration (double JD, double *llatp, double *llonp);
 
 /* magdecl.c */
-ASTRO_EXPORT  int magdecl (double l, double L, double e, double y, char *dir,
+extern int magdecl (double l, double L, double e, double y, char *dir,
     double *dp, char *err);
 
 /* marsmoon.c */
-ASTRO_EXPORT  void marsm_data (double Mjd, char dir[], Obj *sop, Obj *mop,
+extern void marsm_data (double Mjd, char dir[], Obj *sop, Obj *mop,
     double *marssize, double *polera, double *poledec, MoonData md[M_NMOONS]); 
 
 /* misc.c */
-ASTRO_EXPORT  void zero_mem (void *loc, unsigned len);
-ASTRO_EXPORT  int tickmarks (double min, double max, int numdiv, double ticks[]);
-ASTRO_EXPORT  int lc (int cx, int cy, int cw, int x1, int y1, int x2, int y2,
+extern void zero_mem (void *loc, unsigned len);
+extern int tickmarks (double min, double max, int numdiv, double ticks[]);
+extern int lc (int cx, int cy, int cw, int x1, int y1, int x2, int y2,
     int *sx1, int *sy1, int *sx2, int *sy2);
-ASTRO_EXPORT  void hg_mag (double h, double g, double rp, double rho, double rsn,
+extern void hg_mag (double h, double g, double rp, double rho, double rsn,
     double *mp);
-ASTRO_EXPORT  int magdiam (int fmag, int magstp, double scale, double mag,
+extern int magdiam (int fmag, int magstp, double scale, double mag,
     double size);
-ASTRO_EXPORT  void gk_mag (double g, double k, double rp, double rho, double *mp);
-ASTRO_EXPORT  double atod (char *buf);
-ASTRO_EXPORT  void solve_sphere (double A, double b, double cc, double sc,
+extern void gk_mag (double g, double k, double rp, double rho, double *mp);
+extern double atod (char *buf);
+extern void solve_sphere (double A, double b, double cc, double sc,
     double *cap, double *Bp);
-ASTRO_EXPORT  double delra (double dra);
-ASTRO_EXPORT  void now_lst (Now *np, double *lstp);
-ASTRO_EXPORT  void radec2ha (Now *np, double ra, double dec, double *hap);
-ASTRO_EXPORT  void gha (Now *np, Obj *op, double *ghap);
-ASTRO_EXPORT  char *obj_description (Obj *op);
-ASTRO_EXPORT  int is_deepsky (Obj *op);
+extern double delra (double dra);
+extern void now_lst (Now *np, double *lstp);
+extern void radec2ha (Now *np, double ra, double dec, double *hap);
+extern void gha (Now *np, Obj *op, double *ghap);
+extern char *obj_description (Obj *op);
+extern int is_deepsky (Obj *op);
 
 /* mjd.c */
-ASTRO_EXPORT  void cal_mjd (int mn, double dy, int yr, double *m);
-ASTRO_EXPORT  void mjd_cal (double m, int *mn, double *dy, int *yr);
-ASTRO_EXPORT  int mjd_dow (double m, int *dow);
-ASTRO_EXPORT  int isleapyear (int year);
-ASTRO_EXPORT  void mjd_dpm (double m, int *ndays);
-ASTRO_EXPORT  void mjd_year (double m, double *yr);
-ASTRO_EXPORT  void year_mjd (double y, double *m);
-ASTRO_EXPORT  void rnd_second (double *t);
-ASTRO_EXPORT  void mjd_dayno (double jd, int *yr, double *dy);
-ASTRO_EXPORT  double mjd_day (double jd);
-ASTRO_EXPORT  double mjd_hr (double jd);
-ASTRO_EXPORT  void range (double *v, double r);
-ASTRO_EXPORT  void radecrange (double *ra, double *dec);
+extern void cal_mjd (int mn, double dy, int yr, double *m);
+extern void mjd_cal (double m, int *mn, double *dy, int *yr);
+extern int mjd_dow (double m, int *dow);
+extern int isleapyear (int year);
+extern void mjd_dpm (double m, int *ndays);
+extern void mjd_year (double m, double *yr);
+extern void year_mjd (double y, double *m);
+extern void rnd_second (double *t);
+extern void mjd_dayno (double jd, int *yr, double *dy);
+extern double mjd_day (double jd);
+extern double mjd_hr (double jd);
+extern void range (double *v, double r);
+extern void radecrange (double *ra, double *dec);
 
 /* moon.c */
-ASTRO_EXPORT  void moon (double m, double *lam, double *bet, double *rho,
+extern void moon (double m, double *lam, double *bet, double *rho,
     double *msp, double *mdp);
 
 /* mooncolong.c */
-ASTRO_EXPORT  void moon_colong (double jd, double lt, double lg, double *cp,
+extern void moon_colong (double jd, double lt, double lg, double *cp,
     double *kp, double *ap, double *sp);
 
 /* moonnf.c */
-ASTRO_EXPORT  void moonnf (double mj, double *mjn, double *mjf);
+extern void moonnf (double mj, double *mjn, double *mjf);
 
 /* nutation.c */
-ASTRO_EXPORT  void nutation (double m, double *deps, double *dpsi);
-ASTRO_EXPORT  void nut_eq (double m, double *ra, double *dec);
+extern void nutation (double m, double *deps, double *dpsi);
+extern void nut_eq (double m, double *ra, double *dec);
 
 /* obliq.c */
-ASTRO_EXPORT  void obliquity (double m, double *eps);
+extern void obliquity (double m, double *eps);
 
 /* parallax.c */
-ASTRO_EXPORT  void ta_par (double tha, double tdec, double phi, double ht,
+extern void ta_par (double tha, double tdec, double phi, double ht,
     double *rho, double *aha, double *adec);
 
 /* parallactic.c */
-ASTRO_EXPORT  double parallacticLDA (double lt, double dec, double alt);
-ASTRO_EXPORT  double parallacticLHD (double lt, double ha, double dec);
+extern double parallacticLDA (double lt, double dec, double alt);
+extern double parallacticLHD (double lt, double ha, double dec);
 
 /* plans.c */
-ASTRO_EXPORT  void plans (double m, PLCode p, double *lpd0, double *psi0,
+extern void plans (double m, PLCode p, double *lpd0, double *psi0,
     double *rp0, double *rho0, double *lam, double *bet, double *dia,
     double *mag);
 
 /* plshadow.c */
-ASTRO_EXPORT  int plshadow (Obj *op, Obj *sop, double polera,
+extern int plshadow (Obj *op, Obj *sop, double polera,
     double poledec, double x, double y, double z, float *sxp, float *syp);
 
 /* plmoon_cir.c */
-ASTRO_EXPORT  int plmoon_cir (Now *np, Obj *moonop);
-ASTRO_EXPORT  int getBuiltInObjs (Obj **opp);
-ASTRO_EXPORT  void setMoonDir (char *dir);
+extern int plmoon_cir (Now *np, Obj *moonop);
+extern int getBuiltInObjs (Obj **opp);
+extern void setMoonDir (char *dir);
 
 /* precess.c */
-ASTRO_EXPORT  void precess (double mjd1, double mjd2, double *ra, double *dec);
+extern void precess (double mjd1, double mjd2, double *ra, double *dec);
 
 /* reduce.c */
-ASTRO_EXPORT  void reduce_elements (double mjd0, double m, double inc0,
+extern void reduce_elements (double mjd0, double m, double inc0,
     double ap0, double om0, double *inc, double *ap, double *om);
 
 /* refract.c */
-ASTRO_EXPORT  void unrefract (double pr, double tr, double aa, double *ta);
-ASTRO_EXPORT  void refract (double pr, double tr, double ta, double *aa);
+extern void unrefract (double pr, double tr, double aa, double *ta);
+extern void refract (double pr, double tr, double ta, double *aa);
 
 /* rings.c */
-ASTRO_EXPORT  void satrings (double sb, double sl, double sr, double el, double er,
+extern void satrings (double sb, double sl, double sr, double el, double er,
     double JD, double *etiltp, double *stiltp);
 
 /* riset.c */
-ASTRO_EXPORT  void riset (double ra, double dec, double lt, double dis,
+extern void riset (double ra, double dec, double lt, double dis,
     double *lstr, double *lsts, double *azr, double *azs, int *status);
 
 /* riset_cir.c */
-ASTRO_EXPORT  void riset_cir (Now *np, Obj *op, double dis, RiseSet *rp);
-ASTRO_EXPORT  void twilight_cir (Now *np, double dis, double *dawn, double *dusk,
+extern void riset_cir (Now *np, Obj *op, double dis, RiseSet *rp);
+extern void twilight_cir (Now *np, double dis, double *dawn, double *dusk,
     int *status);
 
 /* satmoon.c */
-ASTRO_EXPORT  void saturn_data (double Mjd, char dir[], Obj *eop, Obj *sop,
+extern void saturn_data (double Mjd, char dir[], Obj *eop, Obj *sop,
     double *satsize, double *etilt, double *stlit, double *polera, 
     double *poledec, MoonData md[S_NMOONS]); 
 
 /* sphcart.c */
-ASTRO_EXPORT  void sphcart (double l, double b, double r, double *x, double *y,
+extern void sphcart (double l, double b, double r, double *x, double *y,
     double *z);
-ASTRO_EXPORT  void cartsph (double x, double y, double z, double *l, double *b,
+extern void cartsph (double x, double y, double z, double *l, double *b,
     double *r);
 
 /* sun.c */
-ASTRO_EXPORT  void sunpos (double m, double *lsn, double *rsn, double *bsn);
+extern void sunpos (double m, double *lsn, double *rsn, double *bsn);
 
 /* twobody.c */
-ASTRO_EXPORT  int vrc (double *v, double *r, double tp, double e, double q);
+extern int vrc (double *v, double *r, double tp, double e, double q);
 
 /* umoon.c */
-ASTRO_EXPORT  void uranus_data (double Mjd, char dir[], Obj *sop, Obj *uop,
+extern void uranus_data (double Mjd, char dir[], Obj *sop, Obj *uop,
     double *usize, double *polera, double *poledec, MoonData md[U_NMOONS]); 
 
 /* utc_gst.c */
-ASTRO_EXPORT  void utc_gst (double m, double utc, double *gst);
-ASTRO_EXPORT  void gst_utc (double m, double gst, double *utc);
+extern void utc_gst (double m, double utc, double *gst);
+extern void gst_utc (double m, double gst, double *utc);
 
 /* vsop87.c */
-ASTRO_EXPORT  int vsop87 (double m, int obj, double prec, double *ret);
-    
-#ifdef __cplusplus
-}
-#endif
+extern int vsop87 (double m, int obj, double prec, double *ret);
 
 #endif /* _ASTRO_H */
 

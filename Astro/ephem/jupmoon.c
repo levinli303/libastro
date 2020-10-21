@@ -10,6 +10,8 @@
 #include "bdl.h"
 
 static int use_bdl (double jd, char *dir, MoonData md[J_NMOONS]);
+static void meeus_jupiter (double d, double *cmlI, double *cmlII,
+    MoonData md[J_NMOONS]);
 static void moonradec (double jupsize, MoonData md[J_NMOONS]);
 static void moonSVis (Obj *sop, Obj *jop, MoonData md[J_NMOONS]);
 static void moonEVis (MoonData md[J_NMOONS]);
@@ -94,7 +96,7 @@ MoonData md[J_NMOONS])	/* return info */
 	/* get moon data from BDL if possible, else Meeus' model.
 	 * always use Meeus for cml
 	 */
-	if (use_bdl (JD, dir, md) == 0)
+	if (dir && use_bdl (JD, dir, md) == 0)
 	    meeus_jupiter (Mjd, cmlI, cmlII, NULL);
 	else
 	    meeus_jupiter (Mjd, cmlI, cmlII, md);
@@ -127,21 +129,41 @@ MoonData md[J_NMOONS])	/* fill md[1..NM-1].x/y/z for each moon */
 {
 #define	JUPRAU	.0004769108	/* jupiter radius, AU */
 	double x[J_NMOONS], y[J_NMOONS], z[J_NMOONS];
-	BDL_Dataset *dataset;
+	char buf[1024];
+	FILE *fp;
+	char *fn;
 	int i;
 
 	/* check ranges and appropriate data file */
 	if (JD < 2451179.50000)		/* Jan 1 1999 UTC */
 	    return (-1);
 	if (JD < 2455562.5)		/* Jan 1 2011 UTC */
-	    dataset = & jupiter_9910;
+	    fn = "jupiter.9910";
 	else if (JD < 2459215.5)	/* Jan 1 2021 UTC */
-            dataset = & jupiter_1020;
+	    fn = "jupiter.1020";
 	else
 	    return (-1);
 
+	/* open */
+	(void) sprintf (buf, "%s/%s", dir, fn);
+	fp = fopen (buf, "r");
+	if (!fp) {
+	    fprintf (stderr, "%s: %s\n", fn, strerror(errno));
+	    return (-1);
+	}
+
 	/* use it */
-        do_bdl(dataset, JD, x, y, z);
+	if ((i = read_bdl (fp, JD, x, y, z, buf)) < 0) {
+	    fprintf (stderr, "%s: %s\n", fn, buf);
+	    fclose (fp);
+	    return (-1);
+	}
+	if (i != J_NMOONS-1) {
+	    fprintf (stderr, "%s: BDL says %d moons, code expects %d", fn, 
+								i, J_NMOONS-1);
+	    fclose (fp);
+	    return (-1);
+	}
 
 	/* copy into md[1..NM-1] with our scale and sign conventions */
 	for (i = 1; i < J_NMOONS; i++) {
@@ -151,6 +173,7 @@ MoonData md[J_NMOONS])	/* fill md[1..NM-1].x/y/z for each moon */
 	}
 
 	/* ok */
+	fclose (fp);
 	return (0);
 }
 
@@ -159,7 +182,7 @@ MoonData md[J_NMOONS])	/* fill md[1..NM-1].x/y/z for each moon */
  * from "Astronomical Formulae for Calculators", 2nd ed, by Jean Meeus,
  *   Willmann-Bell, Richmond, Va., U.S.A. (c) 1982, chapters 35 and 36.
  */
-void
+static void
 meeus_jupiter(
 double d,
 double *cmlI, double *cmlII,	/* central meridian longitude, rads */

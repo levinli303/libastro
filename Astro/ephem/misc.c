@@ -3,14 +3,12 @@
  *  4/20/98 now_lst() always just returns apparent time
  */
 
-#include "astro.h"
-
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-double ascii_strtod(const char *s00, char **se);  /* for PyEphem */
+#include "astro.h"
 
 /* zero from loc for len bytes */
 void
@@ -358,7 +356,7 @@ double *mp)
 double
 atod (char *buf)
 {
-     return (ascii_strtod(buf, NULL));
+	return (strtod (buf, NULL));
 }
 
 /* solve a spherical triangle:
