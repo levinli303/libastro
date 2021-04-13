@@ -130,6 +130,21 @@ double ModifiedJulianDate(NSDate *time)
 }
 @end
 
+@implementation StarRiset
+
+- (instancetype)initWithRiseTime:(NSDate *)riseTime setTime:(NSDate *)setTime status:(StarRisetStatus)status up:(BOOL)up {
+    self = [super init];
+    if (self) {
+        _riseTime = riseTime;
+        _setTime = setTime;
+        _status = status;
+        _up = up;
+    }
+    return self;
+}
+
+@end
+
 @implementation Astro
 
 + (AstroRiset *)objectRisetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time objectIndex:(NSInteger)index {
@@ -255,6 +270,18 @@ double ModifiedJulianDate(NSDate *time)
         R1 = R;
     }
     return [[SatelliteRiseSet alloc] initWithName:tle.line0 current:current rise:rise peak:peak set:set];
+}
+
++ (StarRiset *)risetForStarWithRA:(double)ra dec:(double)dec longitude:(double)longitude latitude:(double)latitude time:(NSDate *)time {
+    double riseTime, setTime;
+    int status;
+    bool up;
+    GetRADECRiset(ra, dec, longitude, latitude, [time timeIntervalSince1970], &riseTime, &setTime, &status, &up);
+    return [[StarRiset alloc] initWithRiseTime:[NSDate dateWithTimeIntervalSince1970:riseTime] setTime:[NSDate dateWithTimeIntervalSince1970:setTime] status:status == 1 ? StarRisetStatusNeverRise : (status == -1 ? StarRisetStatusNeverSet : StarRisetStatusNone) up:up ? YES : NO];
+}
+
++ (double)getJulianDate:(NSDate *)time {
+    return [time timeIntervalSince1970] / 86400.0 + (double)astro::Date(1970, 1, 1);
 }
 
 @end

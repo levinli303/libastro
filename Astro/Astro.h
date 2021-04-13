@@ -51,6 +51,19 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) double phase;
 @end
 
+typedef NS_ENUM(NSUInteger, StarRisetStatus) {
+    StarRisetStatusNone,
+    StarRisetStatusNeverRise,
+    StarRisetStatusNeverSet,
+};
+
+@interface StarRiset : NSObject
+@property (nonatomic, readonly) StarRisetStatus status;
+@property (nonatomic, readonly) NSDate *riseTime;
+@property (nonatomic, readonly) NSDate *setTime;
+@property (nonatomic, readonly) BOOL up;
+@end
+
 @interface Astro : NSObject
 
 @property (class, nonatomic, readonly) LunarPhase *currentMoonPhase;
@@ -59,6 +72,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)risetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time completion:(nullable void (^)(AstroRiset * _Nullable sun, AstroRiset * _Nullable moon))handler;
 + (NSArray<AstroRiset *>*)risetForSolarSystemObjectsInLongitude:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time;
 + (SatelliteRiseSet *)risetForSatelliteWithTLE:(SatelliteTLE *)tle longitude:(double)longitude latitude: (double)latitude altitude:(double)altitude forTime: (NSDate *)time;
++ (StarRiset *)risetForStarWithRA:(double)ra dec:(double)dec longitude:(double)longitude latitude:(double)latitude time:(NSDate *)time;
++ (double)getJulianDate:(NSDate *)time;
 
 @end
 
