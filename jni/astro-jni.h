@@ -7,5 +7,6 @@ jobject getRiset(JNIEnv *env, jdouble longitude, jdouble latitude, jdouble altit
 jobject getAllRiset(JNIEnv *env, jdouble longitude, jdouble latitude, jdouble altitude, jobject time);
 
 jobject getLunarPhase(JNIEnv *env, jobject time);
+jobject getStarRiset(JNIEnv *env, jdouble ra, jdouble dec, jdouble longitude, jdouble latitude, jobject time);
 
 #endif

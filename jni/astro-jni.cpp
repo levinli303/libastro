@@ -80,31 +80,6 @@ jobject getAllRiset(JNIEnv *env,
     return result;
 }
 
-jdouble modifiedJulianDate(JNIEnv *env, jobject time) {
-    jclass tzCls = env->FindClass("java/util/TimeZone");
-    jmethodID tzInitMethod = env->GetStaticMethodID(tzCls, "getTimeZone", "(Ljava/lang/String;)Ljava/util/TimeZone;");
-    jobject timezone = env->CallStaticObjectMethod(tzCls, tzInitMethod, env->NewStringUTF("GMT"));
-
-    jclass calCls = env->FindClass("java/util/Calendar");
-    jmethodID getCalMethod = env->GetStaticMethodID(calCls, "getInstance", "(Ljava/util/TimeZone;)Ljava/util/Calendar;");
-    jobject calendar = env->CallStaticObjectMethod(calCls, getCalMethod, timezone);
-
-    jmethodID setTimeMethod = env->GetMethodID(calCls, "setTime", "(Ljava/util/Date;)V");
-    env->CallVoidMethod(calendar, setTimeMethod, time);
-
-    jmethodID getCompoMethod = env->GetMethodID(calCls, "get", "(I)I");
-    int year = env->CallIntMethod(calendar, getCompoMethod, 1);
-    int month = env->CallIntMethod(calendar, getCompoMethod, 2) + 1;
-    int day = env->CallIntMethod(calendar, getCompoMethod, 5);
-    int hour = env->CallIntMethod(calendar, getCompoMethod, 11);
-    int minute = env->CallIntMethod(calendar, getCompoMethod, 12);
-    int second = env->CallIntMethod(calendar, getCompoMethod, 13);
-
-    double x;
-    cal_mjd(month, day + (hour * 3600 + minute * 60) / 86400.0, year, &x);
-    return x;
-}
-
 jobject getLunarPhase(JNIEnv *env, jobject time) {
     jclass lpCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/LunarPhase");
     jmethodID lpInitMethod = env->GetMethodID(lpCls, "<init>", "(JJLjava/lang/String;D)V");
@@ -139,4 +114,21 @@ jobject getLunarPhase(JNIEnv *env, jobject time) {
     }
 
     return env->NewObject(lpCls, lpInitMethod, (jlong)(nn * 1000), (jlong)(nf * 1000), env->NewStringUTF(pcDesc), phase);
+}
+
+jobject getStarRiset(JNIEnv *env, jdouble ra, jdouble dec, jdouble longitude, jdouble latitude, jobject time)
+{
+    jclass srCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/StarRiset");
+    jmethodID srInitMethod = env->GetMethodID(srCls, "<init>", "(IJJZ)V");
+    jclass dateCls = env->FindClass("java/util/Date");
+    jmethodID getTimeMethod = env->GetMethodID(dateCls, "getTime", "()J");
+
+    jlong mi = env->CallLongMethod(time, getTimeMethod);
+
+    double riseTime, setTime;
+    int status;
+    bool up;
+    GetRADECRiset(ra, dec, longitude, latitude, mi / 1000.0, &riseTime, &setTime, &status, &up);
+
+    return env->NewObject(srCls, srInitMethod, (jint)status, (jlong)(riseTime * 1000), (jlong)(setTime * 1000), up ? JNI_TRUE : JNI_FALSE);
 }

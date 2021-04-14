@@ -280,8 +280,4 @@ double ModifiedJulianDate(NSDate *time)
     return [[StarRiset alloc] initWithRiseTime:[NSDate dateWithTimeIntervalSince1970:riseTime] setTime:[NSDate dateWithTimeIntervalSince1970:setTime] status:status == 1 ? StarRisetStatusNeverRise : (status == -1 ? StarRisetStatusNeverSet : StarRisetStatusNone) up:up ? YES : NO];
 }
 
-+ (double)getJulianDate:(NSDate *)time {
-    return [time timeIntervalSince1970] / 86400.0 + (double)astro::Date(1970, 1, 1);
-}
-
 @end
