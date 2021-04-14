@@ -10,6 +10,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_CLOSED_ENUM(NSUInteger, StarRisetStatus) {
+    StarRisetStatusNone,
+    StarRisetStatusNeverRise,
+    StarRisetStatusNeverSet,
+};
+
 @interface AstroPosition : NSObject
 @property (nonatomic, readonly) double elevation;
 @property (nonatomic, readonly) double azimuth;
@@ -17,12 +23,12 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface AstroRiset : NSObject
+@property (nonatomic, readonly) StarRisetStatus status;
 @property (nullable, nonatomic, readonly) AstroPosition *rise;
 @property (nullable, nonatomic, readonly) AstroPosition *peak;
 @property (nullable, nonatomic, readonly) AstroPosition *set;
 @property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) BOOL isUp;
-@property (nonatomic, readonly) BOOL isComplete;
 @end
 
 @interface SatelliteTLE : NSObject
@@ -51,16 +57,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) double phase;
 @end
 
-typedef NS_ENUM(NSUInteger, StarRisetStatus) {
-    StarRisetStatusNone,
-    StarRisetStatusNeverRise,
-    StarRisetStatusNeverSet,
-};
-
 @interface StarRiset : NSObject
 @property (nonatomic, readonly) StarRisetStatus status;
-@property (nonatomic, readonly) NSDate *riseTime;
-@property (nonatomic, readonly) NSDate *setTime;
+@property (nonatomic, readonly, nullable) NSDate *riseTime;
+@property (nonatomic, readonly, nullable) NSDate *setTime;
 @property (nonatomic, readonly) BOOL up;
 @end
 
@@ -69,7 +69,7 @@ typedef NS_ENUM(NSUInteger, StarRisetStatus) {
 @property (class, nonatomic, readonly) LunarPhase *currentMoonPhase;
 
 + (AstroRiset *)objectRisetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time objectIndex:(NSInteger)index;
-+ (void)risetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time completion:(nullable void (^)(AstroRiset * _Nullable sun, AstroRiset * _Nullable moon))handler;
++ (void)risetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time completion:(nullable void (^)(AstroRiset *sun, AstroRiset * moon))handler;
 + (NSArray<AstroRiset *>*)risetForSolarSystemObjectsInLongitude:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time;
 + (SatelliteRiseSet *)risetForSatelliteWithTLE:(SatelliteTLE *)tle longitude:(double)longitude latitude: (double)latitude altitude:(double)altitude forTime: (NSDate *)time;
 + (StarRiset *)risetForStarWithRA:(double)ra dec:(double)dec longitude:(double)longitude latitude:(double)latitude time:(NSDate *)time;

@@ -50,9 +50,12 @@ double ModifiedJulianDate(NSDate *time)
     return self;
 }
 
-- (BOOL)isComplete {
-    return _rise != nil && _set != nil;
+- (StarRisetStatus)status {
+    if (_rise == nil || _set == nil)
+        return _isUp ? StarRisetStatusNeverSet : StarRisetStatusNeverRise;
+    return StarRisetStatusNone;
 }
+
 @end
 
 @interface SatelliteTLE ()
@@ -173,11 +176,6 @@ double ModifiedJulianDate(NSDate *time)
     AstroRiset *sunriset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:SUN];
     AstroRiset *moonriset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:MOON];
 
-    if (![sunriset isComplete])
-        sunriset = nil;
-    if (![moonriset isComplete])
-        moonriset = nil;
-
     if (handler)
         handler(sunriset, moonriset);
 }
@@ -197,8 +195,7 @@ double ModifiedJulianDate(NSDate *time)
     NSMutableArray *array = [NSMutableArray array];
     for (int i = MERCURY; i <= MOON; i++) {
         AstroRiset *riset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:i];
-        if ([riset isComplete])
-            [array addObject:riset];
+        [array addObject:riset];
     }
     return array;
 }
@@ -279,7 +276,7 @@ double ModifiedJulianDate(NSDate *time)
     int status;
     bool up;
     GetRADECRiset(ra, dec, longitude, latitude, [time timeIntervalSince1970], &riseTime, &setTime, &status, &up);
-    return [[StarRiset alloc] initWithRiseTime:[NSDate dateWithTimeIntervalSince1970:riseTime] setTime:[NSDate dateWithTimeIntervalSince1970:setTime] status:status == 1 ? StarRisetStatusNeverRise : (status == -1 ? StarRisetStatusNeverSet : StarRisetStatusNone) up:up ? YES : NO];
+    return [[StarRiset alloc] initWithRiseTime: status == 0 ? [NSDate dateWithTimeIntervalSince1970:riseTime] : nil setTime: status == 0 ? [NSDate dateWithTimeIntervalSince1970:setTime] : nil status:status == 1 ? StarRisetStatusNeverRise : (status == -1 ? StarRisetStatusNeverSet : StarRisetStatusNone) up:up ? YES : NO];
 }
 
 @end
