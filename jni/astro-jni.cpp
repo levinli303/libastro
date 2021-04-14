@@ -28,15 +28,19 @@ jobject getRiset(JNIEnv *env,
 
     RiseSet riset;
     if (GetModifiedRiset(&now, SUN, &riset, nullptr) == 0) {
-        jobject rise = env->NewObject(posCls, posInitMethod, (double)0, riset.rs_riseaz, jlong(EphemToEpochTime(riset.rs_risetm) * 1000));
-        jobject set = env->NewObject(posCls, posInitMethod, (double)0, riset.rs_setaz, jlong(EphemToEpochTime(riset.rs_settm) * 1000));
-        sunriset = env->NewObject(risetCls, risetInitMethod, rise, set, nullptr, env->NewStringUTF("Sun"));
+        jobject rise = env->NewObject(posCls, posInitMethod, (jdouble)0, riset.rs_riseaz, jlong(EphemToEpochTime(riset.rs_risetm) * 1000));
+        jobject set = env->NewObject(posCls, posInitMethod, (jdouble)0, riset.rs_setaz, jlong(EphemToEpochTime(riset.rs_settm) * 1000));
+        jobject peak = env->NewObject(posCls, posInitMethod, (jdouble)riset.rs_tranalt, (jdouble)riset.rs_tranaz, jlong(EphemToEpochTime(riset.rs_trantm) * 1000));
+
+        sunriset = env->NewObject(risetCls, risetInitMethod, rise, set, peak, env->NewStringUTF("Sun"));
     }
 
     if (GetModifiedRiset(&now, MOON, &riset, nullptr) == 0) {
-        jobject rise = env->NewObject(posCls, posInitMethod, (double)0, riset.rs_riseaz, jlong(EphemToEpochTime(riset.rs_risetm) * 1000));
-        jobject set = env->NewObject(posCls, posInitMethod, (double)0, riset.rs_setaz, jlong(EphemToEpochTime(riset.rs_settm) * 1000));
-        moonriset = env->NewObject(risetCls, risetInitMethod, rise, set, nullptr, env->NewStringUTF("Moon"));
+        jobject rise = env->NewObject(posCls, posInitMethod, (jdouble)0, riset.rs_riseaz, jlong(EphemToEpochTime(riset.rs_risetm) * 1000));
+        jobject set = env->NewObject(posCls, posInitMethod, (jdouble)0, riset.rs_setaz, jlong(EphemToEpochTime(riset.rs_settm) * 1000));
+        jobject peak = env->NewObject(posCls, posInitMethod, (jdouble)riset.rs_tranalt, (jdouble)riset.rs_tranaz, jlong(EphemToEpochTime(riset.rs_trantm) * 1000));
+
+        moonriset = env->NewObject(risetCls, risetInitMethod, rise, set, peak, env->NewStringUTF("Moon"));
     }
 
     return env->NewObject(sunMoonCls, sunMoonInitMethod, sunriset, moonriset);
@@ -71,8 +75,10 @@ jobject getAllRiset(JNIEnv *env,
     {
         if (GetModifiedRiset(&now, i, &riset, nullptr) == 0)
         {
-            jobject rise = env->NewObject(posCls, posInitMethod, (double)0, riset.rs_riseaz, jlong(EphemToEpochTime(riset.rs_risetm) * 1000));
-            jobject set = env->NewObject(posCls, posInitMethod, (double)0, riset.rs_setaz, jlong(EphemToEpochTime(riset.rs_settm) * 1000));
+            jobject rise = env->NewObject(posCls, posInitMethod, (jdouble)0, (jdouble)riset.rs_riseaz, jlong(EphemToEpochTime(riset.rs_risetm) * 1000));
+            jobject set = env->NewObject(posCls, posInitMethod, (jdouble)0, (jdouble)riset.rs_setaz, jlong(EphemToEpochTime(riset.rs_settm) * 1000));
+            jobject peak = env->NewObject(posCls, posInitMethod, (jdouble)riset.rs_tranalt, (jdouble)riset.rs_tranaz, jlong(EphemToEpochTime(riset.rs_trantm) * 1000));
+
             jobject riset = env->NewObject(risetCls, risetInitMethod, rise, set, nullptr, env->NewStringUTF(GetStarName(i)));
             env->CallBooleanMethod(result, arrayListAdd, riset);
         }

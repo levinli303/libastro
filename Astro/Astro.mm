@@ -161,7 +161,9 @@ double ModifiedJulianDate(NSDate *time)
 
         AstroPosition *set = [[AstroPosition alloc] initWithAzimuth:riset.rs_setaz elevation:0 time:ModernDate(riset.rs_settm)];
 
-        AstroRiset *riset = [[AstroRiset alloc] initWithRise:rise peak:nil set:set isUp:isUp ? YES : NO name:name];
+        AstroPosition *peak = [[AstroPosition alloc] initWithAzimuth:riset.rs_tranaz elevation:riset.rs_tranalt time:ModernDate(riset.rs_trantm)];
+
+        AstroRiset *riset = [[AstroRiset alloc] initWithRise:rise peak:peak set:set isUp:isUp ? YES : NO name:name];
         return riset;
     }
     return [[AstroRiset alloc] initWithRise:nil peak:nil set:nil isUp:isUp ? YES : NO name:name];
