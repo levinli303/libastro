@@ -14,11 +14,11 @@ extern "C" {
 double radian(const double degree);
 double EpochToEphemTime(double seconds_since_epoch);
 double EphemToEpochTime(double ephem);
-int GetModifiedRiset(Now *now, int index, RiseSet *riset, bool *isUp);
+int GetModifiedRiset(Now *now, int index, RiseSet *riset, double *el, double *az);
 const char *GetStarName(int index);
 void ConfigureObserver(double longitude, double latitude, double altitude, double seconds_since_epoch, Now *obj);
 double FindMoonPhase(double seconds_since_epoch, double motion, double target);
-void GetRADECRiset(double ra, double dec, double longitude, double latitude, double now, double *riseTime, double *setTime, int *status, bool *up);
+void GetRADECRiset(double ra, double dec, double longitude, double latitude, double now, double *riseTime, double *setTime, double *transitTime, int *status, double *az_r, double *az_s, double *az_c, double *az_t, double *el_c, double *el_t);
 
 namespace astro
 {

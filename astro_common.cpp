@@ -123,7 +123,7 @@ int FindAlt0(Now *now, Obj *obj, double step, double limit, int forward, int go_
     return 1;
 }
 
-int GetModifiedRiset(Now *now, int index, RiseSet *riset, bool *up)
+int GetModifiedRiset(Now *now, int index, RiseSet *riset, double *el, double *az)
 {
     const double step = 1.0 / 1440;
     const double limit = 1;
@@ -142,12 +142,10 @@ int GetModifiedRiset(Now *now, int index, RiseSet *riset, bool *up)
     // get current status
     obj_cir(&backup, &obj);
 
+    *el = obj.pl.co_alt;
+    *az = obj.pl.co_az;
+
     bool isUp = obj.pl.co_alt > 0;
-
-    if (up)
-        *up = isUp;
-
-
     memcpy(&obj, &origObj, sizeof(Obj));
 
     if (isUp) {
@@ -274,11 +272,13 @@ static double GetLST(double now, double longitude)
     return lst;
 }
 
-void GetRADECRiset(double ra, double dec, double longitude, double latitude, double now, double *riseTime, double *setTime, int *status, bool *up)
+void GetRADECRiset(double ra, double dec, double longitude, double latitude, double now, double *riseTime, double *setTime, double *transitTime, int *status, double *az_r, double *az_s, double *az_c, double *az_t, double *el_c, double *el_t)
 {
-    double azr, azs, r, s;
-    riset(radian(ra), radian(dec), radian(latitude), 0, &r, &s, &azr, &azs, status);
+    double r, s;
+    riset(radian(ra), radian(dec), radian(latitude), 0, &r, &s, az_r, az_s, status);
     double lst = GetLST(now, longitude);
+
+    hadec_aa(radian(latitude), radian(lst * 15 - ra), radian(dec), el_c, az_c);
 
     if (s < r)
     {
@@ -288,22 +288,18 @@ void GetRADECRiset(double ra, double dec, double longitude, double latitude, dou
     {
         *riseTime = 0;
         *setTime = 0;
-        *up = (*status == -1);
     }
     else
     {
+        *el_t = 90.0 - abs(latitude - dec);
         if (lst < r || lst > s)
         {
             r += 23.93446959189;
             s += 23.93446959189;
-            *up = false;
-        }
-        else
-        {
-            *up = true;
         }
         *riseTime = now + (r - lst) * 3600;
         *setTime = now + (s - lst) * 3600;
+        *transitTime = (*riseTime + *setTime) / 2;
     }
 }
 

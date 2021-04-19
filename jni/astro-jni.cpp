@@ -14,7 +14,7 @@ jobject getRisetAtIndex(JNIEnv *env,
     jclass posCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroPosition");
     jclass risetCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroRiset");
     jmethodID posInitMethod = env->GetMethodID(posCls, "<init>", "(DDJ)V");
-    jmethodID risetInitMethod = env->GetMethodID(risetCls, "<init>", "(Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;ZLjava/lang/String;)V");
+    jmethodID risetInitMethod = env->GetMethodID(risetCls, "<init>", "(Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Ljava/lang/String;)V");
 
     jlong origTime = env->CallLongMethod(time, getTimeMethod);
 
@@ -22,17 +22,19 @@ jobject getRisetAtIndex(JNIEnv *env,
     ConfigureObserver(longitude, latitude, altitude, (double)origTime / 1000, &now);
 
     RiseSet riset;
-    bool isUp;
     jobject rise = nullptr;
     jobject set = nullptr;
     jobject peak = nullptr;
-    if (GetModifiedRiset(&now, index, &riset, &isUp) == 0) {
-        rise = env->NewObject(posCls, posInitMethod, (jdouble)0, (jdouble)riset.rs_riseaz, jlong(EphemToEpochTime(riset.rs_risetm) * 1000));
-        set = env->NewObject(posCls, posInitMethod, (jdouble)0, (jdouble)riset.rs_setaz, jlong(EphemToEpochTime(riset.rs_settm) * 1000));
-        peak = env->NewObject(posCls, posInitMethod, (jdouble)riset.rs_tranalt, (jdouble)riset.rs_tranaz, jlong(EphemToEpochTime(riset.rs_trantm) * 1000));
+    double el, az;
+    int result = GetModifiedRiset(&now, (int)index, &riset, &el, &az);
+    jobject current = env->NewObject(posCls, posInitMethod, (jdouble)el, (jdouble)az, origTime);
+    if (result == 0) {
+        rise = env->NewObject(posCls, posInitMethod, (jdouble)0, (jdouble)riset.rs_riseaz, (jlong)(EphemToEpochTime(riset.rs_risetm) * 1000));
+        set = env->NewObject(posCls, posInitMethod, (jdouble)0, (jdouble)riset.rs_setaz, (jlong)(EphemToEpochTime(riset.rs_settm) * 1000));
+        peak = env->NewObject(posCls, posInitMethod, (jdouble)riset.rs_tranalt, (jdouble)riset.rs_tranaz, (jlong)(EphemToEpochTime(riset.rs_trantm) * 1000));
     }
 
-    return env->NewObject(risetCls, risetInitMethod, rise, set, peak, isUp ? JNI_TRUE : JNI_FALSE, env->NewStringUTF(GetStarName(index)));
+    return env->NewObject(risetCls, risetInitMethod, rise, set, peak, current, env->NewStringUTF(GetStarName(index)));
 }
 
 
@@ -99,17 +101,31 @@ jobject getLunarPhase(JNIEnv *env, jobject time) {
 
 jobject getStarRiset(JNIEnv *env, jdouble ra, jdouble dec, jdouble longitude, jdouble latitude, jobject time)
 {
-    jclass srCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/StarRiset");
-    jmethodID srInitMethod = env->GetMethodID(srCls, "<init>", "(IJJZ)V");
     jclass dateCls = env->FindClass("java/util/Date");
     jmethodID getTimeMethod = env->GetMethodID(dateCls, "getTime", "()J");
 
-    jlong mi = env->CallLongMethod(time, getTimeMethod);
+    jclass posCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroPosition");
+    jclass risetCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/StarRiset");
+    jmethodID posInitMethod = env->GetMethodID(posCls, "<init>", "(DDJ)V");
+    jmethodID risetInitMethod = env->GetMethodID(risetCls, "<init>", "(Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;)V");
 
-    double riseTime, setTime;
+    jlong origTime = env->CallLongMethod(time, getTimeMethod);
+
+    double riseTime, setTime, transitTime;
     int status;
-    bool up;
-    GetRADECRiset(ra, dec, longitude, latitude, mi / 1000.0, &riseTime, &setTime, &status, &up);
+    double az_r, az_s, az_c, az_t, el_c, el_t;
+    GetRADECRiset(ra, dec, longitude, latitude, origTime / 1000.0, &riseTime, &setTime, &transitTime, &status, &az_r, &az_s, &az_c, &az_t, &el_c, &el_t);
 
-    return env->NewObject(srCls, srInitMethod, (jint)status, (jlong)(riseTime * 1000), (jlong)(setTime * 1000), up ? JNI_TRUE : JNI_FALSE);
+    jobject rise = nullptr;
+    jobject set = nullptr;
+    jobject peak = nullptr;
+    jobject current = env->NewObject(posCls, posInitMethod, (jdouble)el_c, (jdouble)az_c, origTime);
+    if (status == 0)
+    {
+        rise = env->NewObject(posCls, posInitMethod, (jdouble)0, (jdouble)az_r, (jlong)(riseTime * 1000));
+        set = env->NewObject(posCls, posInitMethod, (jdouble)0, (jdouble)az_s, (jlong)(setTime * 1000));
+        peak = env->NewObject(posCls, posInitMethod, (jdouble)el_t, (jdouble)az_t, (jlong)(transitTime * 1000));
+    }
+
+    return env->NewObject(risetCls, risetInitMethod, rise, set, peak, current);
 }

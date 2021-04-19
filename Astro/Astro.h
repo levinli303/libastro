@@ -27,8 +27,8 @@ typedef NS_CLOSED_ENUM(NSUInteger, StarRisetStatus) {
 @property (nullable, nonatomic, readonly) AstroPosition *rise;
 @property (nullable, nonatomic, readonly) AstroPosition *peak;
 @property (nullable, nonatomic, readonly) AstroPosition *set;
+@property (nonatomic, readonly) AstroPosition *current;
 @property (nonatomic, readonly) NSString *name;
-@property (nonatomic, readonly) BOOL isUp;
 @end
 
 @interface SatelliteTLE : NSObject
@@ -58,10 +58,10 @@ typedef NS_CLOSED_ENUM(NSUInteger, StarRisetStatus) {
 @end
 
 @interface StarRiset : NSObject
-@property (nonatomic, readonly) StarRisetStatus status;
-@property (nonatomic, readonly, nullable) NSDate *riseTime;
-@property (nonatomic, readonly, nullable) NSDate *setTime;
-@property (nonatomic, readonly) BOOL up;
+@property (nullable, nonatomic, readonly) AstroPosition *rise;
+@property (nullable, nonatomic, readonly) AstroPosition *peak;
+@property (nullable, nonatomic, readonly) AstroPosition *set;
+@property (nonatomic, readonly) AstroPosition *current;
 @end
 
 @interface Astro : NSObject

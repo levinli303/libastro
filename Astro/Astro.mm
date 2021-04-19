@@ -38,22 +38,16 @@ double ModifiedJulianDate(NSDate *time)
 @end
 
 @implementation AstroRiset
-- (instancetype)initWithRise:(AstroPosition *)rise peak:(AstroPosition *)peak set:(AstroPosition *)set isUp:(BOOL)isUp name:(NSString *)name {
+- (instancetype)initWithRise:(AstroPosition *)rise peak:(AstroPosition *)peak set:(AstroPosition *)set current:(AstroPosition *)current name:(NSString *)name {
     self = [super init];
     if (self) {
         _rise = rise;
         _peak = peak;
         _set = set;
+        _current = current;
         _name = name;
-        _isUp = isUp;
     }
     return self;
-}
-
-- (StarRisetStatus)status {
-    if (_rise == nil || _set == nil)
-        return _isUp ? StarRisetStatusNeverSet : StarRisetStatusNeverRise;
-    return StarRisetStatusNone;
 }
 
 @end
@@ -135,13 +129,13 @@ double ModifiedJulianDate(NSDate *time)
 
 @implementation StarRiset
 
-- (instancetype)initWithRiseTime:(NSDate *)riseTime setTime:(NSDate *)setTime status:(StarRisetStatus)status up:(BOOL)up {
+- (instancetype)initWithRise:(AstroPosition *)rise set:(AstroPosition *)set peak:(AstroPosition *)peak current:(AstroPosition *)current {
     self = [super init];
     if (self) {
-        _riseTime = riseTime;
-        _setTime = setTime;
-        _status = status;
-        _up = up;
+        _rise = rise;
+        _set = set;
+        _peak = peak;
+        _current = current;
     }
     return self;
 }
@@ -157,19 +151,20 @@ double ModifiedJulianDate(NSDate *time)
 
     RiseSet riset;
     NSString *name = [NSString stringWithUTF8String:GetStarName((int)index)];
-    bool isUp;
-    int result = GetModifiedRiset(&now, (int)index, &riset, &isUp);
+    double el, az;
+    int result = GetModifiedRiset(&now, (int)index, &riset, &el, &az);
+    AstroPosition *current = [[AstroPosition alloc] initWithAzimuth:az elevation:el time:time];
+    AstroPosition *rise = nil;
+    AstroPosition *set = nil;
+    AstroPosition *peak = nil;
     if (result == 0) {
-        AstroPosition *rise = [[AstroPosition alloc] initWithAzimuth:riset.rs_riseaz elevation:0 time:ModernDate(riset.rs_risetm)];
+        rise = [[AstroPosition alloc] initWithAzimuth:riset.rs_riseaz elevation:0 time:ModernDate(riset.rs_risetm)];
 
-        AstroPosition *set = [[AstroPosition alloc] initWithAzimuth:riset.rs_setaz elevation:0 time:ModernDate(riset.rs_settm)];
+        set = [[AstroPosition alloc] initWithAzimuth:riset.rs_setaz elevation:0 time:ModernDate(riset.rs_settm)];
 
-        AstroPosition *peak = [[AstroPosition alloc] initWithAzimuth:riset.rs_tranaz elevation:riset.rs_tranalt time:ModernDate(riset.rs_trantm)];
-
-        AstroRiset *riset = [[AstroRiset alloc] initWithRise:rise peak:peak set:set isUp:isUp ? YES : NO name:name];
-        return riset;
+        peak = [[AstroPosition alloc] initWithAzimuth:riset.rs_tranaz elevation:riset.rs_tranalt time:ModernDate(riset.rs_trantm)];
     }
-    return [[AstroRiset alloc] initWithRise:nil peak:nil set:nil isUp:isUp ? YES : NO name:name];
+    return [[AstroRiset alloc] initWithRise:rise peak:peak set:set current:current name:name];
 }
 
 + (void)risetInLocation:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time completion:(void (^)(AstroRiset *sun, AstroRiset *moon))handler {
@@ -272,11 +267,22 @@ double ModifiedJulianDate(NSDate *time)
 }
 
 + (StarRiset *)risetForStarWithRA:(double)ra dec:(double)dec longitude:(double)longitude latitude:(double)latitude time:(NSDate *)time {
-    double riseTime, setTime;
+    double riseTime, setTime, transitTime;
     int status;
-    bool up;
-    GetRADECRiset(ra, dec, longitude, latitude, [time timeIntervalSince1970], &riseTime, &setTime, &status, &up);
-    return [[StarRiset alloc] initWithRiseTime: status == 0 ? [NSDate dateWithTimeIntervalSince1970:riseTime] : nil setTime: status == 0 ? [NSDate dateWithTimeIntervalSince1970:setTime] : nil status:status == 1 ? StarRisetStatusNeverRise : (status == -1 ? StarRisetStatusNeverSet : StarRisetStatusNone) up:up ? YES : NO];
+    double az_r, az_s, az_c, az_t, el_c, el_t;
+    GetRADECRiset(ra, dec, longitude, latitude, [time timeIntervalSince1970], &riseTime, &setTime, &transitTime, &status, &az_r, &az_s, &az_c, &az_t, &el_c, &el_t);
+    AstroPosition *current = [[AstroPosition alloc] initWithAzimuth:az_c elevation:el_c time:time];
+    AstroPosition *rise = nil;
+    AstroPosition *set = nil;
+    AstroPosition *peak = nil;
+    if (status == 0)
+    {
+        rise = [[AstroPosition alloc] initWithAzimuth:az_r elevation:0 time:[NSDate dateWithTimeIntervalSince1970:riseTime]];
+        set = [[AstroPosition alloc] initWithAzimuth:az_s elevation:0 time:[NSDate dateWithTimeIntervalSince1970:setTime]];
+        peak = [[AstroPosition alloc] initWithAzimuth:az_t elevation:el_t time:[NSDate dateWithTimeIntervalSince1970:transitTime]];
+    }
+
+    return [[StarRiset alloc] initWithRise:rise set:set peak:peak current:current];
 }
 
 @end
