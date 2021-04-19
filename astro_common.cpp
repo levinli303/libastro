@@ -280,6 +280,10 @@ void GetRADECRiset(double ra, double dec, double longitude, double latitude, dou
     riset(radian(ra), radian(dec), radian(latitude), 0, &r, &s, &azr, &azs, status);
     double lst = GetLST(now, longitude);
 
+    if (s < r)
+    {
+        r -= 23.93446959189;
+    }
     if (*status == 1 || *status == -1)
     {
         *riseTime = 0;
