@@ -257,18 +257,15 @@ double mod2pi(double angle)
     return a;
 }
 
-static double GetLST(double now, double longitude)
+double GetLST(double now, double longitude)
 {
-    double d =  now / 86400.0 + (double)astro::Date(1970, 1, 1);
-    d = d - 2451543.5;
-    double h = (d - floor(d)) * 24.0;
-    double ws = mod2pi(282.9404 + 4.70935 * pow(10.0, -5) * d);
-    double ms = mod2pi(356.0470 + 0.9856002585 * d);
-    double meanlong = mod2pi(ms + ws);
-    double gmst0 = meanlong / 15.0;
-    double lst = ModDay(gmst0 + h + longitude / 15.0) + 11.0 + 56.0/60.0 + 4.090530833 / 3600.0;
-    if (lst >= 24.0)
-        lst = lst - 24.0;
+    Now _now;
+    ConfigureObserver(longitude, 0, 0, now, &_now);
+
+    double lst;
+
+    now_lst(&_now, &lst);
+
     return lst;
 }
 

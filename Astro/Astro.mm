@@ -285,4 +285,8 @@ double ModifiedJulianDate(NSDate *time)
     return [[StarRiset alloc] initWithRise:rise set:set peak:peak current:current];
 }
 
++ (double)getLSTInLocation:(double)longitude time:(NSDate *)time {
+    return GetLST([time timeIntervalSince1970], longitude);
+}
+
 @end

@@ -19,6 +19,7 @@ const char *GetStarName(int index);
 void ConfigureObserver(double longitude, double latitude, double altitude, double seconds_since_epoch, Now *obj);
 double FindMoonPhase(double seconds_since_epoch, double motion, double target);
 void GetRADECRiset(double ra, double dec, double longitude, double latitude, double now, double *riseTime, double *setTime, double *transitTime, int *status, double *az_r, double *az_s, double *az_c, double *az_t, double *el_c, double *el_t);
+double GetLST(double now, double longitude);
 
 namespace astro
 {
