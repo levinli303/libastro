@@ -129,3 +129,12 @@ jobject getStarRiset(JNIEnv *env, jdouble ra, jdouble dec, jdouble longitude, jd
 
     return env->NewObject(risetCls, risetInitMethod, rise, set, peak, current);
 }
+
+jdouble getLST(JNIEnv *env, jdouble longitude, jobject time)
+{
+    jclass dateCls = env->FindClass("java/util/Date");
+    jmethodID getTimeMethod = env->GetMethodID(dateCls, "getTime", "()J");
+    jlong origTime = env->CallLongMethod(time, getTimeMethod);
+
+    return (jdouble)GetLST(origTime / 1000.0, longitude);
+}
