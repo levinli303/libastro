@@ -286,7 +286,7 @@ void GetRADECRiset(double ra, double dec, double longitude, double latitude, dou
     }
     else
     {
-        if (lst < r || lst > s)
+        if (lst > s)
         {
             r += 23.93446959189;
             s += 23.93446959189;
