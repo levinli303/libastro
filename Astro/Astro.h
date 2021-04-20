@@ -23,7 +23,6 @@ typedef NS_CLOSED_ENUM(NSUInteger, StarRisetStatus) {
 @end
 
 @interface AstroRiset : NSObject
-@property (nonatomic, readonly) StarRisetStatus status;
 @property (nullable, nonatomic, readonly) AstroPosition *rise;
 @property (nullable, nonatomic, readonly) AstroPosition *peak;
 @property (nullable, nonatomic, readonly) AstroPosition *set;

@@ -50,7 +50,7 @@ double EphemToEpochTime(double ephem)
     return ephem * 86400 - EPHEM_SECONDS_DIFFERENCE;
 }
 
-int FindAlt0(Now *now, Obj *obj, double step, double limit, int forward, int go_down, double *az, double *jd)
+int FindAlt0(Now *now, Obj *obj, double step, double limit, int forward, int go_down, double *az, double *jd, double *transit_az, double *transit_al, double *transit_tm)
 {
     double orig = now->n_mjd;
     double current = orig;
@@ -62,6 +62,14 @@ int FindAlt0(Now *now, Obj *obj, double step, double limit, int forward, int go_
 
     double prev_az = backup.pl.co_az;
     double prev_alt = backup.pl.co_alt;
+
+    if (prev_alt > *transit_al)
+    {
+        *transit_al = prev_alt;
+        *transit_az = prev_az;
+        *transit_tm = orig;
+    }
+
     double prev_time = current;
 
     memcpy(&backup, obj, sizeof(Obj));
@@ -75,6 +83,13 @@ int FindAlt0(Now *now, Obj *obj, double step, double limit, int forward, int go_
 
         double curr_alt = backup.pl.co_alt;
         double curr_az = backup.pl.co_az;
+
+        if (curr_alt > *transit_al)
+        {
+            *transit_al = curr_alt;
+            *transit_az = curr_az;
+            *transit_tm = current;
+        }
 
         memcpy(&backup, obj, sizeof(Obj));
 
@@ -148,18 +163,26 @@ int GetModifiedRiset(Now *now, int index, RiseSet *riset, double *el, double *az
     bool isUp = obj.pl.co_alt > 0;
     memcpy(&obj, &origObj, sizeof(Obj));
 
-    if (isUp) {
-        if (FindAlt0(&backup, &obj, step, limit, false, false, &riset->rs_riseaz, &riset->rs_risetm) == 0 &&
-            FindAlt0(&backup, &obj, step, limit, true, true, &riset->rs_settm, &riset->rs_settm) == 0)
+    riset->rs_tranaz = 0;
+    riset->rs_tranalt = 0;
+    riset->rs_trantm = 0;
+
+    if (isUp)
+    {
+        if (FindAlt0(&backup, &obj, step, limit, false, false, &riset->rs_riseaz, &riset->rs_risetm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0 &&
+            FindAlt0(&backup, &obj, step, limit, true, true, &riset->rs_setaz, &riset->rs_settm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0)
         {
             return 0;
         }
     } else {
-        if (FindAlt0(&backup, &obj, step, limit, true, false, &riset->rs_riseaz, &riset->rs_risetm) == 0)
+        if (FindAlt0(&backup, &obj, step, limit, true, false, &riset->rs_riseaz, &riset->rs_risetm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0)
         {
+            riset->rs_tranaz = 0;
+            riset->rs_tranalt = 0;
+            riset->rs_trantm = 0;
             // set time is always behind rise time
             backup.n_mjd = riset->rs_risetm;
-            if (FindAlt0(&backup, &obj, step, limit, true, true, &riset->rs_settm, &riset->rs_settm) == 0)
+            if (FindAlt0(&backup, &obj, step, limit, true, true, &riset->rs_setaz, &riset->rs_settm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0)
             {
                 return 0;
             }
@@ -232,31 +255,6 @@ double FindMoonPhase(double seconds_since_epoch, double motion, double target)
     return EphemToEpochTime(x1);
 }
 
-double AbsFloor(double val)
-{
-    if (val >= 0.0)
-        return floor(val);
-    return ceil(val);
-}
-
-static double ModDay(double val)
-{
-    double b = val / 24.0;
-    double a = 24.0 * (b - AbsFloor(b));
-    if (a < 0)
-        a = a + 24.0;
-    return a;
-}
-
-double mod2pi(double angle)
-{
-    double b = angle / 360.0;
-    double a = 360.0 * (b - AbsFloor(b));
-    if (a < 0)
-        a = 360.0 + a;
-    return a;
-}
-
 double GetLST(double now, double longitude)
 {
     Now _now;
@@ -288,7 +286,6 @@ void GetRADECRiset(double ra, double dec, double longitude, double latitude, dou
     }
     else
     {
-        *el_t = 90.0 - abs(latitude - dec);
         if (lst < r || lst > s)
         {
             r += 23.93446959189;
@@ -296,7 +293,10 @@ void GetRADECRiset(double ra, double dec, double longitude, double latitude, dou
         }
         *riseTime = now + (r - lst) * 3600;
         *setTime = now + (s - lst) * 3600;
-        *transitTime = (*riseTime + *setTime) / 2;
+        *transitTime = (*riseTime + *setTime) / 2.0;
+
+        double lst = GetLST(*transitTime, longitude);
+        hadec_aa(radian(latitude), radian(lst * 15 - ra), radian(dec), el_t, az_t);
     }
 }
 
