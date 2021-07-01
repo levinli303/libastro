@@ -289,4 +289,17 @@ double ModifiedJulianDate(NSDate *time)
     return GetLST([time timeIntervalSince1970], longitude);
 }
 
++ (NSDate *)getSunAlt:(double)longitude latitude:(double)latitude altitude:(double)altitude time:(NSDate *)time goDown:(BOOL)goDown x:(double)x
+{
+    const double step = 1.0 / 1440;
+    const double limit = 2;
+    Now now;
+    ConfigureObserver(longitude, latitude, altitude, [time timeIntervalSince1970], &now);
+
+    double jd = 0;
+    if (FindAltXSun(&now, step, limit, 1, goDown ? 1 : 0, &jd, x))
+        return nil;
+    return ModernDate(jd);
+}
+
 @end

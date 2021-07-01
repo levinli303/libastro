@@ -38,6 +38,27 @@ jobject getRisetAtIndex(JNIEnv *env,
 }
 
 
+jobject getSunAltTime(JNIEnv *env,
+                      jdouble longitude, jdouble latitude, jdouble altitude,
+                      jboolean go_down,
+                      jobject time,
+                      jdouble x)
+{
+    const double step = 1.0 / 1440;
+    const double limit = 2;
+    jclass dateCls = env->FindClass("java/util/Date");
+    jmethodID getTimeMethod = env->GetMethodID(dateCls, "getTime", "()J");
+    jmethodID dateInitMethod =  env->GetMethodID(dateCls, "<init>", "(J)V");
+    Now now;
+    jlong origTime = env->CallLongMethod(time, getTimeMethod);
+    ConfigureObserver(longitude, latitude, altitude, (double)origTime / 1000, &now);
+
+    double jd = 0;
+    if (FindAltXSun(&now, step, limit, 1, (go_down == JNI_TRUE) ? 1 : 0, &jd, x))
+        return nullptr;
+    return env->NewObject(dateCls, dateInitMethod, (jlong)(EphemToEpochTime(jd) * 1000));
+}
+
 jobject getRiset(JNIEnv *env,
                  jdouble longitude, jdouble latitude,
                  jdouble altitude, jobject time) {

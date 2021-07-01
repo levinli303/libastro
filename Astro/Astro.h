@@ -73,6 +73,7 @@ typedef NS_CLOSED_ENUM(NSUInteger, StarRisetStatus) {
 + (SatelliteRiseSet *)risetForSatelliteWithTLE:(SatelliteTLE *)tle longitude:(double)longitude latitude: (double)latitude altitude:(double)altitude forTime: (NSDate *)time;
 + (StarRiset *)risetForStarWithRA:(double)ra dec:(double)dec longitude:(double)longitude latitude:(double)latitude time:(NSDate *)time;
 + (double)getLSTInLocation:(double)longitude time:(NSDate *)time;
++ (nullable NSDate *)getSunAlt:(double)longitude latitude:(double)latitude altitude:(double)altitude time:(NSDate *)time goDown:(BOOL)goDown x:(double)x;
 
 @end
 

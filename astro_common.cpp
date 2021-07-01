@@ -50,7 +50,7 @@ double EphemToEpochTime(double ephem)
     return ephem * 86400 - EPHEM_SECONDS_DIFFERENCE;
 }
 
-int FindAlt0(Now *now, Obj *obj, double step, double limit, int forward, int go_down, double *az, double *jd, double *transit_az, double *transit_al, double *transit_tm)
+int FindAltX(Now *now, Obj *obj, double step, double limit, int forward, int go_down, double *az, double *jd, double *transit_az, double *transit_al, double *transit_tm, double x)
 {
     double orig = now->n_mjd;
     double current = orig;
@@ -95,7 +95,7 @@ int FindAlt0(Now *now, Obj *obj, double step, double limit, int forward, int go_
 
         if (go_down)
         {
-            if (prev_alt >= 0 && curr_alt <= 0)
+            if (prev_alt >= x && curr_alt <= x)
             {
                 *az = (prev_az + curr_az) / 2;
                 *jd = (prev_time + current) / 2;
@@ -105,7 +105,7 @@ int FindAlt0(Now *now, Obj *obj, double step, double limit, int forward, int go_
         }
         else
         {
-            if (prev_alt <= 0 && curr_alt >= 0)
+            if (prev_alt <= x && curr_alt >= x)
             {
                 *az = (prev_az + curr_az) / 2;
                 *jd = (prev_time + current) / 2;
@@ -136,6 +136,21 @@ int FindAlt0(Now *now, Obj *obj, double step, double limit, int forward, int go_
     }
     now->n_mjd = orig;
     return 1;
+}
+
+int FindAlt0(Now *now, Obj *obj, double step, double limit, int forward, int go_down, double *az, double *jd, double *transit_az, double *transit_al, double *transit_tm)
+{
+    return FindAltX(now, obj, step, limit, forward, go_down, az, jd, transit_az, transit_al, transit_tm, 0);
+}
+
+int FindAltXSun(Now *now, double step, double limit, int forward, int go_down, double *jd, double x)
+{
+    double az, transit_az, transit_al, transit_tm;
+    Obj *objs;
+    getBuiltInObjs(&objs);
+
+    Obj origObj = objs[SUN];
+    return FindAltX(now, &origObj, step, limit, forward, go_down, &az, jd, &transit_az, &transit_al, &transit_tm, x);
 }
 
 int GetModifiedRiset(Now *now, int index, RiseSet *riset, double *el, double *az)
