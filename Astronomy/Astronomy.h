@@ -6,8 +6,6 @@
 //  Copyright © 2019 Li Linfeng. All rights reserved.
 //
 
-#import "Astro.h"
-
 //! Project version number for Astronomy.
 FOUNDATION_EXPORT double AstronomyVersionNumber;
 
@@ -16,4 +14,4 @@ FOUNDATION_EXPORT const unsigned char AstronomyVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <Astronomy/PublicHeader.h>
 
-
+#import <Astronomy/Astro.h>
