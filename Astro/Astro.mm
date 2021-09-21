@@ -98,32 +98,44 @@ double ModifiedJulianDate(NSDate *time)
 @end
 
 @implementation LunarPhase
-- (instancetype)initWithPhase:(double)phase nextNewMoon:(NSDate *)nextNew nextFullMoon:(NSDate *)nextFull {
+- (instancetype)initWithPhase:(double)phase isFirstHalf:(BOOL)isFirstHalf nextNewMoon:(NSDate *)nextNew nextFullMoon:(NSDate *)nextFull {
     self = [super init];
     if (self) {
         _nextFull = nextFull;
         _nextNew = nextNew;
-        _phase = phase;
 
-        if (phase <= 0.01 || phase >= 0.99) {
+        _phase = phase;
+        _isFirstHalf = isFirstHalf;
+
+        if (phase <= 0.01) {
             _name = @"New Moon";
-        } else if (phase < 0.24) {
-            _name = @"Waxing Crescent";
-        } else if (phase <= 0.26) {
-            _name = @"First Quarter";
         } else if (phase < 0.49) {
-            _name = @"Waxing Gibbous";
+            if (isFirstHalf) {
+                _name = @"Waxing Crescent";
+            } else {
+                _name = @"Waning Crescent";
+            }
         } else if (phase <= 0.51) {
-            _name = @"Full Moon";
-        } else if (phase < 0.74) {
-            _name = @"Waning Crescent";
-        } else if (phase < 0.76) {
-            _name = @"Last Quarter";
+            if (isFirstHalf) {
+                _name = @"First Quarter";
+            } else {
+                _name = @"Last Quarter";
+            }
         } else if (phase < 0.99) {
-            _name = @"Waning Gibbous";
+            if (isFirstHalf) {
+                _name = @"Waxing Gibbous";
+            } else {
+                _name = @"Waning Gibbous";
+            }
+        } else {
+            _name = @"Full Moon";
         }
     }
     return self;
+}
+
+- (double)normalizedPhase {
+    return _isFirstHalf ? (_phase * 0.5) : (1 - _phase * 0.5);
 }
 @end
 
@@ -181,9 +193,10 @@ double ModifiedJulianDate(NSDate *time)
     NSDate *prevNew =  [NSDate dateWithTimeIntervalSince1970:FindMoonPhase([time timeIntervalSince1970], M_PI * -2, 0)];
     NSDate *nextNew = [NSDate dateWithTimeIntervalSince1970:FindMoonPhase([time timeIntervalSince1970], M_PI * 2, 0)];
     NSDate *nextFull = [NSDate dateWithTimeIntervalSince1970:FindMoonPhase([time timeIntervalSince1970], M_PI * 2, M_PI)];
-    double phase = [time timeIntervalSinceDate:prevNew] / [nextNew timeIntervalSinceDate:prevNew];
+    NSDate *prevNextFull = [NSDate dateWithTimeIntervalSince1970:FindMoonPhase([prevNew timeIntervalSince1970], M_PI * 2, M_PI)];
+    double phase = CurrentMoonPhase([time timeIntervalSince1970]);
 
-    return [[LunarPhase alloc] initWithPhase:phase nextNewMoon:nextNew nextFullMoon:nextFull];
+    return [[LunarPhase alloc] initWithPhase:phase isFirstHalf:[time timeIntervalSinceDate:prevNextFull] <= 0 nextNewMoon:nextNew nextFullMoon:nextFull];
 }
 
 + (NSArray *)risetForSolarSystemObjectsInLongitude:(double)longitude latitude:(double) latitude altitude:(double)altitude forTime:(NSDate *)time {

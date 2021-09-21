@@ -54,6 +54,8 @@ typedef NS_CLOSED_ENUM(NSUInteger, StarRisetStatus) {
 @property (nonatomic, readonly) NSDate *nextFull;
 @property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) double phase;
+@property (nonatomic, readonly) double normalizedPhase;
+@property (nonatomic, readonly) BOOL isFirstHalf;
 @end
 
 @interface StarRiset : NSObject

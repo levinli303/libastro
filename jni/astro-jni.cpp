@@ -86,38 +86,47 @@ jobject getAllRiset(JNIEnv *env,
 
 jobject getLunarPhase(JNIEnv *env, jobject time) {
     jclass lpCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/LunarPhase");
-    jmethodID lpInitMethod = env->GetMethodID(lpCls, "<init>", "(JJLjava/lang/String;D)V");
+    jmethodID lpInitMethod = env->GetMethodID(lpCls, "<init>", "(JJLjava/lang/String;DZ)V");
     jclass dateCls = env->FindClass("java/util/Date");
     jmethodID getTimeMethod = env->GetMethodID(dateCls, "getTime", "()J");
 
     jlong mi = env->CallLongMethod(time, getTimeMethod);
 
-    double pn = FindMoonPhase((double)mi / 1000, M_PI * -2, 0);
-    double nn = FindMoonPhase((double)mi / 1000, M_PI * 2, 0);
-    double nf = FindMoonPhase((double)mi / 1000, M_PI * 2, M_PI);
-    double phase = ((double)mi / 1000 - pn) / (nn - pn);
+    double now = (double)mi / 1000;
+    double pn = FindMoonPhase(now, M_PI * -2, 0);
+    double nn = FindMoonPhase(now, M_PI * 2, 0);
+    double nf = FindMoonPhase(now, M_PI * 2, M_PI);
+    double pnn = FindMoonPhase(pn, M_PI * 2, M_PI);
+    double phase = CurrentMoonPhase(now);
+    bool isFirstHalf = now <= pnn;
 
-    const char *pcDesc = NULL;
+    const char *_name = nullptr;
 
-    if (phase <= 0.01 || phase >= 0.99) {
-        pcDesc = "New Moon";
-    } else if (phase < 0.24) {
-        pcDesc = "Waxing Crescent";
-    } else if (phase <= 0.26) {
-        pcDesc = "First Quarter";
+    if (phase <= 0.01) {
+        _name = "New Moon";
     } else if (phase < 0.49) {
-        pcDesc = "Waxing Gibbous";
+        if (isFirstHalf) {
+            _name = "Waxing Crescent";
+        } else {
+            _name = "Waning Crescent";
+        }
     } else if (phase <= 0.51) {
-        pcDesc = "Full Moon";
-    } else if (phase < 0.74) {
-        pcDesc = "Waning Crescent";
-    } else if (phase < 0.76) {
-        pcDesc = "Last Quarter";
+        if (isFirstHalf) {
+            _name = "First Quarter";
+        } else {
+            _name = "Last Quarter";
+        }
     } else if (phase < 0.99) {
-        pcDesc = "Waning Gibbous";
+        if (isFirstHalf) {
+            _name = "Waxing Gibbous";
+        } else {
+            _name = "Waning Gibbous";
+        }
+    } else {
+        _name = "Full Moon";
     }
 
-    return env->NewObject(lpCls, lpInitMethod, (jlong)(nn * 1000), (jlong)(nf * 1000), env->NewStringUTF(pcDesc), phase);
+    return env->NewObject(lpCls, lpInitMethod, (jlong)(nn * 1000), (jlong)(nf * 1000), env->NewStringUTF(_name), phase, isFirstHalf ? JNI_TRUE : JNI_FALSE);
 }
 
 jobject getStarRiset(JNIEnv *env, jdouble ra, jdouble dec, jdouble longitude, jdouble latitude, jobject time)

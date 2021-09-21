@@ -247,6 +247,13 @@ double calc_phase(double x, double antitarget)
     return res;
 }
 
+double CurrentMoonPhase(double seconds_since_epoch)
+{
+    double k;
+    moon_colong(MJD0 + EpochToEphemTime(seconds_since_epoch), 0, 0, 0, &k, 0, 0);
+    return k;
+}
+
 double FindMoonPhase(double seconds_since_epoch, double motion, double target)
 {
     double antitarget = target + M_PI;
