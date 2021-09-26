@@ -69,6 +69,7 @@ typedef NS_CLOSED_ENUM(NSUInteger, StarRisetStatus) {
 
 @property (class, nonatomic, readonly) LunarPhase *currentMoonPhase;
 
++ (LunarPhase *)moonPhaseAtTime:(NSDate *)time;
 + (AstroRiset *)objectRisetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time objectIndex:(NSInteger)index;
 + (void)risetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time completion:(nullable void (^)(AstroRiset *sun, AstroRiset * moon))handler;
 + (NSArray<AstroRiset *>*)risetForSolarSystemObjectsInLongitude:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time;

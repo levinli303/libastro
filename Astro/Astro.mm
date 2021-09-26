@@ -188,8 +188,10 @@ double ModifiedJulianDate(NSDate *time)
 }
 
 + (LunarPhase *)currentMoonPhase {
-    // Calculate lunar phase
-    NSDate *time = [NSDate date];
+    return [self moonPhaseAtTime:[NSDate date]];
+}
+
++ (LunarPhase *)moonPhaseAtTime:(NSDate *)time {
     NSDate *prevNew =  [NSDate dateWithTimeIntervalSince1970:FindMoonPhase([time timeIntervalSince1970], M_PI * -2, 0)];
     NSDate *nextNew = [NSDate dateWithTimeIntervalSince1970:FindMoonPhase([time timeIntervalSince1970], M_PI * 2, 0)];
     NSDate *nextFull = [NSDate dateWithTimeIntervalSince1970:FindMoonPhase([time timeIntervalSince1970], M_PI * 2, M_PI)];
