@@ -52,14 +52,8 @@ double ModifiedJulianDate(NSDate *time)
 
 @end
 
-@interface SatelliteTLE ()
-@property (nonatomic, readonly) NSString *line0;
-@property (nonatomic, readonly) NSString *line1;
-@property (nonatomic, readonly) NSString *line2;
-@end
-
 @implementation SatelliteTLE : NSObject
-- (instancetype)initWithLine0: (NSString *)line0 line1: (NSString *)line1 Line2: (NSString *)line2 {
+- (instancetype)initWithLine0: (NSString *)line0 line1: (NSString *)line1 line2: (NSString *)line2 {
     self = [super init];
     if (self) {
         _line0 = line0;

@@ -31,7 +31,10 @@ typedef NS_CLOSED_ENUM(NSUInteger, StarRisetStatus) {
 @end
 
 @interface SatelliteTLE : NSObject
-- (instancetype)initWithLine0: (NSString *)line0 line1: (NSString *)line1 Line2: (NSString *)line2;
+@property (nonatomic, readonly) NSString *line0;
+@property (nonatomic, readonly) NSString *line1;
+@property (nonatomic, readonly) NSString *line2;
+- (instancetype)initWithLine0: (NSString *)line0 line1: (NSString *)line1 line2: (NSString *)line2;
 @end
 
 @interface SatelliteStatus : NSObject
