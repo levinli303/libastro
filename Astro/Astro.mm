@@ -70,6 +70,18 @@ double ModifiedJulianDate(NSDate *time)
 }
 @end
 
+@implementation SatelliteStatus : NSObject
+- (instancetype)initWithSubLongitude:(double)subLongitude subLatitude:(double)subLatitude elevation:(double)elevation {
+    self = [super init];
+    if (self) {
+        _subLongitude = subLongitude;
+        _subLatitude = subLatitude;
+        _elevation = elevation;
+    }
+    return self;
+}
+@end
+
 @implementation SatellitePosition
 - (instancetype)initWithTime:(NSDate *)time azimuth:(double)azimuth elevation:(double)elevation range:(double)range {
     self = [super init];
@@ -315,6 +327,16 @@ double ModifiedJulianDate(NSDate *time)
     if (FindAltXSun(&now, step, limit, 1, goDown ? 1 : 0, &jd, x))
         return nil;
     return ModernDate(jd);
+}
+
++ (nullable SatelliteStatus *)getSatelliteStatus:(SatelliteTLE *)tle atTime:(NSDate *)time {
+    double sublng, sublat, elevation;
+    int result = GetSatelliteStatus([[tle line0] UTF8String], [[tle line1] UTF8String], [[tle line2] UTF8String], [time timeIntervalSince1970], &sublng, &sublat, &elevation);
+
+    if (result) {
+        return [[SatelliteStatus alloc] initWithSubLongitude:sublng subLatitude:sublat elevation:elevation];
+    }
+    return nil;
 }
 
 @end

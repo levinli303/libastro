@@ -4,19 +4,31 @@
 
 #include "astro_common.h"
 
+namespace {
+    jlong getTime(JNIEnv *env, jobject dateObject) {
+        jclass dateCls = env->FindClass("java/util/Date");
+        jmethodID getTimeMethod = env->GetMethodID(dateCls, "getTime", "()J");
+        jlong origTime = env->CallLongMethod(dateObject, getTimeMethod);
+        return origTime;
+    }
+
+    jobject createDateObject(JNIEnv *env, jlong time) {
+        jclass dateCls = env->FindClass("java/util/Date");
+        jmethodID dateInitMethod =  env->GetMethodID(dateCls, "<init>", "(J)V");
+        return env->NewObject(dateCls, dateInitMethod, time);
+    }
+}
+
 jobject getRisetAtIndex(JNIEnv *env,
                            jdouble longitude, jdouble latitude, jdouble altitude,
                            jobject time, int index) {
-
-    jclass dateCls = env->FindClass("java/util/Date");
-    jmethodID getTimeMethod = env->GetMethodID(dateCls, "getTime", "()J");
 
     jclass posCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroPosition");
     jclass risetCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroRiset");
     jmethodID posInitMethod = env->GetMethodID(posCls, "<init>", "(DDJ)V");
     jmethodID risetInitMethod = env->GetMethodID(risetCls, "<init>", "(Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Ljava/lang/String;)V");
 
-    jlong origTime = env->CallLongMethod(time, getTimeMethod);
+    jlong origTime = getTime(env, time);
 
     Now now;
     ConfigureObserver(longitude, latitude, altitude, (double)origTime / 1000, &now);
@@ -46,17 +58,14 @@ jobject getSunAltTime(JNIEnv *env,
 {
     const double step = 1.0 / 1440;
     const double limit = 2;
-    jclass dateCls = env->FindClass("java/util/Date");
-    jmethodID getTimeMethod = env->GetMethodID(dateCls, "getTime", "()J");
-    jmethodID dateInitMethod =  env->GetMethodID(dateCls, "<init>", "(J)V");
     Now now;
-    jlong origTime = env->CallLongMethod(time, getTimeMethod);
+    jlong origTime = getTime(env, time);
     ConfigureObserver(longitude, latitude, altitude, (double)origTime / 1000, &now);
 
     double jd = 0;
     if (FindAltXSun(&now, step, limit, 1, (go_down == JNI_TRUE) ? 1 : 0, &jd, x))
         return nullptr;
-    return env->NewObject(dateCls, dateInitMethod, (jlong)(EphemToEpochTime(jd) * 1000));
+    return createDateObject(env, (jlong)(EphemToEpochTime(jd) * 1000));
 }
 
 jobject getRiset(JNIEnv *env,
@@ -87,10 +96,8 @@ jobject getAllRiset(JNIEnv *env,
 jobject getLunarPhase(JNIEnv *env, jobject time) {
     jclass lpCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/LunarPhase");
     jmethodID lpInitMethod = env->GetMethodID(lpCls, "<init>", "(JJLjava/lang/String;DZ)V");
-    jclass dateCls = env->FindClass("java/util/Date");
-    jmethodID getTimeMethod = env->GetMethodID(dateCls, "getTime", "()J");
 
-    jlong mi = env->CallLongMethod(time, getTimeMethod);
+    jlong mi = getTime(env, time);
 
     double now = (double)mi / 1000;
     double pn = FindMoonPhase(now, M_PI * -2, 0);
@@ -131,15 +138,12 @@ jobject getLunarPhase(JNIEnv *env, jobject time) {
 
 jobject getStarRiset(JNIEnv *env, jdouble ra, jdouble dec, jdouble longitude, jdouble latitude, jobject time)
 {
-    jclass dateCls = env->FindClass("java/util/Date");
-    jmethodID getTimeMethod = env->GetMethodID(dateCls, "getTime", "()J");
-
     jclass posCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroPosition");
     jclass risetCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/StarRiset");
     jmethodID posInitMethod = env->GetMethodID(posCls, "<init>", "(DDJ)V");
     jmethodID risetInitMethod = env->GetMethodID(risetCls, "<init>", "(Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;)V");
 
-    jlong origTime = env->CallLongMethod(time, getTimeMethod);
+    jlong origTime = getTime(env, time);
 
     double riseTime, setTime, transitTime;
     int status;
@@ -167,4 +171,25 @@ jdouble getLST(JNIEnv *env, jdouble longitude, jobject time)
     jlong origTime = env->CallLongMethod(time, getTimeMethod);
 
     return (jdouble)GetLST(origTime / 1000.0, longitude);
+}
+
+jobject getSatelliteStatus(JNIEnv *env,
+                           jstring line0, jstring line1,
+                           jstring line2, jobject time)
+{
+    jlong origTime = getTime(env, time);
+    const char *str0 = env->GetStringUTFChars(line0, nullptr);
+    const char *str1 = env->GetStringUTFChars(line1, nullptr);
+    const char *str2 = env->GetStringUTFChars(line2, nullptr);
+    double sublng, sublat, elevation;
+    int result = GetSatelliteStatus(str0, str1, str2, origTime / 1000.0, &sublng, &sublat, &elevation);
+    env->ReleaseStringUTFChars(line0, str0);
+    env->ReleaseStringUTFChars(line1, str1);
+    env->ReleaseStringUTFChars(line2, str2);
+    if (!result)
+        return nullptr;
+
+    jclass statusCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/SatelliteStatus");
+    jmethodID statusInitMethod = env->GetMethodID(statusCls, "<init>", "(DDD)V");
+    return env->NewObject(statusCls, statusInitMethod, (jdouble)sublng, (jdouble)sublat, (jdouble)elevation);
 }

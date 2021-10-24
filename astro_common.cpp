@@ -322,6 +322,29 @@ void GetRADECRiset(double ra, double dec, double longitude, double latitude, dou
     }
 }
 
+int GetSatelliteStatus(const char* line0, const char* line1, const char* line2, double seconds_since_epoch, double* sublng, double* sublat, double* elevation)
+{
+    Obj satillite;
+    /* Construct the Satellite */
+    if (db_tle((char*)line0, (char*)line1, (char*)line2, &satillite) != 0)
+        return 0;
+
+    /* Construct the observer */
+    Now now;
+    ConfigureObserver(0, 0, 0, seconds_since_epoch, &now);
+
+    /* Current Position */
+    obj_earthsat(&now, &satillite);
+
+    if (sublng)
+        *sublng = satillite.s_sublng / M_PI * 180;
+    if (sublat)
+        *sublat = satillite.s_sublat / M_PI * 180;
+    if (elevation)
+        *elevation = satillite.s_elev;
+    return 1;
+}
+
 astro::Date::Date() : Date(0, 0, 0)
 {
 }
