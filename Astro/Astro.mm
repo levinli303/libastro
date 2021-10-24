@@ -151,6 +151,31 @@ double ModifiedJulianDate(NSDate *time)
 }
 @end
 
+@implementation SatellitePass
+
+- (instancetype)initWithRise:(AstroPosition *)rise set:(AstroPosition *)set peak:(AstroPosition *)peak visibleRise:(nullable AstroPosition *)visibleRise  visibleSet:(nullable AstroPosition *)visibleSet {
+    self = [super init];
+    if (self) {
+        _rise = rise;
+        _set = set;
+        _peak = peak;
+        _visibleRise = visibleRise;
+        _visibleSet = visibleSet;
+        if (visibleRise && visibleSet) {
+            if ([[peak time] timeIntervalSince1970] < [[visibleRise time] timeIntervalSince1970] || [[peak time] timeIntervalSince1970] > [[visibleSet time] timeIntervalSince1970]) {
+                _visiblePeak = [visibleRise elevation] > [visibleSet elevation] ? visibleRise : visibleSet;
+            } else  {
+                _visiblePeak = peak;
+            }
+        } else {
+            _visiblePeak = nil;
+        }
+    }
+    return self;
+}
+
+@end
+
 @implementation StarRiset
 
 - (instancetype)initWithRise:(AstroPosition *)rise set:(AstroPosition *)set peak:(AstroPosition *)peak current:(AstroPosition *)current {
@@ -337,6 +362,29 @@ double ModifiedJulianDate(NSDate *time)
         return [[SatelliteStatus alloc] initWithSubLongitude:sublng subLatitude:sublat elevation:elevation];
     }
     return nil;
+}
+
++ (nullable SatellitePass *)getSatelliteNextRiset:(SatelliteTLE *)tle atTime:(NSDate *)time longitude:(double)longitude latitude:(double)latitude altitude:(double)altitude {
+    RiseSet riset;
+    RiseSet visibleRiset;
+    double visibleRiseAlt, visibleSetAlt;
+    int result = GetNextSatellitePass([[tle line0] UTF8String], [[tle line1] UTF8String], [[tle line2] UTF8String], [time timeIntervalSince1970], longitude, latitude, altitude, &riset, &visibleRiset, &visibleRiseAlt, &visibleSetAlt);
+    if (result != 0)
+        return nil;
+
+    AstroPosition *rise = [[AstroPosition alloc] initWithAzimuth:riset.rs_riseaz elevation:0 time:ModernDate(riset.rs_risetm)];
+    AstroPosition *set = [[AstroPosition alloc] initWithAzimuth:riset.rs_setaz elevation:0 time:ModernDate(riset.rs_settm)];
+    AstroPosition *peak = [[AstroPosition alloc] initWithAzimuth:riset.rs_tranaz elevation:riset.rs_tranalt time:ModernDate(riset.rs_trantm)];
+
+    AstroPosition *visibleRise = nil;
+    AstroPosition *visibleSet = nil;
+
+    if (visibleRiset.rs_flags == 0)
+    {
+        visibleRise = [[AstroPosition alloc] initWithAzimuth:visibleRiset.rs_riseaz elevation:visibleRiseAlt time:ModernDate(visibleRiset.rs_risetm)];
+        visibleSet = [[AstroPosition alloc] initWithAzimuth:visibleRiset.rs_setaz elevation:visibleSetAlt time:ModernDate(visibleRiset.rs_settm)];
+    }
+    return [[SatellitePass alloc] initWithRise:rise set:set peak:peak visibleRise:visibleRise visibleSet:visibleSet];
 }
 
 @end

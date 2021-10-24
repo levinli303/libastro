@@ -64,6 +64,15 @@ typedef NS_CLOSED_ENUM(NSUInteger, StarRisetStatus) {
 @property (nonatomic, readonly) BOOL isFirstHalf;
 @end
 
+@interface SatellitePass : NSObject
+@property (nonatomic, readonly) AstroPosition *rise;
+@property (nonatomic, readonly) AstroPosition *peak;
+@property (nonatomic, readonly) AstroPosition *set;
+@property (nonatomic, nullable, readonly) AstroPosition *visiblePeak;
+@property (nonatomic, nullable, readonly) AstroPosition *visibleRise;
+@property (nonatomic, nullable, readonly) AstroPosition *visibleSet;
+@end
+
 @interface StarRiset : NSObject
 @property (nullable, nonatomic, readonly) AstroPosition *rise;
 @property (nullable, nonatomic, readonly) AstroPosition *peak;
@@ -84,6 +93,7 @@ typedef NS_CLOSED_ENUM(NSUInteger, StarRisetStatus) {
 + (double)getLSTInLocation:(double)longitude time:(NSDate *)time;
 + (nullable NSDate *)getSunAlt:(double)longitude latitude:(double)latitude altitude:(double)altitude time:(NSDate *)time goDown:(BOOL)goDown x:(double)x;
 + (nullable SatelliteStatus *)getSatelliteStatus:(SatelliteTLE *)tle atTime:(NSDate *)time;
++ (nullable SatellitePass *)getSatelliteNextRiset:(SatelliteTLE *)tle atTime:(NSDate *)time longitude:(double)longitude latitude:(double)latitude altitude:(double)altitude;
 
 @end
 
