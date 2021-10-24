@@ -14,6 +14,7 @@ extern "C" {
 double radian(const double degree);
 double EpochToEphemTime(double seconds_since_epoch);
 double EphemToEpochTime(double ephem);
+int GetModifiedRisetS(Now *now, Obj *obj, double step, double limit, RiseSet *riset, double *el, double *az);
 int GetModifiedRiset(Now *now, int index, RiseSet *riset, double *el, double *az);
 const char *GetStarName(int index);
 void ConfigureObserver(double longitude, double latitude, double altitude, double seconds_since_epoch, Now *obj);
@@ -23,6 +24,7 @@ void GetRADECRiset(double ra, double dec, double longitude, double latitude, dou
 double GetLST(double now, double longitude);
 int FindAltXSun(Now *now, double step, double limit, int forward, int go_down, double *jd, double x);
 int GetSatelliteStatus(const char* line0, const char* line1, const char* line2, double seconds_since_epoch, double* sublng, double* sublat, double* elevation);
+int GetNextSatellitePass(const char* line0, const char* line1, const char* line2, double seconds_since_epoch, double longitude, double latitude, double altitude, RiseSet* riset, RiseSet* visibleRiset, double* visibleRiseAlt, double* visibleSetAlt);
 
 namespace astro
 {

@@ -193,3 +193,42 @@ jobject getSatelliteStatus(JNIEnv *env,
     jmethodID statusInitMethod = env->GetMethodID(statusCls, "<init>", "(DDD)V");
     return env->NewObject(statusCls, statusInitMethod, (jdouble)sublng, (jdouble)sublat, (jdouble)elevation);
 }
+
+jobject getSatelliteNextRiset(JNIEnv *env,
+                              jstring line0, jstring line1,
+                              jstring line2, jobject time,
+                              jdouble longitude,
+                              jdouble latitude,
+                              jdouble altitude)
+{
+    jclass posCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroPosition");
+    jclass risetCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/SatellitePass");
+    jmethodID posInitMethod = env->GetMethodID(posCls, "<init>", "(DDJ)V");
+    jmethodID risetInitMethod = env->GetMethodID(risetCls, "<init>",
+                                                 "(Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;Lcc/meowssage/astroweather/SunMoon/Model/AstroPosition;)V");
+
+    jlong origTime = getTime(env, time);
+    const char *str0 = env->GetStringUTFChars(line0, nullptr);
+    const char *str1 = env->GetStringUTFChars(line1, nullptr);
+    const char *str2 = env->GetStringUTFChars(line2, nullptr);
+    RiseSet riset;
+    RiseSet visibleRiset;
+    double visibleRiseAlt, visibleSetAlt;
+    int result = GetNextSatellitePass(str0, str1, str2, origTime / 1000.0, (double)longitude, (double)latitude, (double)altitude, &riset, &visibleRiset, &visibleRiseAlt, &visibleSetAlt);
+    env->ReleaseStringUTFChars(line0, str0);
+    env->ReleaseStringUTFChars(line1, str1);
+    env->ReleaseStringUTFChars(line2, str2);
+    if (result != 0)
+        return nullptr;
+    jobject rise = env->NewObject(posCls, posInitMethod, (jdouble)0, (jdouble)riset.rs_riseaz, (jlong)(EphemToEpochTime(riset.rs_risetm) * 1000));
+    jobject set = env->NewObject(posCls, posInitMethod, (jdouble)0, (jdouble)riset.rs_setaz, (jlong)(EphemToEpochTime(riset.rs_settm) * 1000));
+    jobject peak = env->NewObject(posCls, posInitMethod, (jdouble)riset.rs_tranalt, (jdouble)riset.rs_tranaz, (jlong)(EphemToEpochTime(riset.rs_trantm) * 1000));
+    jobject visibleRise = nullptr;
+    jobject visibleSet = nullptr;
+    if (visibleRiset.rs_flags == 0)
+    {
+        visibleRise = env->NewObject(posCls, posInitMethod, (jdouble)visibleRiseAlt, (jdouble)visibleRiset.rs_riseaz, (jlong)(EphemToEpochTime(visibleRiset.rs_risetm) * 1000));
+        visibleSet = env->NewObject(posCls, posInitMethod, (jdouble)visibleSetAlt, (jdouble)visibleRiset.rs_setaz, (jlong)(EphemToEpochTime(visibleRiset.rs_settm) * 1000));
+    }
+    return env->NewObject(risetCls, risetInitMethod, rise, set, peak, visibleRise, visibleSet);
+}

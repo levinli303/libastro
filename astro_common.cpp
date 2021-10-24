@@ -155,49 +155,49 @@ int FindAltXSun(Now *now, double step, double limit, int forward, int go_down, d
 
 int GetModifiedRiset(Now *now, int index, RiseSet *riset, double *el, double *az)
 {
-    const double step = 1.0 / 1440;
-    const double limit = 1;
-
-    Now backup;
-    memcpy(&backup, now, sizeof(Now));
-
     Obj *objs;
     getBuiltInObjs(&objs);
 
     Obj origObj = objs[index];
-    Obj obj;
+    return GetModifiedRisetS(now, &origObj, 1.0 / 1440, 1.0, riset, el, az);
+}
 
-    memcpy(&obj, &origObj, sizeof(Obj));
+int GetModifiedRisetS(Now *now, Obj *obj, double step, double limit, RiseSet *riset, double *el, double *az)
+{
+    Now backup;
+    memcpy(&backup, now, sizeof(Now));
+
+    Obj newObj;
 
     // get current status
-    obj_cir(&backup, &obj);
+    obj_cir(&backup, obj);
 
-    *el = obj.pl.co_alt;
-    *az = obj.pl.co_az;
+    *el = newObj.pl.co_alt;
+    *az = newObj.pl.co_az;
 
-    bool isUp = obj.pl.co_alt > 0;
-    memcpy(&obj, &origObj, sizeof(Obj));
+    bool isUp = newObj.pl.co_alt > 0;
+    memcpy(&newObj, obj, sizeof(Obj));
 
     riset->rs_tranaz = 0;
     riset->rs_tranalt = 0;
     riset->rs_trantm = 0;
 
-    if (isUp)
+    if (isUp && newObj.o_type != EARTHSAT)
     {
-        if (FindAlt0(&backup, &obj, step, limit, false, false, &riset->rs_riseaz, &riset->rs_risetm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0 &&
-            FindAlt0(&backup, &obj, step, limit, true, true, &riset->rs_setaz, &riset->rs_settm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0)
+        if (FindAlt0(&backup, &newObj, step, limit, false, false, &riset->rs_riseaz, &riset->rs_risetm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0 &&
+            FindAlt0(&backup, &newObj, step, limit, true, true, &riset->rs_setaz, &riset->rs_settm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0)
         {
             return 0;
         }
     } else {
-        if (FindAlt0(&backup, &obj, step, limit, true, false, &riset->rs_riseaz, &riset->rs_risetm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0)
+        if (FindAlt0(&backup, &newObj, step, limit, true, false, &riset->rs_riseaz, &riset->rs_risetm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0)
         {
             riset->rs_tranaz = 0;
             riset->rs_tranalt = 0;
             riset->rs_trantm = 0;
             // set time is always behind rise time
             backup.n_mjd = riset->rs_risetm;
-            if (FindAlt0(&backup, &obj, step, limit, true, true, &riset->rs_setaz, &riset->rs_settm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0)
+            if (FindAlt0(&backup, &newObj, step, limit, true, true, &riset->rs_setaz, &riset->rs_settm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0)
             {
                 return 0;
             }
@@ -343,6 +343,69 @@ int GetSatelliteStatus(const char* line0, const char* line1, const char* line2, 
     if (elevation)
         *elevation = satillite.s_elev;
     return 1;
+}
+
+int GetNextSatellitePass(const char* line0, const char* line1, const char* line2, double seconds_since_epoch, double longitude, double latitude, double altitude, RiseSet* riset, RiseSet* visibleRiset, double* visibleRiseAlt, double* visibleSetAlt)
+{
+    double azimuth, elevation;
+    Obj satillite;
+    /* Construct the Satellite */
+    if (db_tle((char*)line0, (char*)line1, (char*)line2, &satillite) != 0)
+        return 0;
+
+    /* Construct the observer */
+    Now now;
+    ConfigureObserver(longitude, latitude, altitude, seconds_since_epoch, &now);
+    int result = GetModifiedRisetS(&now, &satillite, 1.0 / 1440 / 6, 10, riset, &elevation, &azimuth);
+    if (result == 0 && visibleRiset) {
+        double step = 1.0 / 1440 / 6;
+        double time = riset->rs_risetm;
+        bool visibleFound = false;
+        for (; time < riset->rs_settm; time += step)
+        {
+            Now current;
+            ConfigureObserver(longitude, latitude, altitude, EphemToEpochTime(time), &current);
+            Obj sunObj;
+            sunObj.pl.plo_code = SUN;
+            sunObj.any.co_type = PLANET;
+            obj_cir(&current, &sunObj);
+            double sunAltitude = sunObj.pl.co_alt / M_PI * 180;
+            bool visible = sunAltitude < -6 && sunAltitude > -30;
+            if (visible)
+            {
+                obj_cir(&current, &satillite);
+                visible = (satillite.es.co_alt / M_PI * 180) >= 10.0 && !satillite.s_eclipsed;
+            }
+            if (!visibleFound)
+            {
+                if (visible)
+                {
+                    visibleFound = true;
+                    visibleRiset->rs_risetm = time;
+                    visibleRiset->rs_riseaz = satillite.es.co_az;
+                    if (visibleRiseAlt)
+                        *visibleRiseAlt = satillite.es.co_alt;
+                }
+            }
+            else
+            {
+                if (!visible)
+                {
+                    break;
+                }
+            }
+        }
+        if (visibleFound) {
+            visibleRiset->rs_settm = time;
+            visibleRiset->rs_setaz = satillite.es.co_az;
+            if (visibleSetAlt)
+                *visibleSetAlt = satillite.es.co_alt;
+            visibleRiset->rs_flags = 0;
+        } else {
+            visibleRiset->rs_flags = RS_ERROR;
+        }
+    }
+    return result;
 }
 
 astro::Date::Date() : Date(0, 0, 0)
