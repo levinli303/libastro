@@ -168,15 +168,15 @@ int GetModifiedRisetS(Now *now, Obj *obj, double step, double limit, RiseSet *ri
     memcpy(&backup, now, sizeof(Now));
 
     Obj newObj;
+    memcpy(&newObj, obj, sizeof(Obj));
 
     // get current status
-    obj_cir(&backup, obj);
+    obj_cir(&backup, &newObj);
 
-    *el = newObj.pl.co_alt;
-    *az = newObj.pl.co_az;
+    *el = newObj.any.co_alt;
+    *az = newObj.any.co_az;
 
     bool isUp = newObj.pl.co_alt > 0;
-    memcpy(&newObj, obj, sizeof(Obj));
 
     riset->rs_tranaz = 0;
     riset->rs_tranalt = 0;
