@@ -136,7 +136,7 @@ jobject getLunarPhase(JNIEnv *env, jobject time) {
     return env->NewObject(lpCls, lpInitMethod, (jlong)(nn * 1000), (jlong)(nf * 1000), env->NewStringUTF(_name), phase, isFirstHalf ? JNI_TRUE : JNI_FALSE);
 }
 
-jobject getStarRiset(JNIEnv *env, jdouble ra, jdouble dec, jdouble longitude, jdouble latitude, jobject time)
+jobject getStarRiset(JNIEnv *env, jdouble ra, jdouble dec, jdouble ra_pm, jdouble dec_pm, jdouble longitude, jdouble latitude, jdouble altitude, jobject time)
 {
     jclass posCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroPosition");
     jclass risetCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/StarRiset");
@@ -231,4 +231,47 @@ jobject getSatelliteNextRiset(JNIEnv *env,
         visibleSet = env->NewObject(posCls, posInitMethod, (jdouble)visibleSetAlt, (jdouble)visibleRiset.rs_setaz, (jlong)(EphemToEpochTime(visibleRiset.rs_settm) * 1000));
     }
     return env->NewObject(risetCls, risetInitMethod, rise, set, peak, visibleRise, visibleSet);
+}
+
+jobject getStarPosition(JNIEnv *env, jdouble ra, jdouble dec,
+                        jdouble ra_pm, jdouble dec_pm,
+                        jobject time,
+                        jdouble longitude, jdouble latitude,
+                        jdouble altitude)
+{
+    jclass posCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroPosition");
+    jmethodID posInitMethod = env->GetMethodID(posCls, "<init>", "(DDJ)V");
+
+    Now now;
+    jlong origTime = getTime(env, time);
+    ConfigureObserver(longitude, latitude, altitude, (double)origTime / 1000, &now);
+
+    Obj obj;
+    obj.o_type = FIXED;
+    obj.f_RA = (float)radian(ra);
+    obj.f_dec = (float)radian(dec);
+    obj.f_epoch = J2000;
+    obj.f_pmRA = (float)(ra_pm / 1000 / 3600 / 180 * M_PI / 365.25);
+    obj.f_pmdec = (float)(dec_pm / 1000 / 3600 / 180 * M_PI / 365.25);
+    obj_cir(&now, &obj);
+
+    return env->NewObject(posCls, posInitMethod, (jdouble)obj.f.co_alt, (jdouble)obj.f.co_az, origTime);
+}
+
+jobject getSolarSystemObjectPosition(JNIEnv *env, jint index, jobject time, jdouble longitude, jdouble latitude, jdouble altitude)
+{
+    jclass posCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroPosition");
+    jmethodID posInitMethod = env->GetMethodID(posCls, "<init>", "(DDJ)V");
+
+    Now now;
+    jlong origTime = getTime(env, time);
+    ConfigureObserver(longitude, latitude, altitude, (double)origTime / 1000, &now);
+
+    Obj *objs;
+    getBuiltInObjs(&objs);
+
+    Obj obj = objs[index];
+    obj_cir(&now, &obj);
+
+    return env->NewObject(posCls, posInitMethod, (jdouble)obj.any.co_alt, (jdouble)obj.any.co_az, origTime);
 }

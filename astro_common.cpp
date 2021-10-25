@@ -217,6 +217,7 @@ void ConfigureObserver(double longitude, double latitude, double altitude, doubl
     obj->n_tz = 0;
     obj->n_mjd = EpochToEphemTime(seconds_since_epoch);
     obj->n_pressure = 1010;
+    obj->n_epoch = J2000;
 }
 
 double fmod2(double m1, double m2)
