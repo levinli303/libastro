@@ -275,3 +275,24 @@ jobject getSolarSystemObjectPosition(JNIEnv *env, jint index, jobject time, jdou
 
     return env->NewObject(posCls, posInitMethod, (jdouble)obj.any.co_alt, (jdouble)obj.any.co_az, origTime);
 }
+
+jobject getSatellitePosition(JNIEnv *env, jstring line0, jstring line1, jstring line2,  jobject time,
+                             jdouble longitude, jdouble latitude,
+                             jdouble altitude)
+{
+    jlong origTime = getTime(env, time);
+    const char *str0 = env->GetStringUTFChars(line0, nullptr);
+    const char *str1 = env->GetStringUTFChars(line1, nullptr);
+    const char *str2 = env->GetStringUTFChars(line2, nullptr);
+    double el, az;
+    int result = GetSatellitePosition(str0, str1, str2, longitude, latitude, altitude, origTime / 1000.0, &el, &az);
+    env->ReleaseStringUTFChars(line0, str0);
+    env->ReleaseStringUTFChars(line1, str1);
+    env->ReleaseStringUTFChars(line2, str2);
+    if (!result)
+        return nullptr;
+
+    jclass posCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroPosition");
+    jmethodID posInitMethod = env->GetMethodID(posCls, "<init>", "(DDJ)V");
+    return env->NewObject(posCls, posInitMethod, (jdouble)el, (jdouble)az, origTime);
+}

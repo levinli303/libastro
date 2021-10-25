@@ -323,6 +323,27 @@ void GetRADECRiset(double ra, double dec, double longitude, double latitude, dou
     }
 }
 
+int GetSatellitePosition(const char* line0, const char* line1, const char* line2, double longitude, double latitude, double altitude, double seconds_since_epoch, double* el, double* az)
+{
+    Obj satillite;
+    /* Construct the Satellite */
+    if (db_tle((char*)line0, (char*)line1, (char*)line2, &satillite) != 0)
+        return 0;
+
+    /* Construct the observer */
+    Now now;
+    ConfigureObserver(longitude, latitude, altitude, seconds_since_epoch, &now);
+
+    /* Current Position */
+    obj_earthsat(&now, &satillite);
+
+    if (el)
+        *el = satillite.any.co_alt;
+    if (az)
+        *az = satillite.any.co_az;
+    return 1;
+}
+
 int GetSatelliteStatus(const char* line0, const char* line1, const char* line2, double seconds_since_epoch, double* sublng, double* sublat, double* elevation)
 {
     Obj satillite;

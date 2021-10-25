@@ -23,5 +23,8 @@ jobject getStarPosition(JNIEnv *env, jdouble ra, jdouble dec,
                         jdouble longitude, jdouble latitude,
                         jdouble altitude);
 jobject getSolarSystemObjectPosition(JNIEnv *env, jint index, jobject time, jdouble longitude, jdouble latitude, jdouble altitude);
+jobject getSatellitePosition(JNIEnv *env, jstring line0, jstring line1, jstring line2,  jobject time,
+                             jdouble longitude, jdouble latitude,
+                             jdouble altitude);
 
 #endif

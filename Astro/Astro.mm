@@ -11,10 +11,6 @@
 
 #undef lat
 
-#define MIN_VISIBLE_ELEVATION_DEGREE        10
-#define MIN_VISIBLE_ELEVATION_RADIAN        (radian(MIN_VISIBLE_ELEVATION_DEGREE))
-#define MAX_FORECAST_DAY                    5
-
 NSDate *ModernDate(double d)
 {
     return [NSDate dateWithTimeIntervalSince1970:EphemToEpochTime(d)];
@@ -241,77 +237,6 @@ double ModifiedJulianDate(NSDate *time)
     return array;
 }
 
-+ (SatelliteRiseSet *)risetForSatelliteWithTLE:(SatelliteTLE *)tle longitude:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime: (NSDate *) time {
-    /* Construct the TLE */
-    Obj satillite, satillite_backup;
-    /* Construct the Satellite */
-    db_tle((char *)[tle.line0 UTF8String], (char *)[tle.line1 UTF8String], (char *)[tle.line2 UTF8String], &satillite);
-    memcpy(&satillite_backup, &satillite, sizeof(Obj));
-
-    /* Construct the observer */
-    Now now;
-    ConfigureObserver(longitude, latitude, latitude, [time timeIntervalSince1970], &now);
-
-    /* Current Position */
-    obj_earthsat(&now, &satillite);
-    double A0 = satillite.es.co_az;
-    double E0 = satillite.es.co_alt;
-    double R0 = satillite.es.ess_range;
-    SatellitePosition *current = [[SatellitePosition alloc] initWithTime:time azimuth:A0 elevation:E0 range:R0];
-    SatellitePosition *rise = nil;
-    SatellitePosition *set = nil;
-    SatellitePosition *peak = nil;
-
-    double E1 = E0;
-    double A1 = A0;
-    double R1 = R0;
-    for (int i = 1; i < MAX_FORECAST_DAY * 24 * 60; i++) {
-        /* +1 Min */
-        now.n_mjd += (60 / 86400.0);
-        memcpy(&satillite, &satillite_backup, sizeof(Obj));
-        obj_earthsat(&now, &satillite);
-        double A = satillite.es.co_az;
-        double E = satillite.es.co_alt;
-        double R = satillite.es.ess_range;
-        if (rise == nil && E >= 0 && E1 < 0) {
-            rise = [[SatellitePosition alloc] initWithTime:[time dateByAddingTimeInterval:60 * i] azimuth:A elevation:E range:R];
-            peak = [[SatellitePosition alloc] initWithTime:[time dateByAddingTimeInterval:60 * i] azimuth:A elevation:E range:R];
-            set = [[SatellitePosition alloc] initWithTime:[time dateByAddingTimeInterval:60 * i] azimuth:A elevation:E range:R];
-        } else if (rise != nil && E > E1) {
-            peak = [[SatellitePosition alloc] initWithTime:[time dateByAddingTimeInterval:60 * i] azimuth:A elevation:E range:R];
-            set = [[SatellitePosition alloc] initWithTime:[time dateByAddingTimeInterval:60 * i] azimuth:A elevation:E range:R];
-        } else if (rise != nil && E < 0 && E1 >= 0) {
-            set = [[SatellitePosition alloc] initWithTime:[time dateByAddingTimeInterval:60 * (i - 1)] azimuth:A1 elevation:E1 range:R1];
-            if (peak.elevation < MIN_VISIBLE_ELEVATION_RADIAN) {
-                /* too small retry */
-                rise = nil;
-                set = nil;
-                peak = nil;
-            } else {
-                Now sunNow;
-                memcpy(&sunNow, &now, sizeof(Now));
-                sunNow.n_mjd = ModifiedJulianDate(peak.time);
-                Obj sunObj;
-                sunObj.pl.plo_code = SUN;
-                sunObj.any.co_type = PLANET;
-                obj_cir(&sunNow, &sunObj);
-                double alt_degree = sunObj.pl.co_alt / M_PI * 180;
-                if (alt_degree < -6 && alt_degree > -30 && !satillite.es.ess_eclipsed) {
-                    break;
-                } else {
-                    rise = nil;
-                    set = nil;
-                    peak = nil;
-                }
-            }
-        }
-        E1 = E;
-        A1 = A;
-        R1 = R;
-    }
-    return [[SatelliteRiseSet alloc] initWithName:tle.line0 current:current rise:rise peak:peak set:set];
-}
-
 + (StarRiset *)risetForStarWithRA:(double)ra dec:(double)dec longitude:(double)longitude latitude:(double)latitude time:(NSDate *)time {
     double riseTime, setTime, transitTime;
     int status;
@@ -407,6 +332,16 @@ double ModifiedJulianDate(NSDate *time)
     Obj obj = objs[index];
     obj_cir(&now, &obj);
     return [[AstroPosition alloc] initWithAzimuth:(double)obj.any.co_az elevation:(double)obj.any.co_alt time:time];
+}
+
++ (AstroPosition *)getSatellitePosition:(SatelliteTLE *)tle time:(NSDate *)time longitude:(double)longitude latitude:(double)latitude altitude:(double)altitude {
+    double el, az;
+    int result = GetSatellitePosition([[tle line0] UTF8String], [[tle line1] UTF8String], [[tle line2] UTF8String], longitude, latitude, altitude, [time timeIntervalSince1970], &el, &az);
+
+    if (result) {
+        return [[AstroPosition alloc] initWithAzimuth:az elevation:el time:time];
+    }
+    return nil;
 }
 
 @end
