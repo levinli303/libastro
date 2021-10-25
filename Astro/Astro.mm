@@ -381,4 +381,32 @@ double ModifiedJulianDate(NSDate *time)
     return [[SatellitePass alloc] initWithRise:rise set:set peak:peak visibleRise:visibleRise visibleSet:visibleSet];
 }
 
++ (AstroPosition *)getStarPosition:(double)ra dec:(double)dec raPm:(double)raPm decPm:(double)decPM time:(NSDate *)time longitude:(double)longitude latitude:(double)latitude altitude:(double)altitude {
+    Now now;
+    ConfigureObserver(longitude, latitude, altitude, [time timeIntervalSince1970], &now);
+
+    Obj obj;
+    obj.o_type = FIXED;
+    obj.f_RA = (float)radian(ra);
+    obj.f_dec = (float)radian(dec);
+    obj.f_epoch = J2000;
+    obj.f_pmRA = (float)(raPm / 1000 / 3600 / 180 * M_PI / 365.25);
+    obj.f_pmdec = (float)(decPM / 1000 / 3600 / 180 * M_PI / 365.25);
+    obj_cir(&now, &obj);
+
+    return [[AstroPosition alloc] initWithAzimuth:(double)obj.f.co_az elevation:(double)obj.f.co_alt time:time];
+}
+
++ (AstroPosition *)getSolarSystemObjectPosition:(NSInteger)index time:(NSDate *)time longitude:(double)longitude latitude:(double)latitude altitude:(double)altitude {
+    Now now;
+    ConfigureObserver(longitude, latitude, altitude, [time timeIntervalSince1970], &now);
+
+    Obj *objs;
+    getBuiltInObjs(&objs);
+
+    Obj obj = objs[index];
+    obj_cir(&now, &obj);
+    return [[AstroPosition alloc] initWithAzimuth:(double)obj.any.co_az elevation:(double)obj.any.co_alt time:time];
+}
+
 @end
