@@ -326,7 +326,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1240;
-				ORGANIZATIONNAME = "Li Linfeng";
+				ORGANIZATIONNAME = Astroweather;
 				TargetAttributes = {
 					970B9C4B22CDD1B3006E78A6 = {
 						CreatedOnToolsVersion = 11.0;
