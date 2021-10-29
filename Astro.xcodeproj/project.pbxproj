@@ -10,8 +10,8 @@
 		970B9C5022CDD1B3006E78A6 /* Astronomy.h in Headers */ = {isa = PBXBuildFile; fileRef = 970B9C4E22CDD1B3006E78A6 /* Astronomy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		970B9C5422CDD1C6006E78A6 /* astro_common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 97991F0022C25C1900AFA0A5 /* astro_common.cpp */; };
 		970B9C5522CDD1C6006E78A6 /* astro_common.h in Headers */ = {isa = PBXBuildFile; fileRef = 97991EFF22C25C1900AFA0A5 /* astro_common.h */; };
-		970B9C5622CDD1C9006E78A6 /* Astro.h in Headers */ = {isa = PBXBuildFile; fileRef = 9794BCA220F9A98B00CEA3A5 /* Astro.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		970B9C5722CDD1C9006E78A6 /* Astro.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCA320F9A98B00CEA3A5 /* Astro.mm */; };
+		970B9C5622CDD1C9006E78A6 /* ASOAstro.h in Headers */ = {isa = PBXBuildFile; fileRef = 9794BCA220F9A98B00CEA3A5 /* ASOAstro.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		970B9C5722CDD1C9006E78A6 /* ASOAstro.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCA320F9A98B00CEA3A5 /* ASOAstro.mm */; };
 		970B9C6222CDD1D0006E78A6 /* aa_hadec.c in Sources */ = {isa = PBXBuildFile; fileRef = 97055D332109DDB000B8CBC2 /* aa_hadec.c */; };
 		970B9C6322CDD1D0006E78A6 /* aberration.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783167A20FE262D009C66E2 /* aberration.c */; };
 		970B9C6422CDD1D0006E78A6 /* actan.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783167D20FE262D009C66E2 /* actan.c */; };
@@ -148,8 +148,8 @@
 		9783168B20FE262F009C66E2 /* mooncolong.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mooncolong.c; sourceTree = "<group>"; };
 		9783168D20FE262F009C66E2 /* jupmoon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = jupmoon.c; sourceTree = "<group>"; };
 		9783168E20FE262F009C66E2 /* sgp4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sgp4.c; sourceTree = "<group>"; };
-		9794BCA220F9A98B00CEA3A5 /* Astro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Astro.h; sourceTree = "<group>"; };
-		9794BCA320F9A98B00CEA3A5 /* Astro.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Astro.mm; sourceTree = "<group>"; };
+		9794BCA220F9A98B00CEA3A5 /* ASOAstro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ASOAstro.h; sourceTree = "<group>"; };
+		9794BCA320F9A98B00CEA3A5 /* ASOAstro.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ASOAstro.mm; sourceTree = "<group>"; };
 		97991EFF22C25C1900AFA0A5 /* astro_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = astro_common.h; sourceTree = "<group>"; };
 		97991F0022C25C1900AFA0A5 /* astro_common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = astro_common.cpp; sourceTree = "<group>"; wrapsLines = 0; };
 /* End PBXFileReference section */
@@ -197,8 +197,8 @@
 			isa = PBXGroup;
 			children = (
 				97BBBC4220FE25B3003C9191 /* ephem */,
-				9794BCA220F9A98B00CEA3A5 /* Astro.h */,
-				9794BCA320F9A98B00CEA3A5 /* Astro.mm */,
+				9794BCA220F9A98B00CEA3A5 /* ASOAstro.h */,
+				9794BCA320F9A98B00CEA3A5 /* ASOAstro.mm */,
 			);
 			path = Astro;
 			sourceTree = "<group>";
@@ -282,7 +282,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				970B9C5622CDD1C9006E78A6 /* Astro.h in Headers */,
+				970B9C5622CDD1C9006E78A6 /* ASOAstro.h in Headers */,
 				970B9C5022CDD1B3006E78A6 /* Astronomy.h in Headers */,
 				970B9C9522CDD1D0006E78A6 /* satspec.h in Headers */,
 				970B9C6C22CDD1D0006E78A6 /* bdl.h in Headers */,
@@ -405,7 +405,7 @@
 				970B9C9A22CDD1D0006E78A6 /* sun.c in Sources */,
 				970B9C7022CDD1D0006E78A6 /* circum.c in Sources */,
 				970B9C8A22CDD1D0006E78A6 /* plmoon.c in Sources */,
-				970B9C5722CDD1C9006E78A6 /* Astro.mm in Sources */,
+				970B9C5722CDD1C9006E78A6 /* ASOAstro.mm in Sources */,
 				970B9C8522CDD1D0006E78A6 /* nutation.c in Sources */,
 				970B9C9822CDD1D0006E78A6 /* sgp4.c in Sources */,
 				970B9C8C22CDD1D0006E78A6 /* precess.c in Sources */,

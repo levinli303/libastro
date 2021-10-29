@@ -12,5 +12,5 @@ Pod::Spec.new do |spec|
   spec.source       = { :git => "https://github.com/levinli303/libastro.git", :tag => "#{spec.version}" }
 
   spec.source_files = ["astro_common.{h,cpp}", "Astro/**/*.{h,c,mm}"]
-  spec.public_header_files = ["Astronomy/Astronomy.h", "Astro/Astro.h"]
+  spec.public_header_files = ["Astronomy/Astronomy.h", "Astro/ASOAstro.h"]
 end

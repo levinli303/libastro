@@ -14,4 +14,4 @@ FOUNDATION_EXPORT const unsigned char AstronomyVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <Astronomy/PublicHeader.h>
 
-#import <Astronomy/Astro.h>
+#import <Astronomy/ASOAstro.h>
