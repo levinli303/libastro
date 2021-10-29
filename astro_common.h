@@ -1,9 +1,8 @@
 //
-// Created by 李林峰 on 2019-06-25.
+// Created by Levin Li on 2019-06-25.
 //
 
-#ifndef ASTROWEATHER_ASTRO_COMMON_H
-#define ASTROWEATHER_ASTRO_COMMON_H
+#pragma once
 
 #include <string>
 
@@ -63,5 +62,3 @@ namespace astro
         double seconds;
     };
 }
-
-#endif //ASTROWEATHER_ASTRO_COMMON_H

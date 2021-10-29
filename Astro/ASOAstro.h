@@ -2,8 +2,8 @@
 //  ASOAstro.h
 //  ASOAstro
 //
-//  Created by 李林峰 on 2017/7/25.
-//  Copyright © 2017年 Bilgisayar. All rights reserved.
+//  Created by Levin Li on 2017/7/25.
+//  Copyright © 2017 Astroweather. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

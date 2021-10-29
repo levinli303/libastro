@@ -2,8 +2,8 @@
 //  Astronomy.h
 //  Astronomy
 //
-//  Created by Li Linfeng on 4/7/2019.
-//  Copyright © 2019 Li Linfeng. All rights reserved.
+//  Created by Levin Li on 4/7/2019.
+//  Copyright © 2019 Astroweather. All rights reserved.
 //
 
 //! Project version number for Astronomy.
