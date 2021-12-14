@@ -154,6 +154,19 @@ double ModifiedJulianDate(NSDate *time)
 
 @end
 
+@implementation ASOSunTime
+
+- (instancetype)initWithStartTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime state:(ASOSunState)state {
+    self = [super init];
+    if (self) {
+        _state = state;
+        _startTime = startTime;
+        _endTIme = endTime;
+    }
+    return self;
+}
+@end
+
 @implementation ASOAstro
 
 + (ASOAstroRiset *)objectRisetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time objectIndex:(NSInteger)index {
@@ -315,6 +328,18 @@ double ModifiedJulianDate(NSDate *time)
         return [[ASOAstroPosition alloc] initWithAzimuth:az elevation:el time:time];
     }
     return nil;
+}
+
++ (NSArray<ASOSunTime *> *)getSunTimes:(NSDate *)startTime endTime:(NSDate *)endTime longitude:(double)longitude latitude:(double)latitude altitude:(double)altitude {
+    NSMutableArray *array = [NSMutableArray array];
+    auto times = GetSunDetails(longitude, latitude, altitude, [startTime timeIntervalSince1970], [endTime timeIntervalSince1970]);
+
+    for (auto sunPeriod : times)
+    {
+        [array addObject:[[ASOSunTime alloc] initWithStartTime:sunPeriod.start endTime:sunPeriod.end state:(ASOSunState)sunPeriod.status]];
+    }
+
+    return [array copy];
 }
 
 @end

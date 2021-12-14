@@ -69,6 +69,33 @@ NS_SWIFT_NAME(StarRiset)
 @property (nonatomic, readonly) ASOAstroPosition *current;
 @end
 
+typedef NS_ENUM(NSUInteger, ASOSunState) {
+    ASOSunStateNight                 = 1,
+    ASOSunStateAstronomicalTwilight  = 2,
+    ASOSunStateNauticalTwilight      = 3,
+    ASOSunStateBlueHourTwilight      = 4,
+    ASOSunStateCivil_Twilight        = 5,
+    ASOSunStateGoldenHourTwilight    = 6,
+    ASOSunStateDay                   = 7,
+    ASOSunStateGoldenHourDUSK        = 8,
+    ASOSunStateCivilDusk             = 9,
+    ASOSunStateBlueHourDUSK          = 10,
+    ASOSunStateNauticalDusk          = 11,
+    ASOSunStateAstronomicalDusk      = 12,
+    ASOSunStateGoldenHourUnknown     = 13,
+    ASOSunStateCivilUnknown          = 14,
+    ASOSunStateBlueHourUnknown       = 15,
+    ASOSunStateNauticalUnknown       = 16,
+    ASOSunStateAstronomicalUnknown   = 17,
+} NS_SWIFT_NAME(SunState);
+
+NS_SWIFT_NAME(SunTime)
+@interface ASOSunTime : NSObject
+@property (readonly) ASOSunState state;
+@property (readonly) NSTimeInterval startTime;
+@property (readonly) NSTimeInterval endTIme;
+@end
+
 NS_SWIFT_NAME(Astro)
 @interface ASOAstro : NSObject
 
@@ -86,6 +113,7 @@ NS_SWIFT_NAME(Astro)
 + (ASOAstroPosition *)getStarPosition:(double)ra dec:(double)dec raPm:(double)raPm decPm:(double)decPM time:(NSDate *)time longitude:(double)longitude latitude:(double)latitude altitude:(double)altitude;
 + (ASOAstroPosition *)getSolarSystemObjectPosition:(NSInteger)index time:(NSDate *)time longitude:(double)longitude latitude:(double)latitude altitude:(double)altitude;
 + (nullable ASOAstroPosition *)getSatellitePosition:(ASOSatelliteTLE *)tle time:(NSDate *)time longitude:(double)longitude latitude:(double)latitude altitude:(double)altitude;
++ (NSArray<ASOSunTime *> *)getSunTimes:(NSDate *)startTime endTime:(NSDate *)endTime longitude:(double)longitude latitude:(double)latitude altitude:(double)altitude;
 
 @end
 
