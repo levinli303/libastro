@@ -296,3 +296,24 @@ jobject getSatellitePosition(JNIEnv *env, jstring line0, jstring line1, jstring 
     jmethodID posInitMethod = env->GetMethodID(posCls, "<init>", "(DDJ)V");
     return env->NewObject(posCls, posInitMethod, (jdouble)el, (jdouble)az, origTime);
 }
+
+jobject getSunTimes(JNIEnv *env,
+                    jdouble longitude, jdouble latitude,
+                    jdouble altitude, jobject start_time,
+                    jobject end_time)
+{
+    jclass arrayListClass = env->FindClass("java/util/ArrayList");
+    jmethodID construct = env->GetMethodID(arrayListClass, "<init>", "(I)V");
+    jclass stCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/SunTime");
+    jmethodID stInitMethod = env->GetMethodID(stCls, "<init>", "(DDI)V");
+
+    auto periods = GetSunDetails(longitude, latitude, altitude, getTime(env, start_time) / 1000.0f, getTime(env, end_time) / 1000.0f);
+
+    jobject result = env->NewObject(arrayListClass, construct, (jint)(periods.size()));
+    jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    for (auto period : periods)
+    {
+        env->CallBooleanMethod(result, arrayListAdd, env->NewObject(stCls, stInitMethod, (jdouble)(period.start), (jdouble)(period.end), (jint)period.status));
+    }
+    return result;
+}

@@ -5,10 +5,35 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 extern "C" {
 #include "astro.h"
 }
+
+#define STATUS_NIGHT                  1
+#define STATUS_ASTRONOMICAL_TWILIGHT  2
+#define STATUS_NAUTICAL_TWILIGHT      3
+#define STATUS_BLUE_HOUR_TWILIGHT     4
+#define STATUS_CIVIL_TWILIGHT         5
+#define STATUS_GOLDEN_HOUR_TWILIGHT   6
+#define STATUS_DAY                    7
+#define STATUS_GOLDEN_HOUR_DUSK       8
+#define STATUS_CIVIL_DUSK             9
+#define STATUS_BLUE_HOUR_DUSK         10
+#define STATUS_NAUTICAL_DUSK          11
+#define STATUS_ASTRONOMICAL_DUSK      12
+#define STATUS_GOLDEN_HOUR_UNKNOWN    13
+#define STATUS_CIVIL_UNKNOWN          14
+#define STATUS_BLUE_HOUR_UNKNOWN      15
+#define STATUS_NAUTICAL_UNKNOWN       16
+#define STATUS_ASTRONOMICAL_UNKNOWN   17
+
+struct TimePeriod {
+    double start;
+    double end;
+    int status;
+};
 
 double radian(const double degree);
 double EpochToEphemTime(double seconds_since_epoch);
@@ -25,6 +50,7 @@ int FindAltXSun(Now *now, double step, double limit, int forward, int go_down, d
 int GetSatellitePosition(const char* line0, const char* line1, const char* line2, double longitude, double latitude, double altitude, double seconds_since_epoch, double* el, double* az);
 int GetSatelliteStatus(const char* line0, const char* line1, const char* line2, double seconds_since_epoch, double* sublng, double* sublat, double* elevation);
 int GetNextSatellitePass(const char* line0, const char* line1, const char* line2, double seconds_since_epoch, double longitude, double latitude, double altitude, RiseSet* riset, RiseSet* visibleRiset, double* visibleRiseAlt, double* visibleSetAlt);
+std::vector<TimePeriod> GetSunDetails(double longitude, double latitude, double altitude, double startTime, double endTime);
 
 namespace astro
 {

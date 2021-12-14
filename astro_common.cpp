@@ -430,6 +430,121 @@ int GetNextSatellitePass(const char* line0, const char* line1, const char* line2
     return result;
 }
 
+int GetSunStatus(double altitude, bool isGoingUp, bool hasUpAndDown)
+{
+    int state = 0;
+
+    if (altitude <= -18)
+        state = STATUS_NIGHT;
+    else if (altitude <= -12) {
+        if (hasUpAndDown)
+            state = STATUS_ASTRONOMICAL_UNKNOWN;
+        else if (isGoingUp)
+            state = STATUS_ASTRONOMICAL_TWILIGHT;
+        else
+            state = STATUS_ASTRONOMICAL_DUSK;
+    } else if (altitude <= -6) {
+        if (hasUpAndDown)
+            state = STATUS_NAUTICAL_UNKNOWN;
+        else if (isGoingUp)
+            state = STATUS_NAUTICAL_TWILIGHT;
+        else
+            state = STATUS_NAUTICAL_DUSK;
+    } else if (altitude <= -4) {
+        if (hasUpAndDown)
+            state = STATUS_BLUE_HOUR_UNKNOWN;
+        else if (isGoingUp)
+            state = STATUS_BLUE_HOUR_TWILIGHT;
+        else
+            state = STATUS_BLUE_HOUR_DUSK;
+    } else if (altitude <= 0) {
+        if (hasUpAndDown)
+            state = STATUS_CIVIL_UNKNOWN;
+        else if (isGoingUp)
+            state = STATUS_CIVIL_TWILIGHT;
+        else
+            state = STATUS_CIVIL_DUSK;
+    } else if (altitude <= 6) {
+        if (hasUpAndDown)
+            state = STATUS_GOLDEN_HOUR_UNKNOWN;
+        else if (isGoingUp)
+            state = STATUS_GOLDEN_HOUR_TWILIGHT;
+        else
+            state = STATUS_GOLDEN_HOUR_DUSK;
+    } else {
+        state = STATUS_DAY;
+    }
+    return state;
+}
+
+
+std::vector<TimePeriod> GetSunDetails(double longitude, double latitude, double altitude, double startTime, double endTime)
+{
+    std::vector<TimePeriod> periods;
+    double currentTime = startTime;
+    double step = 30;
+
+    int currentStatus = 0;
+    double currentStartTime = 0;
+
+    double currentAltitude = 0.0;
+    bool isCurrentAltitudeValid = false;
+    bool isGoingUp = false;
+    bool isGoingUpValid = false;
+    bool hasUpAndDown = false;
+
+    while (currentTime <= endTime)
+    {
+        Now current;
+        ConfigureObserver(longitude, latitude, altitude, currentTime, &current);
+
+        Obj sunObj;
+        sunObj.pl.plo_code = SUN;
+        sunObj.any.co_type = PLANET;
+        obj_cir(&current, &sunObj);
+        double sunAltitude = sunObj.pl.co_alt / M_PI * 180;
+        if (!isCurrentAltitudeValid) {
+            currentAltitude = sunAltitude;
+            isCurrentAltitudeValid = true;
+        } else {
+            bool isCurrentlyGoingUp = sunAltitude >= currentAltitude;
+            if (!isGoingUpValid) {
+                isGoingUp = isCurrentlyGoingUp;
+                isGoingUpValid = true;
+            } else {
+                if (!hasUpAndDown && (isGoingUp != isCurrentlyGoingUp)) {
+                    hasUpAndDown = true;
+                }
+                isGoingUp = isCurrentlyGoingUp;
+            }
+            currentAltitude = sunAltitude;
+        }
+        if (isGoingUpValid)
+        {
+            int status = GetSunStatus(sunAltitude, isGoingUp, hasUpAndDown);
+            if (status != currentStatus)
+            {
+                if (currentStatus)
+                {
+                    TimePeriod period {currentStartTime - startTime,currentTime - startTime, currentStatus};
+                    periods.push_back(period);
+                }
+                currentStartTime = currentTime;
+                currentStatus = status;
+                hasUpAndDown = false;
+            }
+        }
+        currentTime += step;
+    }
+
+    if (currentStatus)
+    {
+        TimePeriod period {currentStartTime - startTime,endTime - startTime, currentStatus};
+        periods.push_back(period);
+    }
+    return periods;
+}
+
 astro::Date::Date() : Date(0, 0, 0)
 {
 }
