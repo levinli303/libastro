@@ -482,7 +482,7 @@ std::vector<TimePeriod> GetSunDetails(double longitude, double latitude, double 
 {
     std::vector<TimePeriod> periods;
     double currentTime = startTime;
-    double step = 30;
+    double step = 20;
 
     int currentStatus = 0;
     double currentStartTime = 0;
@@ -493,6 +493,7 @@ std::vector<TimePeriod> GetSunDetails(double longitude, double latitude, double 
     bool isGoingUpValid = false;
     bool hasUpAndDown = false;
 
+    currentTime -= step;
     while (currentTime <= endTime)
     {
         Now current;
