@@ -74,7 +74,7 @@ typedef NS_ENUM(NSUInteger, ASOSunState) {
     ASOSunStateAstronomicalTwilight  = 2,
     ASOSunStateNauticalTwilight      = 3,
     ASOSunStateBlueHourTwilight      = 4,
-    ASOSunStateCivil_Twilight        = 5,
+    ASOSunStateCivilTwilight         = 5,
     ASOSunStateGoldenHourTwilight    = 6,
     ASOSunStateDay                   = 7,
     ASOSunStateGoldenHourDusk        = 8,
