@@ -3,12 +3,25 @@
  *  4/20/98 now_lst() always just returns apparent time
  */
 
+#include "astro.h"
+
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "astro.h"
+static union {
+    unsigned char bytes[sizeof(double)];
+    double value;
+} _nan = {
+#if (defined(__s390__) || defined(__s390x__) || defined(__zarch__))
+    {0x7f, 0xf8, 0, 0, 0, 0, 0, 0}
+#else
+    {0, 0, 0, 0, 0, 0, 0xf8, 0x7f}
+#endif
+};
+
+double ascii_strtod(const char *s00, char **se);  /* for PyEphem */
 
 /* zero from loc for len bytes */
 void
@@ -129,7 +142,7 @@ obj_description (Obj *op)
 	    }
 	    return ("Binary system");
 	case PLANET: {
-	    static char nsstr[16];
+	    static char nsstr[MAXNM + 9];
 	    static Obj *biop;
 
 	    if (op->pl_code == SUN)
@@ -356,7 +369,8 @@ double *mp)
 double
 atod (char *buf)
 {
-	return (strtod (buf, NULL));
+     if (*buf == '\0') return _nan.value;
+     return (ascii_strtod(buf, NULL));
 }
 
 /* solve a spherical triangle:
@@ -499,5 +513,3 @@ is_deepsky (Obj *op)
 	return (deepsky);
 }
 
-/* For RCS Only -- Do Not Edit */
-static char *rcsid[2] = {(char *)rcsid, "@(#) $RCSfile: misc.c,v $ $Date: 2005/03/11 16:47:46 $ $Revision: 1.18 $ $Name:  $"};

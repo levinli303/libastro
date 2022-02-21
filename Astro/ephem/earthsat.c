@@ -7,8 +7,9 @@
  *   See http://www.celestrak.com/NORAD/documentation/spacetrk.pdf.
  *
  * A few topocentric routines are also used from the 'orbit' program which is
- *   Copyright (c) 1986,1987,1988,1989,1990 Robert W. Berger N3EMO
- *
+ *   Copyright (c) 1986,1987,1988,1989,1990 Robert W. Berger N3EMO, who has
+ *   granted permission for it to be licensed under the same terms as those
+ *   of the PyEphem package in which this source file is included.
  */
 
 /* define this to use orbit's propagator
@@ -31,6 +32,9 @@
 #include "sattypes.h"
 #include "satlib.h"
 
+#if defined(_MSC_VER) && (_MSC_VER < 1800)
+#define isnan(x) _isnan(x)
+#endif
 
 #define ESAT_MAG        2       /* fake satellite magnitude */
 
@@ -169,13 +173,15 @@ obj_earthsat (Now *np, Obj *op)
 
 	/* propagate to np->n_mjd */
 	esat_prop (np, op, &SatX, &SatY, &SatZ, &SatVX, &SatVY, &SatVZ);
+	if (isnan(SatX))
+		return -1;
 	Radius = sqrt (SatX*SatX + SatY*SatY + SatZ*SatZ);
 
 	/* find geocentric EOD equatorial directly from xyz vector */
 	dtmp = atan2 (SatY, SatX);
 	range (&dtmp, 2*PI);
-	op->s_gaera = (float) dtmp;
-	op->s_gaedec = (float) atan2 (SatZ, sqrt(SatX*SatX + SatY*SatY));
+	op->s_gaera = dtmp;
+	op->s_gaedec = atan2 (SatZ, sqrt(SatX*SatX + SatY*SatY));
 
 	/* find topocentric from site location */
 	GetSitPosition(SiteLat,SiteLong,SiteAltitude,CrntTime,
@@ -240,14 +246,17 @@ obj_earthsat (Now *np, Obj *op)
 	    now_lst (np, &lst);
 	    ra = hrrad(lst) - ha;
 	    range (&ra, 2*PI);
+            op->s_ha = ha;
 	} else {
 	    ra = op->s_gaera;
 	    dec = op->s_gaedec;
 	}
-	if (epoch != EOD)
+	op->s_ra = ra;
+	op->s_dec = dec;
+	if (epoch != EOD && mjd != epoch)
 	    precess (mjd, epoch, &ra, &dec);
-	op->s_ra = (float)ra;
-	op->s_dec = (float)dec;
+	op->s_astrora = ra;
+	op->s_astrodec = dec;
 
 	/* just make up a size and brightness */
 	set_smag (op, ESAT_MAG);
@@ -788,5 +797,3 @@ InitOrbitRoutines(double EpochDay, int AtEod)
     CosPenumbra = sqrt(1-SQR(SinPenumbra));
 }
 
-/* For RCS Only -- Do Not Edit */
-static char *rcsid[2] = {(char *)rcsid, "@(#) $RCSfile: earthsat.c,v $ $Date: 2015/04/08 23:36:35 $ $Revision: 1.14 $ $Name:  $"};

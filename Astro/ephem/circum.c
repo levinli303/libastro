@@ -4,6 +4,7 @@
  * Michael Sternberg <sternberg@physik.tu-chemnitz.de>
  *  3/11/98: deflect was using op->s_hlong before being set in cir_pos().
  *  4/19/98: just edit a comment
+ * 11/22/21: un-swapped arguments "rsn, lsn" in both calls to deflect().
  */
 
 #include <stdio.h>
@@ -222,8 +223,9 @@ obj_fixed (Now *np, Obj *op)
 	 * N.B. only compare and store jd's to lowest precission (f_epoch).
 	 * N.B. maintaining J2k ref (which is arbitrary) helps avoid accum err
 	 */
-	if (epoch != EOD && (float)epoch != (float)op->f_epoch) {
-	    double pr = op->f_RA, pd = op->f_dec, fe = (float)epoch;
+	if (0 /* disabled in PyEphem */
+            && epoch != EOD && epoch != op->f_epoch) {
+	    double pr = op->f_RA, pd = op->f_dec, fe = epoch;
 	    /* first bring back to 2k */
 	    precess (op->f_epoch, J2000, &pr, &pd);
 	    pr += op->f_pmRA*(J2000-op->f_epoch);
@@ -232,9 +234,9 @@ obj_fixed (Now *np, Obj *op)
 	    pr += op->f_pmRA*(fe-J2000);
 	    pd += op->f_pmdec*(fe-J2000);
 	    precess (J2000, fe, &pr, &pd);
-	    op->f_RA = (float)pr;
-	    op->f_dec = (float)pd;
-	    op->f_epoch = (float)fe;
+	    op->f_RA = pr;
+	    op->f_dec = pd;
+	    op->f_epoch = fe;
 	}
 
 	/* apply proper motion .. assume pm epoch reference equals equinox */
@@ -244,7 +246,14 @@ obj_fixed (Now *np, Obj *op)
 	/* set ra/dec to astrometric @ equinox of date */
 	ra = rpm;
 	dec = dpm;
-	precess (op->f_epoch, mjed, &ra, &dec);
+	if (op->f_epoch != mjed)
+	    precess (op->f_epoch, mjed, &ra, &dec);
+
+	/* compute astrometric @ requested equinox */
+	op->s_astrora = rpm;
+	op->s_astrodec = dpm;
+	if (op->f_epoch != epoch)
+	    precess (op->f_epoch, epoch, &op->s_astrora, &op->s_astrodec);
 
 	/* convert equatoreal ra/dec to mean geocentric ecliptic lat/long */
 	eq_ecl (mjed, ra, dec, &bet, &lam);
@@ -253,7 +262,7 @@ obj_fixed (Now *np, Obj *op)
 	sunpos (mjed, &lsn, &rsn, NULL);
 
 	/* allow for relativistic light bending near the sun */
-	deflect (mjed, lam, bet, lsn, rsn, 1e10, &ra, &dec);
+	deflect (mjed, lam, bet, rsn, lsn, 1e10, &ra, &dec);
 
 	/* TODO: correction for annual parallax would go here */
 
@@ -262,20 +271,12 @@ obj_fixed (Now *np, Obj *op)
 	 */
 	nut_eq(mjed, &ra, &dec);
 	ab_eq(mjed, lsn, &ra, &dec);
-	op->s_gaera = (float)ra;
-	op->s_gaedec = (float)dec;
+	op->s_gaera = ra;
+	op->s_gaedec = dec;
 
-	/* set s_ra/dec -- apparent if EOD else astrometric */
-	if (epoch == EOD) {
-	    op->s_ra = (float)ra;
-	    op->s_dec = (float)dec;
-	} else {
-	    /* annual parallax at time mjd is to be added here, too, but
-	     * technically in the frame of equinox (usually different from mjd)
-	     */
-	    op->s_ra = rpm;
-	    op->s_dec = dpm;
-	}
+	/* set s_ra/dec -- apparent */
+	op->s_ra = ra;
+	op->s_dec = dec;
 
 	/* compute elongation from ecliptic long/lat and sun geocentric long */
 	elongation (lam, bet, lsn, &el);
@@ -292,6 +293,7 @@ obj_fixed (Now *np, Obj *op)
 	ha = hrrad(lst) - ra;
 	hadec_aa (lat, ha, dec, &alt, &az);
 	refract (pressure, temp, alt, &alt);
+	op->s_ha = ha;
 	op->s_alt = alt;
 	op->s_az = az;
 
@@ -690,6 +692,12 @@ Obj *op)	/* object to set s_ra/dec as per equinox */
 	tra = ra;	/* keep mean coordinates */
 	tdec = dec;
 
+	/* precess and save astrometric coordinates */
+	if (mjed != epoch)
+	    precess (mjed, epoch, &tra, &tdec);
+	op->s_astrora = tra;
+	op->s_astrodec = tdec;
+
 	/* get sun position */
 	sunpos(mjed, &lsn, &rsn, NULL);
 
@@ -697,14 +705,14 @@ Obj *op)	/* object to set s_ra/dec as per equinox */
 	 * (avoid calling deflect() for the sun itself).
 	 */
 	if (!is_planet(op,SUN) && !is_planet(op,MOON))
-	    deflect (mjed, op->s_hlong, op->s_hlat, lsn, rsn, *rho, &ra, &dec);
+	    deflect (mjed, op->s_hlong, op->s_hlat, rsn, lsn, *rho, &ra, &dec);
 
 	/* correct ra/dec to form geocentric apparent */
 	nut_eq (mjed, &ra, &dec);
 	if (!is_planet(op,MOON))
 	    ab_eq (mjed, lsn, &ra, &dec);
-	op->s_gaera = (float)ra;
-	op->s_gaedec = (float)dec;
+	op->s_gaera = ra;
+	op->s_gaedec = dec;
 
 	/* find parallax correction for equatoreal coords */
 	now_lst (np, &lst);
@@ -715,6 +723,7 @@ Obj *op)	/* object to set s_ra/dec as per equinox */
 	/* transform into alt/az and apply refraction */
 	hadec_aa (lat, ha_out, dec_out, &alt, &az);
 	refract (pressure, temp, alt, &alt);
+	op->s_ha = ha_out;
 	op->s_alt = alt;
 	op->s_az = az;
 
@@ -731,20 +740,13 @@ Obj *op)	/* object to set s_ra/dec as per equinox */
 	    dra = ha_in - ha_out;	/* ra sign is opposite of ha */
 	    ddec = dec_out - dec;
 	    *rho = rho_topo * ERAD/MAU; /* return topocentric distance in AU */
-	}
 
-	/* fill in ra/dec fields */
-	if (epoch == EOD) {		/* apparent geo/topocentric */
 	    ra = ra + dra;
 	    dec = dec + ddec;
-	} else {			/* astrometric geo/topocent */
-	    ra = tra + dra;
-	    dec = tdec + ddec;
-	    precess (mjed, epoch, &ra, &dec);
 	}
 	range(&ra, 2*PI);
-	op->s_ra = (float)ra;
-	op->s_dec = (float)dec;
+	op->s_ra = ra;
+	op->s_dec = dec;
 }
 
 /* given geocentric ecliptic longitude and latitude, lam and bet, of some object
@@ -856,6 +858,3 @@ h_albsize (double H)
 {
 	return (3600*raddeg(.707*1500*pow(2.51,(18-H)/2)/MAU));
 }
-
-/* For RCS Only -- Do Not Edit */
-static char *rcsid[2] = {(char *)rcsid, "@(#) $RCSfile: circum.c,v $ $Date: 2015/04/09 00:12:30 $ $Revision: 1.19 $ $Name:  $"};

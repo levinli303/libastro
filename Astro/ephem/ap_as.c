@@ -18,9 +18,9 @@ ap_as (Now *np, double Mjd, double *rap, double *decp)
 	/* as -> ap */
 	zero_mem ((void *)&o, sizeof(o));
 	o.o_type = FIXED;
-	o.f_RA = (float)*rap;
-	o.f_dec = (float)*decp;
-	o.f_epoch = (float)mjd;
+	o.f_RA = *rap;
+	o.f_dec = *decp;
+	o.f_epoch = mjd;
 	memcpy ((void *)&n, (void *)np, sizeof(Now));
 	n.n_epoch = EOD;
 	obj_cir (&n, &o);
@@ -29,9 +29,9 @@ ap_as (Now *np, double Mjd, double *rap, double *decp)
 
 	/* then back to start for second order correction */
 	o.o_type = FIXED;
-	o.f_RA = (float)*rap;
-	o.f_dec = (float)*decp;
-	o.f_epoch = (float)mjd;
+	o.f_RA = *rap;
+	o.f_dec = *decp;
+	o.f_epoch = mjd;
 	memcpy ((void *)&n, (void *)np, sizeof(Now));
 	n.n_epoch = EOD;
 	obj_cir (&n, &o);
@@ -54,9 +54,9 @@ as_ap (Now *np, double Mjd, double *rap, double *decp)
 
 	zero_mem ((void *)&o, sizeof(o));
 	o.o_type = FIXED;
-	o.f_RA = (float)*rap;
-	o.f_dec = (float)*decp;
-	o.f_epoch = (float)Mjd;
+	o.f_RA = *rap;
+	o.f_dec = *decp;
+	o.f_epoch = Mjd;
 	memcpy ((void *)&n, (void *)np, sizeof(Now));
 	n.n_epoch = EOD;
 	obj_cir (&n, &o);
@@ -64,5 +64,3 @@ as_ap (Now *np, double Mjd, double *rap, double *decp)
 	*decp = o.s_dec;
 }
 
-/* For RCS Only -- Do Not Edit */
-static char *rcsid[2] = {(char *)rcsid, "@(#) $RCSfile: ap_as.c,v $ $Date: 2006/08/28 00:20:58 $ $Revision: 1.8 $ $Name:  $"};

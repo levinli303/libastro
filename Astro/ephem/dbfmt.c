@@ -186,6 +186,7 @@ db_write_line (Obj *op, char lp[])
  * name ends at first '\0', '\r' or '\n'.
  * set startok/endok.
  * if ok return 0 else return -1
+ * (PyEphem enchancement:) else returns -2 for a checksum error
  */
 int
 db_tle (char *name, char *l1, char *l2, Obj *op)
@@ -207,9 +208,9 @@ db_tle (char *name, char *l1, char *l2, Obj *op)
 	if (strncmp (l1+2, l2+2, 5))
 	    return (-1);
 	if (tle_sum (l1) < 0)
-	    return (-1);
+	    return (-2);
 	if (tle_sum (l2) < 0)
-	    return (-1);
+	    return (-2);
 
 	/* assume it's ok from here out */
 
@@ -387,7 +388,7 @@ crack_f (Obj *op, char *flds[MAXFLDS], int nf, char whynot[])
 {
 	char *sflds[MAXFLDS];
 	double tmp;
-	int nsf;
+	int nsf, status;
 
 	if (nf < 5 || nf > 7) {
 	    if (whynot)
@@ -427,14 +428,24 @@ crack_f (Obj *op, char *flds[MAXFLDS], int nf, char whynot[])
 	}
 
 	nsf = get_fields(flds[2], SUBFLD, sflds);
-	f_scansexa (sflds[0], &tmp);
-	op->f_RA = (float) hrrad(tmp);
+	status = f_scansexa (sflds[0], &tmp);
+	if (status < 0) {
+		if (whynot)
+		sprintf (whynot, "%s: Invalid angle string '%s'", enm(flds), sflds[0]);
+		return (-1);
+	}
+	op->f_RA = hrrad(tmp);
 	if (nsf > 1)
 	    op->f_pmRA = (float) 1.327e-11*atod(sflds[1]);/*mas/yr->rad/dy*/
 
 	nsf = get_fields(flds[3], SUBFLD, sflds);
-	f_scansexa (sflds[0], &tmp);
-	op->f_dec = (float) degrad(tmp);
+	status = f_scansexa (sflds[0], &tmp);
+	if (status < 0) {
+		if (whynot)
+		sprintf (whynot, "%s: Invalid angle string '%s'", enm(flds), sflds[0]);
+		return (-1);
+	}
+	op->f_dec = degrad(tmp);
 	if (nsf > 1)
 	    op->f_pmdec = (float)1.327e-11*atod(sflds[1]);/*mas/yr->rad/dy*/
 	if (fabs(op->f_dec) < PI/2)
@@ -445,7 +456,7 @@ crack_f (Obj *op, char *flds[MAXFLDS], int nf, char whynot[])
 	if (nf > 5 && flds[5][0]) {
 	    tmp = op->f_epoch;
 	    crack_year (flds[5], &tmp);
-	    op->f_epoch = (float) tmp;
+	    op->f_epoch = tmp;
 	} else
 	    op->f_epoch = J2000;	/* default */
 
@@ -633,7 +644,7 @@ crack_B (Obj *op, char *flds[MAXFLDS], int nf, char whynot[])
 {
 	char *sflds[MAXFLDS];
 	double tmp;
-	int nsf;
+	int nsf, status;
 
 	if (nf != 7) {
 	    if (whynot)
@@ -675,14 +686,24 @@ crack_B (Obj *op, char *flds[MAXFLDS], int nf, char whynot[])
 	}
 
 	nsf = get_fields(flds[2], SUBFLD, sflds);
-	f_scansexa (sflds[0], &tmp);
-	op->f_RA = (float) hrrad(tmp);
+	status = f_scansexa (sflds[0], &tmp);
+	if (status < 0) {
+		if (whynot)
+		sprintf (whynot, "%s: Invalid angle string '%s'", enm(flds), sflds[0]);
+		return (-1);
+	}
+	op->f_RA = hrrad(tmp);
 	if (nsf > 1)
 	    op->f_pmRA = (float) 1.327e-11*atod(sflds[1]);/*mas/yr->rad/dy*/
 
 	nsf = get_fields(flds[3], SUBFLD, sflds);
-	f_scansexa (sflds[0], &tmp);
-	op->f_dec = (float) degrad(tmp);
+	status = f_scansexa (sflds[0], &tmp);
+	if (status < 0) {
+		if (whynot)
+		sprintf (whynot, "%s: Invalid angle string '%s'", enm(flds), sflds[0]);
+		return (-1);
+	}
+	op->f_dec = degrad(tmp);
 	if (nsf > 1)
 	    op->f_pmdec = (float)1.327e-11*atod(sflds[1]);/*mas/yr->rad/dy*/
 	if (fabs(op->f_dec) < PI/2)
@@ -697,7 +718,7 @@ crack_B (Obj *op, char *flds[MAXFLDS], int nf, char whynot[])
 	if (flds[5][0]) {
 	    tmp = op->f_epoch;
 	    crack_year (flds[5], &tmp);
-	    op->f_epoch = (float) tmp;
+	    op->f_epoch = tmp;
 	} else
 	    op->f_epoch = J2000;	/* default */
 
@@ -1025,5 +1046,3 @@ write_P (Obj *op, char lp[])
 	lp += sprintf (lp, "%s,P", op->o_name);
 }
 
-/* For RCS Only -- Do Not Edit */
-static char *rcsid[2] = {(char *)rcsid, "@(#) $RCSfile: dbfmt.c,v $ $Date: 2009/10/09 21:28:11 $ $Revision: 1.45 $ $Name:  $"};

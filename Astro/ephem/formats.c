@@ -1,11 +1,13 @@
+#include "astro.h"
+#include "preferences.h"
+
 #include <stdio.h>
 #include <math.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "astro.h"
-#include "preferences.h"
+double ascii_strtod(const char *s00, char **se);  /* for PyEphem */
 
 /* sprint the variable a in sexagesimal format into out[].
  * w is the number of spaces for the whole part.
@@ -113,10 +115,10 @@ fs_date (char out[], int format, double jd)
 }
 
 
-/* convert sexagesimal string str AxBxC to double.
- *   x can be anything non-numeric. Any missing A, B or C will be assumed 0.
+/* convert sexagesimal string str A:B:C to double.
+ *   Any missing A, B or C will be assumed 0.
  *   optional - and + can be anywhere.
- * return 0 if ok, -1 if can't find a thing.
+ * return 0 if ok, -1 if can't find a thing or A, B or C are invalid numbers.
  */
 int
 f_scansexa (
@@ -125,8 +127,8 @@ double *dp)		/* cracked value, if return 0 */
 {
 	double a, b, c;
 	char str[256];
-	char *neg;
-	int isneg, r;
+	char *neg, *s, *end;
+	int isneg, status;
 
 	/* copy str0 so we can play with it */
 	strncpy (str, str0, sizeof(str)-1);
@@ -140,17 +142,40 @@ double *dp)		/* cracked value, if return 0 */
 	    isneg = 1;
 	}
 
-	/* crack up to three components */
-	a = b = c = 0.0;
-	r = sscanf (str, "%lf%*[^0-9]%lf%*[^0-9]%lf", &a, &b, &c);
-	if (r < 1)
-	    return (-1);
+        /* These three calls replace an old, locale-sensitive sscanf.
+           Note that, per the semantics of the strtod call, if we run
+           out of valid numbers to parse, then the last few values will
+           just get zero. */
+        status = 0;
+        s = str;
+        a = ascii_strtod(s, &end);
+        if (end == s) { /* since a will be -1 */
+             a = 0.0;
+             /* don't fail if A is an empty string */
+             if ((*end != ':') && (*end != '\0')) status = -1;
+        }
+        s = end;
+        if (*s == ':') s++;
+        b = ascii_strtod(s, &end);
+        if (end == s) { /* since b will be -1 */
+             b = 0.0;
+             /* don't fail if B is an empty string */
+             if ((*end != ':') && (*end != '\0')) status = -1;
+        }
+        s = end;
+        if (*s == ':') s++;
+        c = ascii_strtod(s, &end);
+        if (end == s) { /* since c will be -1 */
+             c = 0.0;
+             /* don't fail if C is an empty string */
+             if ((*end != ':') && (*end != '\0')) status = -1;
+        }
 
 	/* back to one value, restoring neg */
-	*dp = (c/60.0 + b)/60.0 + a;
+	*dp = a + b/60.0 + c/3600.0;
 	if (isneg)
 	    *dp *= -1;
-	return (0);
+	return status;
 }
 
 /* crack a floating date string, bp, of the form X/Y/Z determined by the
@@ -158,6 +183,7 @@ double *dp)		/* cracked value, if return 0 */
  *   floating point number,
  * the slashes may also be spaces or colons.
  * a lone component with a decimal point is considered a year.
+ * Brandon Rhodes: 2011-11-24 supplemented this to allow dash separators.
  */
 void
 f_sscandate (
@@ -168,10 +194,37 @@ double *d,
 int *y)
 {
         double X,Y,Z; /* the three components */
+        char *s, *end;
 	int n;
 
 	X = Y = Z = 0.0;
-	n = sscanf (bp, "%lf%*[/: ]%lf%*[/: ]%lf", &X, &Y, &Z);
+
+        /* This replaces an old, locale-sensitive sscanf(). */
+        X = ascii_strtod(bp, &end);
+        if (bp == end) {
+             n = 0;
+             X = 0.0; /* X will be -1 */
+        } else {
+             s = end;
+             if (*s == '-' || *s == '/' || *s == ':') s++;
+             Y = ascii_strtod(s, &end);
+             if (s == end) {
+                  n = 1;
+                  Y = 0.0; /* Y will be -1 */
+             } else {
+                  s = end;
+                  if (*s == '-' || *s == '/' || *s == ':') s++;
+                  Z = ascii_strtod(s, &end);
+                  if (s == end) {
+                       n = 2;
+                       Z = 0.0; /* Z will be -1 */
+                  } else {
+                       n = 3;
+                  }
+             }
+        }
+        
+
 	if (n == 1 && (strchr(bp, '.')
 			|| (pref == PREF_MDY && (X < 1 || X > 12))
 			|| (pref == PREF_DMY && (X < 1 || X > 31)))) {
@@ -208,5 +261,3 @@ int *y)
 	}
 }
 
-/* For RCS Only -- Do Not Edit */
-static char *rcsid[2] = {(char *)rcsid, "@(#) $RCSfile: formats.c,v $ $Date: 2006/04/10 09:00:06 $ $Revision: 1.17 $ $Name:  $"};
