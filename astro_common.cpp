@@ -153,16 +153,16 @@ int FindAltXSun(Now *now, double step, double limit, int forward, int go_down, d
     return FindAltX(now, &origObj, step, limit, forward, go_down, &az, jd, &transit_az, &transit_al, &transit_tm, x);
 }
 
-int GetModifiedRiset(Now *now, int index, RiseSet *riset, double *el, double *az)
+int GetModifiedRiset(Now *now, int index, RiseSet *riset, double *el, double *az, bool up)
 {
     Obj *objs;
     getBuiltInObjs(&objs);
 
     Obj origObj = objs[index];
-    return GetModifiedRisetS(now, &origObj, 1.0 / 1440, 1.0, riset, el, az);
+    return GetModifiedRisetS(now, &origObj, 1.0 / 1440, 1.0, riset, el, az, up);
 }
 
-int GetModifiedRisetS(Now *now, Obj *obj, double step, double limit, RiseSet *riset, double *el, double *az)
+int GetModifiedRisetS(Now *now, Obj *obj, double step, double limit, RiseSet *riset, double *el, double *az, bool up)
 {
     Now backup;
     memcpy(&backup, now, sizeof(Now));
@@ -182,22 +182,22 @@ int GetModifiedRisetS(Now *now, Obj *obj, double step, double limit, RiseSet *ri
     riset->rs_tranalt = 0;
     riset->rs_trantm = 0;
 
-    if (isUp && newObj.o_type != EARTHSAT)
+    if (((up && isUp) || (!up && !isUp)) && newObj.o_type != EARTHSAT)
     {
-        if (FindAlt0(&backup, &newObj, step, limit, false, false, &riset->rs_riseaz, &riset->rs_risetm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0 &&
-            FindAlt0(&backup, &newObj, step, limit, true, true, &riset->rs_setaz, &riset->rs_settm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0)
+        if (FindAlt0(&backup, &newObj, step, limit, false, !up, up ? &riset->rs_riseaz : &riset->rs_setaz, up ? &riset->rs_risetm : &riset->rs_settm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0 &&
+            FindAlt0(&backup, &newObj, step, limit, true, up, up ? &riset->rs_setaz : &riset->rs_riseaz, up ? &riset->rs_settm : &riset->rs_risetm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0)
         {
             return 0;
         }
     } else {
-        if (FindAlt0(&backup, &newObj, step, limit, true, false, &riset->rs_riseaz, &riset->rs_risetm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0)
+        if (FindAlt0(&backup, &newObj, step, limit, true, !up, up ? &riset->rs_riseaz : &riset->rs_setaz, up ? &riset->rs_risetm : &riset->rs_settm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0)
         {
             riset->rs_tranaz = 0;
             riset->rs_tranalt = 0;
             riset->rs_trantm = 0;
             // set time is always behind rise time
-            backup.n_mjd = riset->rs_risetm;
-            if (FindAlt0(&backup, &newObj, step, limit, true, true, &riset->rs_setaz, &riset->rs_settm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0)
+            backup.n_mjd = up ? riset->rs_risetm : riset->rs_settm;
+            if (FindAlt0(&backup, &newObj, step, limit, true, up, up ? &riset->rs_setaz : &riset->rs_riseaz, up ? &riset->rs_settm : &riset->rs_risetm, &riset->rs_tranaz, &riset->rs_tranalt, &riset->rs_trantm) == 0)
             {
                 return 0;
             }
@@ -378,7 +378,7 @@ int GetNextSatellitePass(const char* line0, const char* line1, const char* line2
     /* Construct the observer */
     Now now;
     ConfigureObserver(longitude, latitude, altitude, seconds_since_epoch, &now);
-    int result = GetModifiedRisetS(&now, &satillite, 1.0 / 1440 / 6, 10, riset, &elevation, &azimuth);
+    int result = GetModifiedRisetS(&now, &satillite, 1.0 / 1440 / 6, 10, riset, &elevation, &azimuth, true);
     if (result == 0 && visibleRiset) {
         double step = 1.0 / 1440 / 6;
         double time = riset->rs_risetm;

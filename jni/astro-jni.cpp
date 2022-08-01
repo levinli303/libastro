@@ -21,7 +21,7 @@ namespace {
 
 jobject getRisetAtIndex(JNIEnv *env,
                            jdouble longitude, jdouble latitude, jdouble altitude,
-                           jobject time, int index) {
+                           jobject time, jint index, jboolean up) {
 
     jclass posCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroPosition");
     jclass risetCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/AstroRiset");
@@ -38,7 +38,7 @@ jobject getRisetAtIndex(JNIEnv *env,
     jobject set = nullptr;
     jobject peak = nullptr;
     double el, az;
-    int result = GetModifiedRiset(&now, (int)index, &riset, &el, &az);
+    int result = GetModifiedRiset(&now, (int)index, &riset, &el, &az, up == JNI_TRUE);
     jobject current = env->NewObject(posCls, posInitMethod, (jdouble)el, (jdouble)az, origTime);
     if (result == 0) {
         rise = env->NewObject(posCls, posInitMethod, (jdouble)0, (jdouble)riset.rs_riseaz, (jlong)(EphemToEpochTime(riset.rs_risetm) * 1000));
@@ -74,8 +74,8 @@ jobject getRiset(JNIEnv *env,
     jclass sunMoonCls = env->FindClass("cc/meowssage/astroweather/SunMoon/Model/SunMoonRiset");
     jmethodID sunMoonInitMethod = env->GetMethodID(sunMoonCls, "<init>", "(Lcc/meowssage/astroweather/SunMoon/Model/AstroRiset;Lcc/meowssage/astroweather/SunMoon/Model/AstroRiset;)V");
 
-    jobject sunriset = getRisetAtIndex(env, longitude, latitude, altitude, time, SUN);
-    jobject moonriset = getRisetAtIndex(env, longitude, latitude, altitude, time, MOON);
+    jobject sunriset = getRisetAtIndex(env, longitude, latitude, altitude, time, SUN, JNI_TRUE);
+    jobject moonriset = getRisetAtIndex(env, longitude, latitude, altitude, time, MOON, JNI_TRUE);
 
     return env->NewObject(sunMoonCls, sunMoonInitMethod, sunriset, moonriset);
 }
@@ -89,7 +89,7 @@ jobject getAllRiset(JNIEnv *env,
     jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
 
     for (int i = MERCURY; i <= MOON; ++i)
-        env->CallBooleanMethod(result, arrayListAdd, getRisetAtIndex(env, longitude, latitude, altitude, time, i));
+        env->CallBooleanMethod(result, arrayListAdd, getRisetAtIndex(env, longitude, latitude, altitude, time, i, JNI_TRUE));
     return result;
 }
 
@@ -321,7 +321,8 @@ jobject getSunTimes(JNIEnv *env,
 jobject getSolarSystemNextRiset(JNIEnv *env, jint index, jobject time,
                                 jdouble longitude,
                                 jdouble latitude,
-                                jdouble altitude)
+                                jdouble altitude,
+                                jboolean up)
 {
-    return getRisetAtIndex(env, longitude, latitude, altitude, time, index);
+    return getRisetAtIndex(env, longitude, latitude, altitude, time, index, up);
 }

@@ -169,7 +169,7 @@ double ModifiedJulianDate(NSDate *time)
 
 @implementation ASOAstro
 
-+ (ASOAstroRiset *)objectRisetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time objectIndex:(NSInteger)index {
++ (ASOAstroRiset *)objectRisetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time objectIndex:(NSInteger)index up:(BOOL)up {
     /* Construct the observer */
     Now now;
     ConfigureObserver(longitude, latitude, altitude, [time timeIntervalSince1970], &now);
@@ -177,7 +177,7 @@ double ModifiedJulianDate(NSDate *time)
     RiseSet riset;
     NSString *name = [NSString stringWithUTF8String:GetStarName((int)index)];
     double el, az;
-    int result = GetModifiedRiset(&now, (int)index, &riset, &el, &az);
+    int result = GetModifiedRiset(&now, (int)index, &riset, &el, &az, (bool)up);
     ASOAstroPosition *current = [[ASOAstroPosition alloc] initWithAzimuth:az elevation:el time:time];
     ASOAstroPosition *rise = nil;
     ASOAstroPosition *set = nil;
@@ -193,8 +193,8 @@ double ModifiedJulianDate(NSDate *time)
 }
 
 + (void)risetInLocation:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time completion:(void (^)(ASOAstroRiset *sun, ASOAstroRiset *moon))handler {
-    ASOAstroRiset *sunriset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:SUN];
-    ASOAstroRiset *moonriset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:MOON];
+    ASOAstroRiset *sunriset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:SUN up:YES];
+    ASOAstroRiset *moonriset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:MOON up:YES];
 
     if (handler)
         handler(sunriset, moonriset);
@@ -214,10 +214,10 @@ double ModifiedJulianDate(NSDate *time)
     return [[ASOLunarPhase alloc] initWithPhase:phase isFirstHalf:[time timeIntervalSinceDate:prevNextFull] <= 0 nextNewMoon:nextNew nextFullMoon:nextFull];
 }
 
-+ (NSArray *)risetForSolarSystemObjectsInLongitude:(double)longitude latitude:(double) latitude altitude:(double)altitude forTime:(NSDate *)time {
++ (NSArray *)risetForSolarSystemObjectsInLongitude:(double)longitude latitude:(double) latitude altitude:(double)altitude forTime:(NSDate *)time up:(BOOL)up {
     NSMutableArray *array = [NSMutableArray array];
     for (int i = MERCURY; i <= MOON; i++) {
-        ASOAstroRiset *riset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:i];
+        ASOAstroRiset *riset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:i up:up];
         [array addObject:riset];
     }
     return array;

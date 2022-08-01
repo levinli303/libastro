@@ -38,8 +38,8 @@ struct TimePeriod {
 double radian(const double degree);
 double EpochToEphemTime(double seconds_since_epoch);
 double EphemToEpochTime(double ephem);
-int GetModifiedRisetS(Now *now, Obj *obj, double step, double limit, RiseSet *riset, double *el, double *az);
-int GetModifiedRiset(Now *now, int index, RiseSet *riset, double *el, double *az);
+int GetModifiedRisetS(Now *now, Obj *obj, double step, double limit, RiseSet *riset, double *el, double *az, bool up);
+int GetModifiedRiset(Now *now, int index, RiseSet *riset, double *el, double *az, bool up);
 const char *GetStarName(int index);
 void ConfigureObserver(double longitude, double latitude, double altitude, double seconds_since_epoch, Now *obj);
 double FindMoonPhase(double seconds_since_epoch, double motion, double target);

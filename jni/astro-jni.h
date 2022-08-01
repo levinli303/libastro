@@ -33,5 +33,6 @@ jobject getSunTimes(JNIEnv *env,
 jobject getSolarSystemNextRiset(JNIEnv *env, jint index, jobject time,
                                 jdouble longitude,
                                 jdouble latitude,
-                                jdouble altitude);
+                                jdouble altitude,
+                                jboolean up);
 #endif

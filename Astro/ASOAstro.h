@@ -102,9 +102,9 @@ NS_SWIFT_NAME(Astro)
 @property (class, nonatomic, readonly) ASOLunarPhase *currentMoonPhase;
 
 + (ASOLunarPhase *)moonPhaseAtTime:(NSDate *)time;
-+ (ASOAstroRiset *)objectRisetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time objectIndex:(NSInteger)index;
++ (ASOAstroRiset *)objectRisetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time objectIndex:(NSInteger)index up:(BOOL)up;
 + (void)risetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time completion:(nullable void (^)(ASOAstroRiset *sun, ASOAstroRiset * moon))handler;
-+ (NSArray<ASOAstroRiset *>*)risetForSolarSystemObjectsInLongitude:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time;
++ (NSArray<ASOAstroRiset *>*)risetForSolarSystemObjectsInLongitude:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time up:(BOOL)up;
 + (ASOStarRiset *)risetForStarWithRA:(double)ra dec:(double)dec longitude:(double)longitude latitude:(double)latitude time:(NSDate *)time;
 + (double)getLSTInLocation:(double)longitude time:(NSDate *)time;
 + (nullable NSDate *)getSunAlt:(double)longitude latitude:(double)latitude altitude:(double)altitude time:(NSDate *)time goDown:(BOOL)goDown x:(double)x;
