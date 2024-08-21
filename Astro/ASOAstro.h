@@ -41,11 +41,22 @@ NS_SWIFT_NAME(SatelliteStatus)
 @property (readonly) double elevation;
 @end
 
+typedef NS_ENUM(NSUInteger, ASOLunarPhaseType) {
+    ASOLunarPhaseTypeNewMoon = 0,
+    ASOLunarPhaseTypeFirstQuarter = 1,
+    ASOLunarPhaseTypeFullMoon = 2,
+    ASOLunarPhaseTypeLastQuarter = 3,
+    ASOLunarPhaseTypeWaningCrescent = 4,
+    ASOLunarPhaseTypeWaningGibbous = 5,
+    ASOLunarPhaseTypeWaxingCrescent = 6,
+    ASOLunarPhaseTypeWaxingGibbous = 7,
+} NS_SWIFT_NAME(LunarPhaseType);
+
 NS_SWIFT_NAME(LunarPhase)
 @interface ASOLunarPhase : NSObject
 @property (nonatomic, readonly) NSDate *nextNew;
 @property (nonatomic, readonly) NSDate *nextFull;
-@property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) ASOLunarPhaseType phaseType;
 @property (nonatomic, readonly) double phase;
 @property (nonatomic, readonly) double normalizedPhase;
 @property (nonatomic, readonly) BOOL isFirstHalf;

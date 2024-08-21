@@ -83,27 +83,27 @@ double ModifiedJulianDate(NSDate *time)
         _isFirstHalf = isFirstHalf;
 
         if (phase <= 0.01) {
-            _name = @"New Moon";
+            _phaseType = ASOLunarPhaseTypeNewMoon;
         } else if (phase < 0.49) {
             if (isFirstHalf) {
-                _name = @"Waxing Crescent";
+                _phaseType = ASOLunarPhaseTypeWaxingCrescent;
             } else {
-                _name = @"Waning Crescent";
+                _phaseType = ASOLunarPhaseTypeWaningCrescent;
             }
         } else if (phase <= 0.51) {
             if (isFirstHalf) {
-                _name = @"First Quarter";
+                _phaseType = ASOLunarPhaseTypeFirstQuarter;
             } else {
-                _name = @"Last Quarter";
+                _phaseType = ASOLunarPhaseTypeLastQuarter;
             }
         } else if (phase < 0.99) {
             if (isFirstHalf) {
-                _name = @"Waxing Gibbous";
+                _phaseType = ASOLunarPhaseTypeWaxingGibbous;
             } else {
-                _name = @"Waning Gibbous";
+                _phaseType = ASOLunarPhaseTypeWaningGibbous;
             }
         } else {
-            _name = @"Full Moon";
+            _phaseType = ASOLunarPhaseTypeFullMoon;
         }
     }
     return self;
