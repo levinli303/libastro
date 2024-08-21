@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "Astronomy"
-  spec.version      = "0.0.19"
+  spec.version      = "0.0.20"
   spec.summary      = "Astronomy calculation."
   spec.homepage     = "https://github.com/levinli303/libastro.git"
   spec.license      = "MIT"
