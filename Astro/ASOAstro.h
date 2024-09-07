@@ -10,6 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(AstroPosition)
 @interface ASOAstroPosition : NSObject
 @property (nonatomic, readonly) double elevation;
@@ -17,6 +18,7 @@ NS_SWIFT_NAME(AstroPosition)
 @property (nonatomic, readonly) NSDate *time;
 @end
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(AstroRiset)
 @interface ASOAstroRiset : NSObject
 @property (nullable, nonatomic, readonly) ASOAstroPosition *rise;
@@ -26,6 +28,7 @@ NS_SWIFT_NAME(AstroRiset)
 @property (nonatomic, readonly) NSString *name;
 @end
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(SatelliteTLE)
 @interface ASOSatelliteTLE : NSObject
 @property (nonatomic, readonly) NSString *line0;
@@ -34,6 +37,7 @@ NS_SWIFT_NAME(SatelliteTLE)
 - (instancetype)initWithLine0: (NSString *)line0 line1: (NSString *)line1 line2: (NSString *)line2;
 @end
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(SatelliteStatus)
 @interface ASOSatelliteStatus : NSObject
 @property (readonly) double subLongitude;
@@ -41,6 +45,7 @@ NS_SWIFT_NAME(SatelliteStatus)
 @property (readonly) double elevation;
 @end
 
+NS_SWIFT_SENDABLE
 typedef NS_ENUM(NSUInteger, ASOLunarPhaseType) {
     ASOLunarPhaseTypeNewMoon = 0,
     ASOLunarPhaseTypeFirstQuarter = 1,
@@ -52,6 +57,7 @@ typedef NS_ENUM(NSUInteger, ASOLunarPhaseType) {
     ASOLunarPhaseTypeWaxingGibbous = 7,
 } NS_SWIFT_NAME(LunarPhaseType);
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(LunarPhase)
 @interface ASOLunarPhase : NSObject
 @property (nonatomic, readonly) NSDate *nextNew;
@@ -62,6 +68,7 @@ NS_SWIFT_NAME(LunarPhase)
 @property (nonatomic, readonly) BOOL isFirstHalf;
 @end
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(SatellitePass)
 @interface ASOSatellitePass : NSObject
 @property (nonatomic, readonly) ASOAstroPosition *rise;
@@ -72,6 +79,7 @@ NS_SWIFT_NAME(SatellitePass)
 @property (nonatomic, nullable, readonly) ASOAstroPosition *visibleSet;
 @end
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(StarRiset)
 @interface ASOStarRiset : NSObject
 @property (nullable, nonatomic, readonly) ASOAstroPosition *rise;
@@ -80,6 +88,7 @@ NS_SWIFT_NAME(StarRiset)
 @property (nonatomic, readonly) ASOAstroPosition *current;
 @end
 
+NS_SWIFT_SENDABLE
 typedef NS_ENUM(NSUInteger, ASOSunState) {
     ASOSunStateNight                 = 1,
     ASOSunStateAstronomicalTwilight  = 2,
@@ -100,6 +109,7 @@ typedef NS_ENUM(NSUInteger, ASOSunState) {
     ASOSunStateAstronomicalUnknown   = 17,
 } NS_SWIFT_NAME(SunState);
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(SunTime)
 @interface ASOSunTime : NSObject
 @property (readonly) ASOSunState state;
