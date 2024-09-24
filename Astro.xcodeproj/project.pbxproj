@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		970B9C5022CDD1B3006E78A6 /* Astronomy.h in Headers */ = {isa = PBXBuildFile; fileRef = 970B9C4E22CDD1B3006E78A6 /* Astronomy.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		970B9C5422CDD1C6006E78A6 /* astro_common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 97991F0022C25C1900AFA0A5 /* astro_common.cpp */; };
-		970B9C5522CDD1C6006E78A6 /* astro_common.h in Headers */ = {isa = PBXBuildFile; fileRef = 97991EFF22C25C1900AFA0A5 /* astro_common.h */; };
 		970B9C5622CDD1C9006E78A6 /* ASOAstro.h in Headers */ = {isa = PBXBuildFile; fileRef = 9794BCA220F9A98B00CEA3A5 /* ASOAstro.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		970B9C5722CDD1C9006E78A6 /* ASOAstro.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9794BCA320F9A98B00CEA3A5 /* ASOAstro.mm */; };
 		970B9C6222CDD1D0006E78A6 /* aa_hadec.c in Sources */ = {isa = PBXBuildFile; fileRef = 97055D332109DDB000B8CBC2 /* aa_hadec.c */; };
@@ -77,6 +75,8 @@
 		970B9CA022CDD1D0006E78A6 /* vsop87_data.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783166E20FE262B009C66E2 /* vsop87_data.c */; };
 		970B9CA122CDD1D0006E78A6 /* vsop87.c in Sources */ = {isa = PBXBuildFile; fileRef = 9783167C20FE262D009C66E2 /* vsop87.c */; };
 		970B9CA222CDD1D0006E78A6 /* vsop87.h in Headers */ = {isa = PBXBuildFile; fileRef = 9783168A20FE262F009C66E2 /* vsop87.h */; };
+		EA909A3E2CA276C200955632 /* astro_common.h in Headers */ = {isa = PBXBuildFile; fileRef = EA909A3C2CA276C200955632 /* astro_common.h */; };
+		EA909A3F2CA276C200955632 /* astro_common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA909A3D2CA276C200955632 /* astro_common.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -150,8 +150,8 @@
 		9783168E20FE262F009C66E2 /* sgp4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sgp4.c; sourceTree = "<group>"; };
 		9794BCA220F9A98B00CEA3A5 /* ASOAstro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ASOAstro.h; sourceTree = "<group>"; };
 		9794BCA320F9A98B00CEA3A5 /* ASOAstro.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ASOAstro.mm; sourceTree = "<group>"; };
-		97991EFF22C25C1900AFA0A5 /* astro_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = astro_common.h; sourceTree = "<group>"; };
-		97991F0022C25C1900AFA0A5 /* astro_common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = astro_common.cpp; sourceTree = "<group>"; wrapsLines = 0; };
+		EA909A3C2CA276C200955632 /* astro_common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = astro_common.h; sourceTree = "<group>"; };
+		EA909A3D2CA276C200955632 /* astro_common.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = astro_common.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -177,8 +177,6 @@
 		9794BC9620F9A98B00CEA3A5 = {
 			isa = PBXGroup;
 			children = (
-				97991F0022C25C1900AFA0A5 /* astro_common.cpp */,
-				97991EFF22C25C1900AFA0A5 /* astro_common.h */,
 				9794BCA120F9A98B00CEA3A5 /* Astro */,
 				970B9C4D22CDD1B3006E78A6 /* Astronomy */,
 				9794BCA020F9A98B00CEA3A5 /* Products */,
@@ -199,6 +197,8 @@
 				97BBBC4220FE25B3003C9191 /* ephem */,
 				9794BCA220F9A98B00CEA3A5 /* ASOAstro.h */,
 				9794BCA320F9A98B00CEA3A5 /* ASOAstro.mm */,
+				EA909A3C2CA276C200955632 /* astro_common.h */,
+				EA909A3D2CA276C200955632 /* astro_common.cpp */,
 			);
 			path = Astro;
 			sourceTree = "<group>";
@@ -287,12 +287,12 @@
 				970B9C9522CDD1D0006E78A6 /* satspec.h in Headers */,
 				970B9C6C22CDD1D0006E78A6 /* bdl.h in Headers */,
 				970B9C9F22CDD1D0006E78A6 /* vector.h in Headers */,
-				970B9C5522CDD1C6006E78A6 /* astro_common.h in Headers */,
 				970B9C6822CDD1D0006E78A6 /* astro.h in Headers */,
 				970B9C8D22CDD1D0006E78A6 /* preferences.h in Headers */,
 				970B9C7522CDD1D0006E78A6 /* deepconst.h in Headers */,
 				970B9C9622CDD1D0006E78A6 /* sattypes.h in Headers */,
 				970B9CA222CDD1D0006E78A6 /* vsop87.h in Headers */,
+				EA909A3E2CA276C200955632 /* astro_common.h in Headers */,
 				970B9C6F22CDD1D0006E78A6 /* chap95.h in Headers */,
 				970B9C9322CDD1D0006E78A6 /* satlib.h in Headers */,
 			);
@@ -372,6 +372,7 @@
 				970B9C8822CDD1D0006E78A6 /* parallax.c in Sources */,
 				970B9C9122CDD1D0006E78A6 /* riset_cir.c in Sources */,
 				970B9C7122CDD1D0006E78A6 /* comet.c in Sources */,
+				EA909A3F2CA276C200955632 /* astro_common.cpp in Sources */,
 				970B9C9922CDD1D0006E78A6 /* sphcart.c in Sources */,
 				970B9C7D22CDD1D0006E78A6 /* libration.c in Sources */,
 				970B9C8422CDD1D0006E78A6 /* moonnf.c in Sources */,
@@ -387,7 +388,6 @@
 				970B9C7822CDD1D0006E78A6 /* eq_ecl.c in Sources */,
 				970B9C7622CDD1D0006E78A6 /* deltat.c in Sources */,
 				970B9CA022CDD1D0006E78A6 /* vsop87_data.c in Sources */,
-				970B9C5422CDD1C6006E78A6 /* astro_common.cpp in Sources */,
 				970B9C7C22CDD1D0006E78A6 /* jupmoon.c in Sources */,
 				970B9C9022CDD1D0006E78A6 /* rings.c in Sources */,
 				970B9C6A22CDD1D0006E78A6 /* auxil.c in Sources */,
