@@ -14,6 +14,9 @@
 #include "astro.h"
 #include "preferences.h"
 
+/* Mean earth-moon distance in AU, a factor used in the Moon visual
+   magnitude formula from Lane & Irvin (see below). */
+#define mean_em_dist (60.2665 * ERAD / MAU)
 
 static int obj_planet (Now *np, Obj *op);
 static int obj_binary (Now *np, Obj *op);
@@ -266,7 +269,7 @@ obj_fixed (Now *np, Obj *op)
 
 	/* TODO: correction for annual parallax would go here */
 
-	/* correct EOD equatoreal for nutation/aberation to form apparent 
+	/* correct EOD equatoreal for nutation/aberation to form apparent
 	 * geocentric
 	 */
 	nut_eq(mjed, &ra, &dec);
@@ -424,7 +427,6 @@ obj_hyperbolic (Now *np, Obj *op)
 	double e;		/* fast eccentricity */
 	double ll=0, sll, cll;	/* helio angle between object and earth */
 	double mag;		/* magnitude */
-	double a;		/* mean distance */
 	double tp;		/* time from perihelion (days) */
 	double rpd=0;
 	double y;
@@ -435,7 +437,6 @@ obj_hyperbolic (Now *np, Obj *op)
 
 	lg = lsn + PI;
 	e = op->h_e;
-	a = op->h_qp/(e - 1.0);
 
 	/* correct for light time by computing position at time mjd, then
 	 *   again at mjd-dt, where
@@ -570,7 +571,8 @@ moon_cir (Now *np, Obj *op)
 	double el;		/* elongation, rads east */
 	double ms;		/* sun's mean anomaly */
 	double md;		/* moon's mean anomaly */
-	double i;
+	double pang;		/* moon's geocentric phase angle */
+	double i, p;
 
 	moon (mjed, &lam, &bet, &edistau, &ms, &md);	/* mean ecliptic & EOD*/
 	sunpos (mjed, &lsn, &rsn, NULL);		/* mean ecliptic & EOD*/
@@ -586,14 +588,30 @@ moon_cir (Now *np, Obj *op)
 	op->s_sdist = (float) sqrt (edistau*edistau + rsn*rsn
 						    - 2.0*edistau*rsn*cos(el));
 
-	/* TODO: improve mag; this is based on a flat moon model. */
-	i = -12.7 + 2.5*(log10(PI) - log10(PI/2*(1+1.e-6-cos(el)))) 
-					+ 5*log10(edistau/.0025) /* dist */;
-	set_smag (op, i);
-
 	/* find phase -- allow for projection effects */
 	i = 0.1468*sin(el)*(1 - 0.0549*sin(md))/(1 - 0.0167*sin(ms));
 	op->s_phase = (float)((1+cos(PI-el-degrad(i)))/2*100);
+
+	/* Moon's geocentric magnitude based on methodology described in
+	 * Lane, Adair P.; Irvine, William M. 1973. Monochromatic phase
+	 * curves and albedos for the lunar disk. Astronomical Journal,
+	 * Vol. 78, pp. 267-277.  Using V band data from their Table V.
+	 */
+	pang = raddeg(acos(op->s_phase / 50.0 - 1.0)); /* need 0-180 degrees */
+	if (pang <= 40.0) {
+	    p = pang - 20.0;
+	    i = -12.72 + 0.0267 * p + 0.534;
+	} else {
+	    p = pang - 80.0;
+	    i = -12.72 + p * (0.03188 + p * (1.9621e-4 + p * 1.7256e-6)) + 2.14;
+	}
+
+	/* correct for earth-moon distance. */
+	i += 5.0 * log10(edistau / mean_em_dist);
+	/* correct for moon-sun distance */
+	i += 5.0 * log10(op->s_sdist);
+
+	set_smag (op, i);
 
 	/* fill moon's ra/dec, alt/az in op and update for topo dist */
 	cir_pos (np, bet, lam, &edistau, op);
@@ -646,7 +664,7 @@ Obj *op)
 /* fill equatoreal and horizontal op-> fields; stern
  *
  *    input:          lam/bet/rho geocentric mean ecliptic and equinox of day
- * 
+ *
  * algorithm at EOD:
  *   ecl_eq	--> ra/dec	geocentric mean equatoreal EOD (via mean obliq)
  *   deflect	--> ra/dec	  relativistic deflection
@@ -771,8 +789,8 @@ elongation (double lam, double bet, double lsn, double *el)
 /* apply relativistic light bending correction to ra/dec; stern
  *
  * The algorithm is from:
- * Mean and apparent place computations in the new IAU 
- * system. III - Apparent, topocentric, and astrometric 
+ * Mean and apparent place computations in the new IAU
+ * system. III - Apparent, topocentric, and astrometric
  * places of planets and stars
  * KAPLAN, G. H.;  HUGHES, J. A.;  SEIDELMANN, P. K.;
  * SMITH, C. A.;  YALLOP, B. D.
@@ -844,7 +862,7 @@ double *ra, double *dec)/* geocentric equatoreal */
 	g1 /= g2;
 	for(i=0; i<=2; ++i)
 	    u[i] += g1*(uq*e[i] - eu*q[i]);
-	
+
 	/* back to spherical */
 	cartsph(u[0], u[1], u[2], ra, dec, &rho);	/* rho thrown away */
 }
