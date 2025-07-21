@@ -34,6 +34,7 @@ double ModifiedJulianDate(NSDate *time)
 @end
 
 @implementation ASOAstroRiset
+
 - (instancetype)initWithRise:(ASOAstroPosition *)rise peak:(ASOAstroPosition *)peak set:(ASOAstroPosition *)set current:(ASOAstroPosition *)current name:(NSString *)name {
     self = [super init];
     if (self) {
@@ -42,6 +43,19 @@ double ModifiedJulianDate(NSDate *time)
         _set = set;
         _current = current;
         _name = name;
+    }
+    return self;
+}
+
+@end
+
+@implementation ASOSunMoonRiset
+
+- (instancetype)initWithSun:(ASOAstroRiset *)sun moon:(ASOAstroRiset *)moon {
+    self = [super init];
+    if (self) {
+        _sun = sun;
+        _moon = moon;
     }
     return self;
 }
@@ -195,9 +209,7 @@ double ModifiedJulianDate(NSDate *time)
 + (void)risetInLocation:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time completion:(void (^)(ASOAstroRiset *sun, ASOAstroRiset *moon))handler {
     ASOAstroRiset *sunriset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:SUN up:YES];
     ASOAstroRiset *moonriset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:MOON up:YES];
-
-    if (handler)
-        handler(sunriset, moonriset);
+    return [[ASOSunMoonRiset alloc] initWithSun:sunriset moon:moonriset];
 }
 
 + (ASOLunarPhase *)currentMoonPhase {

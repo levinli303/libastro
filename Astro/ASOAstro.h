@@ -29,6 +29,13 @@ NS_SWIFT_NAME(AstroRiset)
 @end
 
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(SunMoonRiset)
+@interface ASOSunMoonRiset : NSObject
+@property (nonatomic, readonly) ASOAstroRiset *sun;
+@property (nonatomic, readonly) ASOAstroRiset *moon;
+@end
+
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(SatelliteTLE)
 @interface ASOSatelliteTLE : NSObject
 @property (nonatomic, readonly) NSString *line0;
@@ -124,7 +131,7 @@ NS_SWIFT_NAME(Astro)
 
 + (ASOLunarPhase *)moonPhaseAtTime:(NSDate *)time;
 + (ASOAstroRiset *)objectRisetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time objectIndex:(NSInteger)index up:(BOOL)up;
-+ (void)risetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time completion:(nullable void (^)(ASOAstroRiset *sun, ASOAstroRiset * moon))handler;
++ (ASOSunMoonRiset *)risetInLocation:(double)longitude latitude:(double)latitude altitude:(double)altitude forTime:(NSDate *)time;
 + (NSArray<ASOAstroRiset *>*)risetForSolarSystemObjectsInLongitude:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time up:(BOOL)up;
 + (ASOStarRiset *)risetForStarWithRA:(double)ra dec:(double)dec longitude:(double)longitude latitude:(double)latitude time:(NSDate *)time;
 + (double)getLSTInLocation:(double)longitude time:(NSDate *)time;
