@@ -206,7 +206,7 @@ double ModifiedJulianDate(NSDate *time)
     return [[ASOAstroRiset alloc] initWithRise:rise peak:peak set:set current:current name:name];
 }
 
-+ (void)risetInLocation:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time completion:(void (^)(ASOAstroRiset *sun, ASOAstroRiset *moon))handler {
++ (ASOSunMoonRiset *)risetInLocation:(double)longitude latitude:(double)latitude altitude: (double)altitude forTime:(NSDate *)time {
     ASOAstroRiset *sunriset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:SUN up:YES];
     ASOAstroRiset *moonriset = [self objectRisetInLocation:longitude latitude:latitude altitude:altitude forTime:time objectIndex:MOON up:YES];
     return [[ASOSunMoonRiset alloc] initWithSun:sunriset moon:moonriset];
